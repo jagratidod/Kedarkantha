@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>http://localhost:5173/</loc></url>
+  <url><loc>http://localhost:5173/itinerary</loc></url>
+  <url><loc>http://localhost:5173/departures</loc></url>
+  <url><loc>http://localhost:5173/gallery</loc></url>
+  <url><loc>http://localhost:5173/about</loc></url>
+  <url><loc>http://localhost:5173/inclusions</loc></url>
+  <url><loc>http://localhost:5173/pickup-drop</loc></url>
+  <url><loc>http://localhost:5173/difficulty</loc></url>
+  <url><loc>http://localhost:5173/things-to-carry</loc></url>
+  <url><loc>http://localhost:5173/best-time</loc></url>
+  <url><loc>http://localhost:5173/faqs</loc></url>
+  <url><loc>http://localhost:5173/reviews</loc></url>
+</urlset>

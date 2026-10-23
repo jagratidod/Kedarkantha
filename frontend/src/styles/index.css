@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+@theme {
+  --color-forest: #173D2A;
+  --color-cta: #66866A;
+  --color-ink-bg: #111713;
+  --color-offwhite: #F5F6F2;
+  --color-sage: #E8EFE5;
+  --color-ink: #17231B;
+  --color-muted: #657168;
+  --color-line: #E1E6DD;
+  --color-seat-low: #D92D20;
+  --color-seat-ok: #2F7D4F;
+  --color-seat-mid: #E8A317;
+
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --radius-card: 14px;
+  --shadow-card: 0 2px 14px rgb(23 61 42 / 0.08);
+  --shadow-pop: 0 10px 30px rgb(17 23 19 / 0.18);
+
+  --breakpoint-xs: 30rem;
+}
+
+@layer base {
+  /* Lenis drives smooth scrolling; native smooth-scroll would fight it. */
+  html.lenis, html.lenis body { height: auto; }
+  .lenis.lenis-smooth { scroll-behavior: auto !important; }
+  .lenis.lenis-stopped { overflow: hidden; }
+  body {
+    margin: 0;
+    background: var(--color-offwhite);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  img { max-width: 100%; display: block; }
+  :focus-visible { outline: 2px solid var(--color-cta); outline-offset: 2px; }
+  @media (prefers-reduced-motion: reduce) {
+    *,*::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+}
+
+@layer components {
+  /* ---- Journey map section animations (triggered by data-in="true" on the section) ---- */
+  .font-display { font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif; }
+
+  .jm-line { display: block; overflow: hidden; }
+  .jm-line > span { display: block; transform: translateY(110%); transition: transform 1s cubic-bezier(.2,.7,.2,1) var(--d, 0ms); }
+  [data-in="true"] .jm-line > span { transform: none; }
+
+  .jm-fade { opacity: 0; transition: opacity 1s ease var(--d, 0ms), transform 1s cubic-bezier(.2,.7,.2,1) var(--d, 0ms); transform: translateY(10px); }
+  [data-in="true"] .jm-fade { opacity: 1; transform: none; }
+
+  .jm-rule { transform: scaleX(0); transition: transform 1s ease var(--d, 0ms); }
+  [data-in="true"] .jm-rule { transform: scaleX(1); }
+
+  .jm-rise { opacity: 0; transform: translateY(34px) scale(.96); transition: opacity .9s ease var(--d, 0ms), transform 1s cubic-bezier(.2,.7,.2,1) var(--d, 0ms); }
+  [data-in="true"] .jm-rise { opacity: 1; transform: none; }
+
+  .jm-badge { transform: scale(0); transition: transform .55s cubic-bezier(.3,1.7,.5,1) var(--d, 0ms); }
+  [data-in="true"] .jm-badge { transform: scale(1); }
+
+  .jm-path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.5s cubic-bezier(.5,0,.2,1) var(--d, 0ms); }
+  [data-in="true"] .jm-path { stroke-dashoffset: 0; }
+
+  .jm-node { opacity: 0; transition: opacity .4s ease var(--d, 0ms); }
+  [data-in="true"] .jm-node { opacity: 1; }
+
+  .jm-vline { transform: scaleY(0); transform-origin: top; transition: transform 2s ease-in-out .3s; }
+  [data-in="true"] .jm-vline { transform: scaleY(1); }
+
+  .jm-map { opacity: 0; transform: scale(1.12); transition: opacity 1.6s ease, transform 2.6s cubic-bezier(.2,.6,.2,1); }
+  [data-in="true"] .jm-map { opacity: 1; transform: scale(1.04); }
+
+  @keyframes jm-bob { from { transform: translateY(0); } to { transform: translateY(-6px); } }
+  [data-in="true"] .jm-float { animation: jm-bob 5s ease-in-out 2.4s infinite alternate; }
+
+  @keyframes autoProgress { from { width: 0%; } to { width: 100%; } }
+
+  /* Hide scrollbar across all browsers */
+  .no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+  .container-page { width: 100%; max-width: 75rem; margin-inline: auto; padding-inline: 1rem; }
+  @media (min-width: 40rem) { .container-page { padding-inline: 1.5rem; } }
+  @media (min-width: 64rem) { .container-page { padding-inline: 2rem; } }
+  .section-title { font-size: 1.25rem; font-weight: 700; color: var(--color-ink); }
+  @media (min-width: 48rem) { .section-title { font-size: 1.6rem; } }
+}
