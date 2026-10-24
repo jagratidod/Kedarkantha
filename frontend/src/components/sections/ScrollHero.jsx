@@ -14,6 +14,7 @@ export default function ScrollHero({ children, scrollLength = '260vh' }) {
   const wrapRef = useRef(null)
   const canvasRef = useRef(null)
   const overlayRef = useRef(null)
+  const fadeOutRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -57,12 +58,19 @@ export default function ScrollHero({ children, scrollLength = '260vh' }) {
       if (t > 0.001 && i + 1 < FRAME_COUNT) drawCover(frames[i + 1], t)
       ctx.globalAlpha = 1
 
-      // Fade the text away over the last stretch of the scroll.
+      // Fade the text away over the 0.65 - 0.88 stretch of the scroll.
       if (overlayRef.current) {
-        const o = 1 - clamp((current - 0.7) / 0.25)
+        const o = 1 - clamp((current - 0.65) / 0.22)
         overlayRef.current.style.opacity = String(o)
-        overlayRef.current.style.transform = `translateY(${(1 - o) * -24}px)`
-        overlayRef.current.style.pointerEvents = o < 0.3 ? 'none' : ''
+        overlayRef.current.style.transform = `translateY(${(1 - o) * -30}px)`
+        overlayRef.current.style.pointerEvents = o < 0.2 ? 'none' : ''
+      }
+
+      // Smoothly dissolve the whole hero screen into the offwhite surface background for Trek Overview
+      if (fadeOutRef.current) {
+        // Starts dissolving from 0.78 to 1.0
+        const fadeProgress = clamp((current - 0.78) / 0.22)
+        fadeOutRef.current.style.opacity = String(fadeProgress)
       }
     }
 
@@ -104,16 +112,31 @@ export default function ScrollHero({ children, scrollLength = '260vh' }) {
   }, [])
 
   return (
-    <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-ink-bg" aria-label="Kedarkantha trek introduction">
-      <div className="sticky top-14 h-[calc(100svh-3.5rem)] overflow-hidden sm:top-16 sm:h-[calc(100svh-4rem)]">
+    <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-offwhite" aria-label="Kedarkantha trek introduction">
+      <div className="sticky top-14 h-[calc(100svh-3.5rem)] overflow-hidden bg-ink-bg sm:top-16 sm:h-[calc(100svh-4rem)]">
         {/* Static first frame shows instantly while the sequence loads, and as the no-JS fallback. */}
         <img src={frameUrl(0)} alt="" className="absolute inset-0 h-full w-full object-cover" fetchPriority="high" />
         <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-ink-bg via-ink-bg/35 to-ink-bg/20 sm:bg-gradient-to-r sm:from-ink-bg/80 sm:via-ink-bg/30 sm:to-transparent" />
+        
         <div ref={overlayRef} className="absolute inset-0 will-change-[opacity,transform]">
           {children}
         </div>
+
+        {/* Screen fade overlay to smooth dissolve into the next section (Trek Overview) */}
+        <div
+          ref={fadeOutRef}
+          className="pointer-events-none absolute inset-0 bg-offwhite opacity-0 will-change-[opacity]"
+          aria-hidden="true"
+        />
+
+        {/* Soft bottom seamless gradient blend so there is zero hard boundary */}
+        <div 
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-offwhite via-offwhite/60 to-transparent sm:h-48"
+          aria-hidden="true"
+        />
       </div>
     </section>
   )
 }
+

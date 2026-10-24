@@ -64,6 +64,15 @@
   .jm-path { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 1.5s cubic-bezier(.5,0,.2,1) var(--d, 0ms); }
   [data-in="true"] .jm-path { stroke-dashoffset: 0; }
 
+  .gh-draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset 3.6s cubic-bezier(.5,0,.2,1) .3s; }
+  [data-in="true"] .gh-draw { stroke-dashoffset: 0; }
+  @keyframes gh-flow { to { stroke-dashoffset: -48; } }
+  [data-in="true"] .gh-flow { animation: gh-flow 2.4s linear infinite; }
+  .gh-node { opacity: 0; transform: scale(.4); transform-box: fill-box; transform-origin: center; transition: opacity .5s ease var(--d, 0ms), transform .6s cubic-bezier(.3,1.6,.5,1) var(--d, 0ms); }
+  [data-in="true"] .gh-node { opacity: 1; transform: none; }
+  @keyframes jm-flow { to { stroke-dashoffset: -120; } }
+  [data-in="true"] .jm-dots { animation: jm-flow 7s linear infinite; }
+
   .jm-node { opacity: 0; transition: opacity .4s ease var(--d, 0ms); }
   [data-in="true"] .jm-node { opacity: 1; }
 

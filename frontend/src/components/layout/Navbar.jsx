@@ -53,7 +53,7 @@ export default function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-ink-bg/95 backdrop-blur">
       <nav className="container-page flex h-14 items-center justify-between sm:h-16" aria-label="Main">
-        <Link to="/" className="text-sm font-bold uppercase tracking-wide text-white sm:text-base">Treki Travels</Link>
+        <Link to="/" className="text-sm font-bold uppercase tracking-wide text-white sm:text-base">Kedarkantha</Link>
 
         <div className="hidden items-center gap-7 md:flex">
           {mainLinks.map((l) =>

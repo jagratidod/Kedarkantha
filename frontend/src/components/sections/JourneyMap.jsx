@@ -140,8 +140,14 @@ function MapBody({ items }) {
       data-in={inView}
       id="journeys"
       aria-labelledby="journeys-title"
-      className="scroll-mt-16 w-full overflow-hidden bg-[#FAF2E4] py-8 sm:py-12"
+      className="scroll-mt-16 relative w-full overflow-hidden bg-[#FAF2E4] pt-4 pb-8 sm:pb-12"
     >
+      {/* Seamless gradient mask connecting Trek Overview to the Map */}
+      <div 
+        className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#FAF2E4] via-[#FAF2E4]/80 to-transparent z-10"
+        aria-hidden="true"
+      />
+
       <div className="relative isolate w-full">
         <div ref={bg} className="absolute inset-x-0 -bottom-8 -top-8 -z-10 [transform:translateY(var(--py,0px))]">
           <img
@@ -166,11 +172,17 @@ function MapBody({ items }) {
           </div>
         </div>
 
-        <div className="mx-auto w-full max-w-7xl px-4 pb-8 pt-8 md:px-8 md:pb-12 md:pt-0">
+        <div className="mx-auto w-full max-w-7xl px-4 pb-8 pt-8 md:px-8 md:pb-16 md:pt-0">
           <Desktop items={items} />
           <Mobile items={items} />
         </div>
       </div>
+
+      {/* Seamless bottom fade mask merging directly into About Kedarkantha Trek mountain sky */}
+      <div 
+        className="pointer-events-none absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-transparent via-[#FAF2E4]/60 to-[#FAF2E4] z-10"
+        aria-hidden="true"
+      />
     </section>
   )
 }

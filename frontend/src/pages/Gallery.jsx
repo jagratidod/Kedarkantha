@@ -3,11 +3,11 @@ import PageHero from '../components/layout/PageHero'
 import CTABanner from '../components/layout/CTABanner'
 import AsyncView from '../components/ui/AsyncView'
 import Chips from '../components/ui/Chips'
-import Img from '../components/ui/Img'
 import { useAsync } from '../hooks/useAsync'
 import { useSeo } from '../hooks/useSeo'
 import { getGallery } from '../features/trek/api'
 
+import GalleryHeader from '../components/gallery/GalleryHeader'
 import {
   ExactFamilyMosaicGrid,
   ExactCenterTextMosaicGrid,
@@ -42,16 +42,24 @@ export default function Gallery({ embedded = false }) {
 
   return (
     <>
-      <PageHero embedded={embedded} title="Photo Gallery" subtitle="Moments from our Kedarkantha treks." focus="50% 40%" />
-      <section className="container-page py-8 sm:py-12">
+      {!embedded && <PageHero title="Photo Gallery" subtitle="Moments from our Kedarkantha treks." focus="50% 40%" />}
+      <section className="w-full py-8 sm:py-12">
         <AsyncView state={state}>
           {({ categories, items }) => {
             const list = cat === 'All' ? items : items.filter((i) => i.category === cat)
             return (
               <>
-                <div className="mb-8 flex justify-center">
-                  <Chips options={categories} value={cat} onChange={setCat} label="Filter photos" />
-                </div>
+                {embedded ? (
+                  <GalleryHeader title="Photo Gallery" subtitle="Moments from our Kedarkantha treks.">
+                    <div className="flex justify-center">
+                      <Chips variant="outline" options={categories} value={cat} onChange={setCat} label="Filter photos" />
+                    </div>
+                  </GalleryHeader>
+                ) : (
+                  <div className="mb-8 flex justify-center">
+                    <Chips options={categories} value={cat} onChange={setCat} label="Filter photos" />
+                  </div>
+                )}
                 {list.length === 0 ? (
                   <p className="py-10 text-center text-muted">No photos in this category yet.</p>
                 ) : (

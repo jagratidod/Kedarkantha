@@ -19,6 +19,7 @@ import JourneyMap from '../components/sections/JourneyMap'
 import ScrollHero from '../components/sections/ScrollHero'
 import TrekHighlightsCinematic from '../components/sections/TrekHighlightsCinematic'
 import AboutTrekFullscreen from '../components/sections/AboutTrekFullscreen'
+import TrekOverviewPinned from '../components/sections/TrekOverviewPinned'
 import CTABanner from '../components/layout/CTABanner'
 import { useSeo } from '../hooks/useSeo'
 import { useAsync } from '../hooks/useAsync'
@@ -67,22 +68,54 @@ function Hero({ trek }) {
     </ScrollHero>
   )
 }
-// Every other page, stacked one after another as sections of the home page.
-const SECTIONS = [
-  ['itinerary', Itinerary], ['departures', Departures], ['gallery', Gallery], ['about', About],
-  ['inclusions', Inclusions], ['pickup-drop', PickupDrop], ['difficulty', Difficulty],
-  ['things-to-carry', ThingsToCarry], ['best-time', BestTime], ['faqs', Faqs], ['reviews', Reviews],
+// Sections that share the continuous 'long bg.png' background (from Upcoming Departure Dates up to before FAQs)
+const LONG_BG_SECTIONS = [
+  ['departures', Departures],
+  ['inclusions', Inclusions],
+  ['pickup-drop', PickupDrop],
+  ['difficulty', Difficulty],
+  ['things-to-carry', ThingsToCarry],
+  ['best-time', BestTime],
 ]
 
 function HomeSections() {
   return (
     <>
-      {SECTIONS.map(([id, Section]) => (
-        <div key={id} id={id} className="scroll-mt-16">
-          <Section embedded />
+      {/* CONTINUOUS LONG BG SECTION: From Upcoming Departures to before FAQs */}
+      <div className="relative w-full overflow-hidden">
+        {/* Continuous Long Background Image */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-10 bg-repeat-y bg-cover bg-top"
+          style={{
+            backgroundImage: "url('/long bg.png')",
+          }}
+        >
+          {/* Subtle overlay so all text and cards remain crystal-clear and readable */}
+          <div className="absolute inset-0 bg-[#F5F6F2]/30 backdrop-blur-[1px]" />
+
+          {/* Top fade melt from preceding Highlights section */}
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#F5F6F2] to-transparent" />
+
+          {/* Bottom fade melt into FAQs section */}
+          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#F5F6F2] to-transparent" />
         </div>
-      ))}
-      <CTABanner title="Ready for the Adventure?" text="Secure your spot for the next Kedarkantha trek." label="Book Your Trek" to="/book" />
+
+        {LONG_BG_SECTIONS.map(([id, Section]) => (
+          <div key={id} id={id} className="relative z-10 scroll-mt-16">
+            <Section embedded />
+          </div>
+        ))}
+      </div>
+
+      {/* FAQS SECTION */}
+      <div id="faqs" className="relative z-10 scroll-mt-16">
+        <Faqs embedded />
+      </div>
+
+      {/* REVIEWS SECTION */}
+      <div id="reviews" className="relative z-10 scroll-mt-16">
+        <Reviews embedded />
+      </div>
     </>
   )
 }
@@ -102,33 +135,39 @@ export default function Home() {
           <>
             <Hero trek={trek} />
 
-            <section className="container-page py-10" aria-labelledby="overview">
-              <h2 id="overview" className="section-title mb-5">Trek Overview</h2>
-              <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
-                {trek.stats.map((s) => (
-                  <li key={s.label}>
-                    <Card className="flex h-full flex-col items-center gap-1 p-4 text-center">
-                      <span className="mb-1 flex h-9 w-9 items-center justify-center rounded-full text-forest ring-1 ring-forest/25">
-                        <Icon name={s.icon} size={18} />
-                      </span>
-                      <p className="text-sm font-semibold">{s.value}</p>
-                      <p className="text-xs text-muted">{s.label}</p>
-                    </Card>
-                  </li>
-                ))}
-              </ul>
-            </section>
+            {/* Pinned middle Trek Overview with 3 cards from Left & 3 cards from Right */}
+            <div>
+              <TrekOverviewPinned stats={trek.stats} />
+            </div>
+
+            {/* We Support Every Journey Map section */}
+            <div>
+              <JourneyMap />
+            </div>
 
             {/* Full-Screen Animated About Kedarkantha Trek with Scroll Dissolve & Text Transition */}
-            <AboutTrekFullscreen trek={trek} />
+            <div>
+              <AboutTrekFullscreen trek={trek} />
+            </div>
+
+            {/* Day-by-Day Expedition Itinerary directly under Discover Treki Travels */}
+            <div id="itinerary" className="scroll-mt-16">
+              <Itinerary embedded />
+            </div>
+
+            {/* Photo Gallery directly under Day-by-Day Expedition Itinerary */}
+            <div id="gallery" className="relative z-30 scroll-mt-16">
+              <Gallery embedded />
+            </div>
 
             {/* Cinematic Trek Highlights Carousel (Foxico Style with BACKGROUNDIMAGE.png & Auto Animation) */}
-            <TrekHighlightsCinematic highlights={highlights} />
+            <div>
+              <TrekHighlightsCinematic highlights={highlights} />
+            </div>
           </>
         )}
       </AsyncView>
 
-      <JourneyMap />
       <HomeSections />
     </>
   )

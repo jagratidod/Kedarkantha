@@ -72,7 +72,7 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
       </div>
 
       <div className="container-page relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
-        
+
         {/* Top Tag & Active Progress Indicator */}
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.25em] text-emerald-300">
@@ -97,10 +97,10 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
 
         {/* Master 2-Column Grid (Left: Synchronized Story + Vertical Timeline, Right: Cards Deck) */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
-          
+
           {/* ================= LEFT STORY COLUMN WITH VERTICAL TIMELINE ON ITS RIGHT ================= */}
           <div className="lg:col-span-6 flex items-center justify-between gap-6 sm:gap-8">
-            
+
             {/* Story Text Block */}
             <div className="flex-1 flex flex-col justify-center">
               {/* Synchronized Tag */}
@@ -154,11 +154,10 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
                       type="button"
                       onClick={() => setActiveIdx(idx)}
                       aria-label={`Jump to highlight ${idx + 1}`}
-                      className={`h-2 transition-all duration-500 rounded-full ${
-                        activeIdx === idx
+                      className={`h-2 transition-all duration-500 rounded-full ${activeIdx === idx
                           ? 'w-8 bg-amber-400'
                           : 'w-2 bg-white/35 hover:bg-white/70'
-                      }`}
+                        }`}
                     />
                   ))}
                 </div>
@@ -169,7 +168,7 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
             <div className="hidden sm:flex flex-col items-center justify-center shrink-0 relative self-stretch py-2 px-1">
               {/* Continuous vertical track line */}
               <div className="absolute top-4 bottom-4 w-px bg-white/25" />
-              
+
               {/* Waypoint Nodes along the vertical track */}
               <div className="relative z-10 flex flex-col justify-between h-full py-4 gap-6 sm:gap-7">
                 {items.map((_, idx) => {
@@ -201,103 +200,102 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
 
           {/* ================= RIGHT CAROUSEL CARDS DECK ================= */}
           <div className="lg:col-span-6 flex flex-col justify-center overflow-hidden">
-            
+
             {/* Horizontal Deck with Physical Auto-Scroll (No scrollbars visible) */}
             <div
               ref={cardRailRef}
               className="relative flex items-center gap-4 sm:gap-5 overflow-x-auto pb-4 pt-3 no-scrollbar scroll-smooth"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-                {items.map((item, idx) => {
-                  const isActive = activeIdx === idx
-                  const isSaved = bookmarked[item.id]
+              {items.map((item, idx) => {
+                const isActive = activeIdx === idx
+                const isSaved = bookmarked[item.id]
 
-                  return (
-                    <div
-                      key={item.id}
-                      ref={(el) => (cardRefs.current[idx] = el)}
-                      onClick={() => setActiveIdx(idx)}
-                      className={`group relative shrink-0 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 ease-out ${
-                        isActive
-                          ? 'w-56 sm:w-64 md:w-72 aspect-[3/4] ring-2 ring-amber-400 shadow-2xl scale-105 z-20'
-                          : 'w-44 sm:w-52 md:w-56 aspect-[3/4] opacity-70 hover:opacity-100 hover:scale-100 z-10'
+                return (
+                  <div
+                    key={item.id}
+                    ref={(el) => (cardRefs.current[idx] = el)}
+                    onClick={() => setActiveIdx(idx)}
+                    className={`group relative shrink-0 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 ease-out ${isActive
+                        ? 'w-56 sm:w-64 md:w-72 aspect-[3/4] ring-2 ring-amber-400 shadow-2xl scale-105 z-20'
+                        : 'w-44 sm:w-52 md:w-56 aspect-[3/4] opacity-70 hover:opacity-100 hover:scale-100 z-10'
                       }`}
-                    >
-                      {/* Card Photo */}
-                      <div className="absolute inset-0 h-full w-full">
-                        <Img
-                          image={item.image}
-                          focus={item.focus || '50% 50%'}
-                          alt={item.title}
-                          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
-                        />
-                      </div>
-
-                      {/* Dark gradient backdrop */}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
-
-                      {/* Bookmark Icon in White Circle */}
-                      <button
-                        type="button"
-                        onClick={(e) => toggleBookmark(item.id, e)}
-                        aria-label="Bookmark destination"
-                        className="absolute right-3.5 top-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-800 shadow-md backdrop-blur-sm transition-transform duration-200 hover:scale-110 active:scale-90"
-                      >
-                        <Bookmark
-                          size={15}
-                          className={isSaved ? 'fill-blue-600 text-blue-600' : 'text-slate-700'}
-                        />
-                      </button>
-
-                      {/* Active highlight label pill */}
-                      {isActive && (
-                        <div className="absolute left-3.5 top-3.5 flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-900 shadow">
-                          Active
-                        </div>
-                      )}
-
-                      {/* Card Title & Subtitle Footer */}
-                      <div className="absolute inset-x-0 bottom-0 p-4">
-                        <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
-                          {item.tag || 'Highlight'}
-                        </span>
-                        <h4 className="font-display mt-0.5 text-base sm:text-lg font-bold uppercase tracking-wide text-white drop-shadow line-clamp-1">
-                          {item.title}
-                        </h4>
-                        <p className="mt-1 text-xs text-slate-200/90 line-clamp-1">
-                          {item.subtitle || item.caption}
-                        </p>
-                      </div>
+                  >
+                    {/* Card Photo */}
+                    <div className="absolute inset-0 h-full w-full">
+                      <Img
+                        image={item.image}
+                        focus={item.focus || '50% 50%'}
+                        alt={item.title}
+                        className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-110"
+                      />
                     </div>
-                  )
-                })}
-              </div>
 
-              {/* Bottom Controls (Counter & Arrows) */}
-              <div className="mt-4 sm:mt-6 flex items-center justify-between px-2">
-                <span className="text-xs font-mono tracking-widest text-white/70">
-                  0{activeIdx + 1} / 0{items.length}
-                </span>
+                    {/* Dark gradient backdrop */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10" />
 
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={goPrev}
-                    aria-label="Previous Highlight"
-                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-white hover:bg-black/70 active:scale-95 shadow-sm"
-                  >
-                    <ArrowLeft size={16} />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={goNext}
-                    aria-label="Next Highlight"
-                    className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-white hover:bg-black/70 active:scale-95 shadow-sm"
-                  >
-                    <ArrowRight size={16} />
-                  </button>
-                </div>
+                    {/* Bookmark Icon in White Circle */}
+                    <button
+                      type="button"
+                      onClick={(e) => toggleBookmark(item.id, e)}
+                      aria-label="Bookmark destination"
+                      className="absolute right-3.5 top-3.5 flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-slate-800 shadow-md backdrop-blur-sm transition-transform duration-200 hover:scale-110 active:scale-90"
+                    >
+                      <Bookmark
+                        size={15}
+                        className={isSaved ? 'fill-blue-600 text-blue-600' : 'text-slate-700'}
+                      />
+                    </button>
+
+                    {/* Active highlight label pill */}
+                    {isActive && (
+                      <div className="absolute left-3.5 top-3.5 flex items-center gap-1 rounded-full bg-amber-400 px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-slate-900 shadow">
+                        Active
+                      </div>
+                    )}
+
+                    {/* Card Title & Subtitle Footer */}
+                    <div className="absolute inset-x-0 bottom-0 p-4">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300">
+                        {item.tag || 'Highlight'}
+                      </span>
+                      <h4 className="font-display mt-0.5 text-base sm:text-lg font-bold uppercase tracking-wide text-white drop-shadow line-clamp-1">
+                        {item.title}
+                      </h4>
+                      <p className="mt-1 text-xs text-slate-200/90 line-clamp-1">
+                        {item.subtitle || item.caption}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Bottom Controls (Counter & Arrows) */}
+            <div className="mt-4 sm:mt-6 flex items-center justify-between px-2">
+              <span className="text-xs font-mono tracking-widest text-white/70">
+                0{activeIdx + 1} / 0{items.length}
+              </span>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={goPrev}
+                  aria-label="Previous Highlight"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-white hover:bg-black/70 active:scale-95 shadow-sm"
+                >
+                  <ArrowLeft size={16} />
+                </button>
+                <button
+                  type="button"
+                  onClick={goNext}
+                  aria-label="Next Highlight"
+                  className="flex h-10 w-10 sm:h-11 sm:w-11 items-center justify-center rounded-full border border-white/20 bg-black/40 text-white backdrop-blur-md transition-all duration-200 hover:scale-110 hover:border-white hover:bg-black/70 active:scale-95 shadow-sm"
+                >
+                  <ArrowRight size={16} />
+                </button>
               </div>
+            </div>
 
           </div>
 

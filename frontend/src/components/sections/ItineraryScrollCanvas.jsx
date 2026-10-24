@@ -1,3 +1,4 @@
+import MountainCover from './MountainCover'
 import { useEffect, useRef, useState } from 'react'
 import { Calendar, MapPin, Mountain, Footprints, ChevronRight, Compass } from 'lucide-react'
 
@@ -80,7 +81,7 @@ export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
 
     const onScroll = () => {
       const rect = wrap.getBoundingClientRect()
-      const total = rect.height - window.innerHeight
+      const total = rect.height - window.innerHeight * 2 // last screen is reserved for the mountain cover
       if (total <= 0) return
       const p = clamp(-rect.top / total, 0, 1)
       target = p
@@ -122,10 +123,16 @@ export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
   return (
     <div
       ref={wrapRef}
-      className="relative w-full h-[400vh] sm:h-[480vh]"
+      className="relative w-full h-[500vh] sm:h-[580vh] -mt-32 sm:-mt-44 -mb-[95vh] z-20"
     >
-      {/* Sticky full-screen stage */}
-      <div className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-ink-bg">
+      {/* Sticky full-screen stage with alpha mask fade to physically erase the hard top edge */}
+      <div 
+        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent"
+        style={{
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 10%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 26%)',
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 10%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 26%)',
+        }}
+      >
         
         {/* Dynamic Scrubbed Canvas Background - Crystal Clear */}
         <canvas
@@ -135,10 +142,10 @@ export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
         />
 
         {/* Minimal soft gradient just behind the text card to keep the background scenery 100% visible and vivid */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/25 pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
         {/* Main Stage Container */}
-        <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col justify-between py-10 sm:py-14">
+        <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col justify-between pt-24 pb-10 sm:pt-32 sm:pb-14">
           
           {/* Top Section Header */}
           <div className="flex flex-wrap items-center justify-between gap-4">
@@ -271,6 +278,7 @@ export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
         </div>
 
       </div>
+      <MountainCover />
     </div>
   )
 }

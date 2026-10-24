@@ -52,7 +52,13 @@ export default function Reviews({ embedded = false }) {
       )}
 
       {/* FULL-WIDTH HERO TESTIMONIAL SECTION MATCHING USER'S SCREENSHOT */}
-      <section className="relative w-full overflow-hidden py-16 sm:py-24 md:py-32">
+      <section
+        className="relative w-full overflow-hidden py-16 sm:py-24 md:py-32 -mt-10 sm:-mt-16 pt-24 sm:pt-32"
+        style={{
+          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 12%, rgba(0,0,0,1) 28%, rgba(0,0,0,1) 100%)',
+          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 12%, rgba(0,0,0,1) 28%, rgba(0,0,0,1) 100%)',
+        }}
+      >
         {/* Scenic Himalayan Sunset Background with Soft Warm Haze */}
         <div className="absolute inset-0 -z-10">
           <img
@@ -60,9 +66,9 @@ export default function Reviews({ embedded = false }) {
             alt="Kedarkantha Sunset Mountain Background"
             className="h-full w-full object-cover object-center filter saturate-[1.1] brightness-[1.03]"
           />
-          {/* Subtle warm ambient wash matching the screenshot */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#F7EBE1]/70 via-[#F5E6DA]/75 to-[#EEDCCF]/85 mix-blend-soft-light" />
-          <div className="absolute inset-0 bg-[#EFE3D5]/40" />
+          {/* Seamless top melt to blend with FAQ section background */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#F5F6F2] via-[#F7EBE1]/60 to-[#EEDCCF]/80 mix-blend-normal" />
+          <div className="absolute inset-0 bg-[#EFE3D5]/35" />
         </div>
 
         <div className="container-page relative z-10 mx-auto max-w-5xl px-4 text-center">

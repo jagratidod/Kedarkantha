@@ -1,21 +1,50 @@
 import { useState } from 'react'
-import { RotateCw, Compass } from 'lucide-react'
+import { RotateCw, Compass, Mountain, Footprints, Tent, Users, Sunrise } from 'lucide-react'
 import Img from '../ui/Img'
+import { useInView } from '../../hooks/useInView'
+
+const CAT_ICON = { Summit: Mountain, Trails: Footprints, Campsites: Tent, Groups: Users, Scenery: Sunrise }
+const CAT_CAPTION = {
+  Summit: 'Breathtaking views from the top',
+  Trails: 'Through magical pine forests',
+  Campsites: 'Cozy stays amidst the Himalayas',
+  Groups: 'Good people, great mountains',
+  Scenery: 'Majestic Himalayan views',
+}
 
 /**
  * Interactive 3D Photo Tile:
- * - HOVER: Inner image smoothly spins 360 degrees.
+ * - ENTRANCE: Cards slide into place from Left and Right sides when scrolled into view.
+ * - HOVER: Inner image smoothly zooms.
  * - CLICK: Card flips 3D from right to left (180deg) to reveal the back side with proper heading, altitude & story.
  */
+function TileIcon({ category }) {
+  const I = CAT_ICON[category] || Mountain
+  return <I size={16} className="mb-0.5 shrink-0 text-white sm:size-[18px]" aria-hidden="true" />
+}
+
 export function GridTile({ photo, index = 0, label = '', className = '', style = {}, aspect = '' }) {
   const [flipped, setFlipped] = useState(false)
+  const [tileRef, inView] = useInView({ threshold: 0.12, rootMargin: '0px 0px -4% 0px' })
   const title = photo?.title || label || `Kedarkantha Moment ${index + 1}`
   const category = photo?.category || 'Kedarkantha'
 
+  // Alternating entry: Even indices slide in from Left (-70px), Odd indices slide in from Right (+70px)
+  const isLeft = index % 2 === 0
+  const initialTranslateX = isLeft ? '-75px' : '75px'
+
   return (
     <div
-      style={style}
-      className={`group relative select-none [perspective:1000px] cursor-pointer ${aspect} ${className}`}
+      ref={tileRef}
+      style={{
+        ...style,
+        transform: inView ? 'translateX(0)' : `translateX(${initialTranslateX})`,
+        opacity: inView ? 1 : 0,
+        transition: 'transform 0.85s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.85s ease-out',
+        transitionDelay: `${(index % 4) * 80}ms`,
+      }}
+      data-tile={index}
+      className={`group relative z-10 select-none [perspective:1000px] cursor-pointer will-change-[transform,opacity] ${aspect} ${className}`}
       onClick={() => setFlipped((prev) => !prev)}
       title="Click to flip card"
     >
@@ -37,11 +66,13 @@ export function GridTile({ photo, index = 0, label = '', className = '', style =
             />
           </div>
 
-          {/* Front title overlay */}
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent p-1.5 sm:p-2 text-center opacity-85 transition-opacity duration-300 group-hover:opacity-100">
-            <p className="text-[10px] sm:text-xs font-medium tracking-wide text-white/95 line-clamp-1">
-              {title}
-            </p>
+          {/* Front overlay: category icon + title + caption (bottom-left) */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end gap-2 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-2 sm:p-3">
+            <TileIcon category={category} />
+            <div className="min-w-0">
+              <p className="truncate text-[11px] font-semibold leading-tight text-white sm:text-sm">{title}</p>
+              <p className="hidden truncate text-[10px] leading-tight text-white/80 sm:block sm:text-xs">{photo?.caption || CAT_CAPTION[category] || 'Moments from Kedarkantha'}</p>
+            </div>
           </div>
 
           {/* Small 3D Flip Hint Icon on top right */}
@@ -107,7 +138,7 @@ export function ExactFamilyMosaicGrid({ items = [], centerTitle = 'SCENERY' }) {
   const p = items || []
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-2 sm:px-4">
+    <div className="mx-auto w-full max-w-none px-3 sm:px-6 lg:px-10">
       {/* 4-column master structure matching the schematic precisely */}
       <div className="grid grid-cols-12 gap-2.5 sm:gap-3.5 items-center">
         
@@ -214,7 +245,7 @@ export function ExactCenterTextMosaicGrid({ items = [], centerTitle = 'KEDARKANT
   const p = items || []
 
   return (
-    <div className="mx-auto w-full max-w-5xl px-2 sm:px-4">
+    <div className="mx-auto w-full max-w-none px-3 sm:px-6 lg:px-10">
       {/* 5-Column Grid with tight, crisp gaps matching the user's reference diagram */}
       <div className="grid grid-cols-5 gap-2.5 sm:gap-3.5 items-center">
         
@@ -284,7 +315,7 @@ export function ExactCenterTextMosaicGrid({ items = [], centerTitle = 'KEDARKANT
    ========================================================================= */
 export function AsymmetricSteppedArchGrid({ items = [] }) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-2 sm:px-4">
+    <div className="mx-auto w-full max-w-none px-3 sm:px-6 lg:px-10">
       <div className="grid grid-cols-4 gap-2.5 items-center">
         {/* Column 1 */}
         <div className="flex flex-col gap-2.5">
@@ -325,7 +356,7 @@ export function AsymmetricSteppedArchGrid({ items = [] }) {
    ========================================================================= */
 export function ScatteredColorGrid({ items = [] }) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-2 sm:px-4">
+    <div className="mx-auto w-full max-w-none px-3 sm:px-6 lg:px-10">
       {/* Top Floating Color Blocks + Ambient Photos */}
       <div className="flex items-end justify-center gap-3 pb-3">
         <div className="h-8 w-8 sm:h-12 sm:w-12 rounded bg-[#F8E8D5]" />
@@ -388,7 +419,7 @@ export function ScatteredColorGrid({ items = [] }) {
    ========================================================================= */
 export function EditorialRealEstateGrid({ items = [] }) {
   return (
-    <div className="mx-auto w-full max-w-5xl px-2 sm:px-4">
+    <div className="mx-auto w-full max-w-none px-3 sm:px-6 lg:px-10">
       <div className="grid grid-cols-12 gap-3 items-start">
         {/* Left Column (Hero block + lower companion) */}
         <div className="col-span-4 flex flex-col gap-3">
