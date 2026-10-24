@@ -58,7 +58,11 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
     <section
       id="highlights"
       aria-label="Trek Highlights"
-      className="relative w-full overflow-hidden min-h-[620px] sm:min-h-[680px] md:min-h-[740px] flex items-center justify-center py-14 sm:py-20 text-white select-none"
+      className="relative w-full overflow-hidden min-h-[620px] sm:min-h-[680px] md:min-h-[740px] flex items-center justify-center py-16 sm:py-24 text-white select-none -mt-16 sm:-mt-24 pt-24 sm:pt-36"
+      style={{
+        maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)',
+      }}
     >
       {/* 1. CINEMATIC BACKGROUND IMAGE with gradient vignette */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
@@ -67,6 +71,8 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
           alt="Kedarkantha Sunrise Mountains"
           className="h-full w-full object-cover object-[center_35%] transition-transform duration-1000 ease-out scale-105"
         />
+        {/* Soft atmospheric mist blending from Gallery above */}
+        <div className="absolute inset-0 bg-gradient-to-b from-[#F5F6F2]/30 via-transparent to-transparent mix-blend-overlay" />
         <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/35" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
       </div>

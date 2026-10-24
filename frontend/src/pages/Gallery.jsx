@@ -43,7 +43,7 @@ export default function Gallery({ embedded = false }) {
   return (
     <>
       {!embedded && <PageHero title="Photo Gallery" subtitle="Moments from our Kedarkantha treks." focus="50% 40%" />}
-      <section className="w-full py-8 sm:py-12">
+      <section className={`w-full py-8 sm:py-12 ${embedded ? 'pb-16 sm:pb-24 relative' : ''}`}>
         <AsyncView state={state}>
           {({ categories, items }) => {
             const list = cat === 'All' ? items : items.filter((i) => i.category === cat)
