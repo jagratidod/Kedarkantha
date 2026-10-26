@@ -6,14 +6,11 @@ import { useSeo } from '../hooks/useSeo'
 import { getItinerary } from '../features/trek/api'
 
 export default function Itinerary({ embedded = false }) {
-  useSeo({ enabled: !embedded, title: 'Day-wise Itinerary', description: 'A 6-day Kedarkantha trek itinerary from Dehradun to Sankri, Juda Ka Talab, Base Camp and the summit.' })
-  const state = useAsync(getItinerary)
+  useSeo({ enabled: !embedded, title: 'Treki Travels - Trust, Support & Safety', description: 'Certified Himalayan Guides, 24/7 mountain assistance, and verified alpine safety standards.' })
 
   return (
     <>
-      <AsyncView state={state}>
-        {(days) => <ItineraryScrollCanvas days={days} embedded={embedded} />}
-      </AsyncView>
+      <ItineraryScrollCanvas embedded={embedded} />
       {!embedded && <CTABanner title="Ready for the Adventure?" text="Secure your spot for the next Kedarkantha trek." label="View Departure Dates" to="/departures" />}
     </>
   )

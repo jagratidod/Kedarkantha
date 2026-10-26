@@ -2,8 +2,6 @@ import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { smoothScrollTo, startSmoothScroll } from '../../lib/smoothScroll'
 
-const HEADER = 64 // sticky navbar height in px
-import Navbar from './Navbar'
 import Footer from './Footer'
 import Button from '../ui/Button'
 
@@ -25,7 +23,7 @@ export default function Layout() {
     lastPath.current = pathname
     const go = () => {
       const el = document.querySelector(hash)
-      if (el) smoothScrollTo(el, { offset: -HEADER })
+      if (el) smoothScrollTo(el, { offset: 0 })
     }
     go()
     const timers = [500, 1200].map((ms) => setTimeout(go, ms))
@@ -37,7 +35,6 @@ export default function Layout() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-2 focus:top-2 focus:z-50 focus:rounded focus:bg-white focus:px-3 focus:py-2">
         Skip to content
       </a>
-      <Navbar />
       <main id="main" className={`flex-1 ${inBooking ? '' : 'pb-16 md:pb-0'}`}>
         <Outlet />
       </main>

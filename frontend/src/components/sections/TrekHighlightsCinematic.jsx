@@ -58,23 +58,21 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
     <section
       id="highlights"
       aria-label="Trek Highlights"
-      className="relative w-full overflow-hidden min-h-[620px] sm:min-h-[680px] md:min-h-[740px] flex items-center justify-center py-16 sm:py-24 text-white select-none -mt-16 sm:-mt-24 pt-24 sm:pt-36"
+      className="relative w-full overflow-hidden min-h-[620px] sm:min-h-[680px] md:min-h-[740px] flex items-center justify-center py-16 sm:py-24 text-white select-none -mt-16 sm:-mt-24 pt-24 sm:pt-36 -mb-20 sm:-mb-32 pb-24 sm:pb-36"
       style={{
-        maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 8%, rgba(0,0,0,1) 22%, rgba(0,0,0,1) 100%)',
+        maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 8%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 75%, rgba(0,0,0,0.4) 90%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.6) 8%, rgba(0,0,0,1) 18%, rgba(0,0,0,1) 75%, rgba(0,0,0,0.4) 90%, transparent 100%)',
       }}
     >
-      {/* 1. CINEMATIC BACKGROUND IMAGE with gradient vignette */}
+      {/* 1. CINEMATIC BACKGROUND IMAGE - 100% Crisp, Bright, No Blackness */}
       <div className="absolute inset-0 -z-10 overflow-hidden">
         <img
           src="/BACKGROUNDIMAGE.png"
           alt="Kedarkantha Sunrise Mountains"
-          className="h-full w-full object-cover object-[center_35%] transition-transform duration-1000 ease-out scale-105"
+          className="h-full w-full object-cover object-[center_35%] transition-transform duration-1000 ease-out scale-105 filter brightness-[1.12] contrast-[1.05]"
         />
         {/* Soft atmospheric mist blending from Gallery above */}
         <div className="absolute inset-0 bg-gradient-to-b from-[#F5F6F2]/30 via-transparent to-transparent mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/60 to-black/35" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/45" />
       </div>
 
       <div className="container-page relative z-10 mx-auto w-full max-w-7xl px-4 sm:px-6 md:px-8">
@@ -161,8 +159,8 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
                       onClick={() => setActiveIdx(idx)}
                       aria-label={`Jump to highlight ${idx + 1}`}
                       className={`h-2 transition-all duration-500 rounded-full ${activeIdx === idx
-                          ? 'w-8 bg-amber-400'
-                          : 'w-2 bg-white/35 hover:bg-white/70'
+                        ? 'w-8 bg-amber-400'
+                        : 'w-2 bg-white/35 hover:bg-white/70'
                         }`}
                     />
                   ))}
@@ -223,8 +221,8 @@ export default function TrekHighlightsCinematic({ highlights = [] }) {
                     ref={(el) => (cardRefs.current[idx] = el)}
                     onClick={() => setActiveIdx(idx)}
                     className={`group relative shrink-0 cursor-pointer overflow-hidden rounded-2xl transition-all duration-500 ease-out ${isActive
-                        ? 'w-56 sm:w-64 md:w-72 aspect-[3/4] ring-2 ring-amber-400 shadow-2xl scale-105 z-20'
-                        : 'w-44 sm:w-52 md:w-56 aspect-[3/4] opacity-70 hover:opacity-100 hover:scale-100 z-10'
+                      ? 'w-56 sm:w-64 md:w-72 aspect-[3/4] ring-2 ring-amber-400 shadow-2xl scale-105 z-20'
+                      : 'w-44 sm:w-52 md:w-56 aspect-[3/4] opacity-70 hover:opacity-100 hover:scale-100 z-10'
                       }`}
                   >
                     {/* Card Photo */}

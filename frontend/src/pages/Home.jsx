@@ -1,8 +1,4 @@
-import { ArrowRight, Clock, Gauge, MapPin, Mountain, Play } from 'lucide-react'
-import Button from '../components/ui/Button'
-import Card from '../components/ui/Card'
-import Img from '../components/ui/Img'
-import Icon from '../components/ui/Icon'
+import { Clock, Gauge, MapPin, Mountain } from 'lucide-react'
 import AsyncView from '../components/ui/AsyncView'
 import Itinerary from './Itinerary'
 import Departures from './Departures'
@@ -15,11 +11,11 @@ import ThingsToCarry from './ThingsToCarry'
 import BestTime from './BestTime'
 import Faqs from './Faqs'
 import Reviews from './Reviews'
-import JourneyMap from '../components/sections/JourneyMap'
+import RaggedBridge from '../components/layout/RaggedBridge'
+import ItineraryJourney from '../components/sections/ItineraryJourney'
 import ScrollHero from '../components/sections/ScrollHero'
 import TrekHighlightsCinematic from '../components/sections/TrekHighlightsCinematic'
 import AboutTrekFullscreen from '../components/sections/AboutTrekFullscreen'
-import TrekOverviewPinned from '../components/sections/TrekOverviewPinned'
 import CTABanner from '../components/layout/CTABanner'
 import { useSeo } from '../hooks/useSeo'
 import { useAsync } from '../hooks/useAsync'
@@ -41,32 +37,8 @@ const jsonLd = {
   offers: { '@type': 'Offer', priceCurrency: 'INR', price: 7999 },
 }
 
-function Hero({ trek }) {
-  return (
-    <ScrollHero>
-      <div className="container-page flex h-full flex-col justify-end pb-6 text-white sm:justify-center sm:pb-10">
-        <p className="text-xs font-semibold uppercase tracking-widest text-white/90 sm:text-sm">{trek.name}</p>
-        <h1 className="mt-2 max-w-xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl">{trek.tagline}</h1>
-        <p className="mt-4 max-w-md text-sm text-white/85 sm:text-base">{trek.intro}</p>
-        <div className="mt-6 flex flex-wrap gap-3">
-          <Button to="/book" variant="cta" size="lg">Book Your Trek</Button>
-          {/* No video asset yet - jumps to the gallery until a video URL is provided. */}
-          <Button to="/#gallery" variant="outline" size="lg"><Play size={14} aria-hidden="true" /> Watch Video</Button>
-        </div>
-        <ul className="mt-8 grid grid-cols-2 gap-4 border-t border-white/15 pt-5 sm:grid-cols-4">
-          {heroFacts.map(({ Icon: I, value, label }) => (
-            <li key={label} className="flex items-center gap-3">
-              <I size={22} className="shrink-0 text-white/90" aria-hidden="true" />
-              <div>
-                <p className="text-sm font-semibold">{value}</p>
-                <p className="text-xs text-white/70">{label}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
-      </div>
-    </ScrollHero>
-  )
+function Hero({ trek, highlights }) {
+  return <ScrollHero trek={trek} facts={heroFacts} stats={trek.stats} photos={highlights.slice(0, 3)} />
 }
 // Sections that share the continuous 'long bg.png' background (from Upcoming Departure Dates up to before FAQs)
 const LONG_BG_SECTIONS = [
@@ -81,7 +53,7 @@ const LONG_BG_SECTIONS = [
 function HomeSections() {
   return (
     <>
-      {/* CONTINUOUS LONG BG SECTION: From Upcoming Departures to before FAQs */}
+      {/* CONTINUOUS LONG BG SECTION: From Trek Highlights to before FAQs */}
       <div className="relative w-full overflow-hidden">
         {/* Continuous Long Background Image */}
         <div
@@ -93,8 +65,8 @@ function HomeSections() {
           {/* Subtle overlay so all text and cards remain crystal-clear and readable */}
           <div className="absolute inset-0 bg-[#F5F6F2]/30 backdrop-blur-[1px]" />
 
-          {/* Top fade melt from preceding Highlights section */}
-          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-[#F5F6F2] to-transparent" />
+          {/* Top fade melt blending from Gallery section above */}
+          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#F5F6F2] to-transparent" />
 
           {/* Bottom fade melt into FAQs section */}
           <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#F5F6F2] to-transparent" />
@@ -133,22 +105,13 @@ export default function Home() {
       <AsyncView state={home}>
         {({ trek, highlights }) => (
           <>
-            <Hero trek={trek} />
+            <Hero trek={trek} highlights={highlights} />
 
-            {/* Pinned middle Trek Overview with 3 cards from Left & 3 cards from Right */}
-            <div>
-              <TrekOverviewPinned stats={trek.stats} />
-            </div>
+            {/* Day-by-day itinerary drawn along the hand-drawn route map */}
+            <ItineraryJourney />
+            <RaggedBridge />
 
-            {/* We Support Every Journey Map section */}
-            <div>
-              <JourneyMap />
-            </div>
 
-            {/* Full-Screen Animated About Kedarkantha Trek with Scroll Dissolve & Text Transition */}
-            <div>
-              <AboutTrekFullscreen trek={trek} />
-            </div>
 
             {/* Day-by-Day Expedition Itinerary directly under Discover Treki Travels */}
             <div id="itinerary" className="scroll-mt-16">

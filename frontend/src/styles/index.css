@@ -27,6 +27,16 @@
   html.lenis, html.lenis body { height: auto; }
   .lenis.lenis-smooth { scroll-behavior: auto !important; }
   .lenis.lenis-stopped { overflow: hidden; }
+  /* Hide scrollbars across the whole document */
+  html, body {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
+  html::-webkit-scrollbar, body::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Opera */
+    width: 0;
+    height: 0;
+  }
   body {
     margin: 0;
     background: var(--color-offwhite);
@@ -72,6 +82,24 @@
   [data-in="true"] .gh-node { opacity: 1; transform: none; }
   @keyframes jm-flow { to { stroke-dashoffset: -120; } }
   [data-in="true"] .jm-dots { animation: jm-flow 7s linear infinite; }
+
+  @keyframes hero-wm { from { opacity: 0; letter-spacing: .3em; } to { opacity: 1; } }
+  .hero-wordmark { animation: hero-wm 1.4s ease backwards; }
+
+  /* Pinned stage: Itinerary full height, Hero with framed white matte border */
+  .ij-stage { top: 0; height: 100svh; }
+  @media (min-width: 640px) { .ij-stage { top: 0; height: 100svh; } }
+  .hero-stage { top: 1rem; height: calc(100svh - 2rem); }
+  @media (min-width: 640px) { .hero-stage { top: 1.5rem; height: calc(100svh - 3rem); } }
+  .ij-card { transition: opacity .9s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
+  .ij-pin[data-on="false"] .ij-card { opacity: 0; transform: translateY(30px) scale(.95); }
+  .ij-pin[data-on="past"] .ij-card { opacity: 0; transform: translateY(-24px) scale(.96); pointer-events: none; }
+  .ij-badge { transition: transform .6s cubic-bezier(.3,1.7,.5,1); }
+  .ij-pin[data-on="false"] .ij-badge { transform: scale(0); }
+  @keyframes ij-flow { to { stroke-dashoffset: -141; } }
+  .ij-flow { animation: ij-flow 6s linear infinite; }
+  @keyframes ij-pulse { 0%, 100% { transform: scale(1); opacity: .3; } 50% { transform: scale(1.7); opacity: 0; } }
+  .ij-pulse { transform-box: fill-box; transform-origin: center; animation: ij-pulse 2s ease-in-out infinite; }
 
   .jm-node { opacity: 0; transition: opacity .4s ease var(--d, 0ms); }
   [data-in="true"] .jm-node { opacity: 1; }

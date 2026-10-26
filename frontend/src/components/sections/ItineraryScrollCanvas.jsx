@@ -1,25 +1,89 @@
 import MountainCover from './MountainCover'
 import { useEffect, useRef, useState } from 'react'
-import { Calendar, MapPin, Mountain, Footprints, ChevronRight, Compass } from 'lucide-react'
+import { ShieldCheck, HeartHandshake, Headphones, Award, Leaf, ChevronRight, Sparkles } from 'lucide-react'
 
 const FRAME_COUNT = 25
 const frameUrl = (i) => `/BGIMAGES/ezgif-frame-${String(i + 1).padStart(3, '0')}.jpg`
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 
-/**
- * ItineraryScrollCanvas Component
- *
- * Sticky Full-Screen Canvas Experience for Itinerary:
- * - Scrolled across 25 dynamic background frames from `/BGIMAGES/`
- * - As the user scrolls down, the background images smoothly cross-fade (just like in Hero)
- * - Concurrently, as each step is reached, the day's step text (Day 1, Day 2, Day 3...) changes seamlessly
- * - Interactive timeline indicators on the side, day badge, distance, altitude and narrative
- */
-export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
+const TREKI_FEATURES = [
+  {
+    id: 'info',
+    badge: 'ABOUT TREKI',
+    tagline: 'Authentic Himalayan Journeys',
+    title: 'Treki Info & Journey',
+    icon: Sparkles,
+    highlight: 'Over 8+ Years of Himalayan Excellence',
+    desc: 'Founded with a passionate vision to make Himalayan adventures accessible, authentic and deeply memorable. We craft responsible mountain expeditions combining authentic local wisdom with premium alpine standards.',
+    stats: [
+      { label: 'Happy Trekkers', value: '15,000+' },
+      { label: 'Summit Ratio', value: '98.6%' },
+      { label: 'Local Guides', value: '100%' },
+    ],
+  },
+  {
+    id: 'trust',
+    badge: 'TREKI TRUST',
+    tagline: 'Transparent & Verified',
+    title: 'Uncompromised Alpine Trust',
+    icon: ShieldCheck,
+    highlight: 'Zero Hidden Fees • 100% Certified Gear',
+    desc: 'Trust is forged on snowy ridges. We operate with complete pricing transparency, certified 4-season geodesic tents, sub-zero sleeping bags, and government-approved forest permits.',
+    stats: [
+      { label: 'Safety Rating', value: '4.9 / 5' },
+      { label: 'Certified Gear', value: 'Tested -15°C' },
+      { label: 'Refund Policy', value: 'Hassle-Free' },
+    ],
+  },
+  {
+    id: 'support',
+    badge: 'TREKI SUPPORT',
+    tagline: '24/7 Mountain Assistance',
+    title: 'Round-The-Clock Alpine Care',
+    icon: Headphones,
+    highlight: 'High Altitude Medical Kits & Oxygen Support',
+    desc: 'From the moment you inquire until you safely return home, our operations hub and summit team provide 24/7 live assistance, satellite communication, oximeter tracking, and immediate evacuation protocols.',
+    stats: [
+      { label: 'Live Assistance', value: '24/7 Ops Hub' },
+      { label: 'Health Checks', value: 'Twice Daily' },
+      { label: 'Emergency Oxygen', value: 'At Every Camp' },
+    ],
+  },
+  {
+    id: 'guides',
+    badge: 'EXPERT CREW',
+    tagline: 'IMF & NIM Certified',
+    title: 'Licensed Himalayan Leaders',
+    icon: Award,
+    highlight: 'Born and Raised in Garhwal Himalayas',
+    desc: 'Our trek leaders hold advanced certifications from premier institutes like NIM and HMI. Their deep knowledge of local weather windows, snow conditions, and flora/fauna transforms every trek into a masterclass.',
+    stats: [
+      { label: 'Guide Ratio', value: '1:6 Trekkers' },
+      { label: 'Exp. In Winter', value: '10+ Seasons' },
+      { label: 'First Aid', value: 'Wilderness WFA' },
+    ],
+  },
+  {
+    id: 'eco',
+    badge: 'ECO CONSCIOUS',
+    tagline: 'Leave No Trace Behind',
+    title: 'Green Trail Commitment',
+    icon: Leaf,
+    highlight: 'Eco-Friendly Bio Tents & Zero Plastic Trails',
+    desc: 'We are stewards of the Himalayas. Every batch carries back non-biodegradable waste, uses solar charging, and supports local mountain communities through ethical homestays and fair employment.',
+    stats: [
+      { label: 'Waste Brought Back', value: '100%' },
+      { label: 'Local Economy', value: 'Direct Support' },
+      { label: 'Eco Footprint', value: 'Carbon Offset' },
+    ],
+  },
+]
+
+export default function ItineraryScrollCanvas() {
   const wrapRef = useRef(null)
   const canvasRef = useRef(null)
-  const [activeDayIndex, setActiveDayIndex] = useState(0)
-  const totalDays = days.length || 6
+  const [activeStep, setActiveStep] = useState(0)
+  const totalSteps = TREKI_FEATURES.length
 
   useEffect(() => {
     const wrap = wrapRef.current
@@ -57,222 +121,184 @@ export default function ItineraryScrollCanvas({ days = [], embedded = false }) {
     }
 
     function draw() {
-      if (!canvas || !ctx) return
+      const frameIndex = current * (FRAME_COUNT - 1)
+      const baseIndex = Math.floor(frameIndex)
+      const nextIndex = Math.min(baseIndex + 1, FRAME_COUNT - 1)
+      const blend = frameIndex - baseIndex
+
       ctx.clearRect(0, 0, canvas.width, canvas.height)
-      const f = current * (FRAME_COUNT - 1)
-      const i = Math.floor(f)
-      const t = f - i
-      ctx.globalAlpha = 1
-      drawCover(frames[i], 1)
-      if (t > 0.001 && i + 1 < FRAME_COUNT) {
-        drawCover(frames[i + 1], t)
+      drawCover(frames[baseIndex], 1)
+      if (blend > 0.001 && baseIndex !== nextIndex) {
+        drawCover(frames[nextIndex], blend)
       }
-      ctx.globalAlpha = 1
     }
 
     const tick = () => {
-      const diff = target - current
-      if (Math.abs(diff) > 0.0005) {
-        current += diff * 0.12
-        draw()
+      current += (target - current) * 0.14
+      if (Math.abs(target - current) < 0.0005) {
+        current = target
       }
-      if (alive) raf = requestAnimationFrame(tick)
+      draw()
+      if (current !== target) {
+        raf = requestAnimationFrame(tick)
+      } else {
+        raf = 0
+      }
     }
 
     const onScroll = () => {
       const rect = wrap.getBoundingClientRect()
-      const total = rect.height - window.innerHeight * 2 // last screen is reserved for the mountain cover
-      if (total <= 0) return
-      const p = clamp(-rect.top / total, 0, 1)
-      target = p
+      const totalScrollable = wrap.offsetHeight - window.innerHeight
+      if (totalScrollable <= 0) return
 
-      // Calculate which day should be active based on scroll progress
-      const dayIdx = Math.min(
-        totalDays - 1,
-        Math.floor(p * totalDays)
-      )
-      setActiveDayIndex(dayIdx)
+      const progress = clamp(-rect.top / totalScrollable, 0, 1)
+      target = progress
+      if (!raf) raf = requestAnimationFrame(tick)
+
+      const step = Math.min(Math.floor(progress * totalSteps), totalSteps - 1)
+      setActiveStep(step)
     }
 
-    // Preload BGIMAGES frames
     for (let i = 0; i < FRAME_COUNT; i++) {
       const img = new Image()
-      img.src = frameUrl(i)
+      img.decoding = 'async'
       img.onload = () => {
-        if (i === 0) draw()
+        if (alive && i === 0) draw()
       }
+      img.src = frameUrl(i)
       frames.push(img)
     }
 
-    window.addEventListener('resize', resize)
-    window.addEventListener('scroll', onScroll, { passive: true })
     resize()
     onScroll()
-    tick()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', resize)
 
     return () => {
       alive = false
-      cancelAnimationFrame(raf)
-      window.removeEventListener('resize', resize)
+      if (raf) cancelAnimationFrame(raf)
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', resize)
     }
-  }, [totalDays])
+  }, [totalSteps])
 
-  const activeDay = days[activeDayIndex] || days[0] || {}
+  const feature = TREKI_FEATURES[activeStep] || TREKI_FEATURES[0]
+  const IconComponent = feature.icon
 
   return (
     <div
       ref={wrapRef}
-      className="relative w-full h-[500vh] sm:h-[580vh] -mt-32 sm:-mt-44 -mb-[95vh] z-20"
+      className="relative w-full h-[450vh] sm:h-[500vh] -mb-[95vh] z-20"
+      style={{ marginTop: -100 }}
     >
-      {/* Sticky full-screen stage with alpha mask fade to physically erase the hard top edge */}
+      {/* Sticky full-screen stage. Top melts seamlessly into the white section above */}
       <div 
         className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent"
-        style={{
-          WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 10%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 26%)',
-          maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.4) 10%, rgba(0,0,0,0.85) 18%, rgba(0,0,0,1) 26%)',
-        }}
       >
         
-        {/* Dynamic Scrubbed Canvas Background - Crystal Clear */}
+        {/* Dynamic Scrubbed Canvas Background - Top dissolves/melts smoothly into white */}
         <canvas
           ref={canvasRef}
           aria-hidden="true"
           className="absolute inset-0 h-full w-full object-cover"
+          style={{
+            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 12%, black 22%)',
+            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 12%, black 22%)',
+          }}
         />
 
-        {/* Minimal soft gradient just behind the text card to keep the background scenery 100% visible and vivid */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        {/* Minimal soft gradient just behind the text card */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
         {/* Main Stage Container */}
         <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col justify-between pt-24 pb-10 sm:pt-32 sm:pb-14">
           
-          {/* Top Section Header */}
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-white backdrop-blur-md border border-white/20 mb-3">
-                <Compass size={13} className="text-[#E8A317]" />
-                Day-by-Day Expedition
-              </div>
-              <h2 className="font-display text-3xl sm:text-5xl font-bold tracking-tight text-white drop-shadow-md">
-                Kedarkantha Trek Itinerary
-              </h2>
+          {/* Top Section Header - Perfectly Centered */}
+          <div className="flex flex-col items-center justify-center text-center w-full">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-white backdrop-blur-md border border-white/20 mb-3">
+              <ShieldCheck size={13} className="text-[#E8A317]" />
+              Why Treki Travels
             </div>
-
-            {/* Step Counter Badge */}
-            <div className="flex items-center gap-3 bg-white/10 backdrop-blur-md px-4 py-2 rounded-2xl border border-white/15">
-              <span className="text-xs uppercase font-semibold text-white/70 tracking-wider">Progress</span>
-              <div className="flex items-center gap-1.5 font-display text-xl font-bold text-white">
-                <span className="text-[#E8A317]">0{activeDayIndex + 1}</span>
+            <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
+              Treki Info, Trust & Support
+            </h2>
+            
+            {/* Step Counter Badge Centered */}
+            <div className="mt-3 inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/15">
+              <span className="text-[11px] uppercase font-semibold text-white/70 tracking-wider">Highlight</span>
+              <div className="flex items-center gap-1 font-display text-sm font-bold text-white">
+                <span className="text-[#E8A317]">0{activeStep + 1}</span>
                 <span className="text-white/40">/</span>
-                <span>0{totalDays}</span>
+                <span>0{totalSteps}</span>
               </div>
             </div>
           </div>
 
-          {/* Middle Layout: Vertical Step Timeline on left + Active Day Content Card */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 sm:gap-12 items-center my-auto">
-            
-            {/* Left Column: Vertical Waypoint Indicators */}
-            <div className="hidden md:flex md:col-span-4 flex-col space-y-3.5">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#E8A317] mb-2 flex items-center gap-2">
-                <Footprints size={14} />
-                Summit Route Steps
+          {/* Centered Layout: Clean floating text in the middle of the screen (container bg removed) */}
+          <div className="w-full max-w-4xl mx-auto my-auto text-center">
+            <div
+              key={activeStep}
+              className="relative p-4 sm:p-6 animate-fade-in transition-all duration-300"
+            >
+              {/* Badge & Highlight info */}
+              <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
+                <span className="px-3.5 py-1.5 rounded-xl bg-[#E8A317] text-forest font-display font-extrabold text-xs sm:text-sm tracking-wide shadow-md">
+                  {feature.badge}
+                </span>
+                <span className="text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
+                  <IconComponent size={15} className="text-[#E8A317]" />
+                  {feature.highlight}
+                </span>
+                <span className="inline-flex items-center gap-1.5 text-xs text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
+                  <ShieldCheck size={13} className="text-[#E8A317]" />
+                  Verified Standard
+                </span>
               </div>
 
-              {days.map((d, idx) => {
-                const isActive = activeDayIndex === idx
-                return (
-                  <div
-                    key={d.day}
-                    className={`group flex items-center gap-4 p-3 rounded-xl transition-all duration-300 ${
-                      isActive
-                        ? 'bg-white/15 backdrop-blur-md border border-white/30 translate-x-2 shadow-lg'
-                        : 'opacity-50 hover:opacity-80'
+              {/* Title */}
+              <h3 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mt-4 leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
+                {feature.title}
+              </h3>
+
+              {/* Description Narrative */}
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-normal [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
+                {feature.desc}
+              </p>
+
+              {/* Stat Badges Grid */}
+              <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto mt-8 pt-6 border-t border-white/20">
+                {feature.stats.map((s) => (
+                  <div key={s.label} className="p-2 sm:p-3 text-center">
+                    <p className="font-display text-xl sm:text-3xl font-extrabold text-[#E8A317] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{s.value}</p>
+                    <p className="text-xs sm:text-sm text-white/90 mt-1 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{s.label}</p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Interactive step indicator pills */}
+              <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-white/15">
+                {TREKI_FEATURES.map((f, i) => (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setActiveStep(i)}
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      activeStep === i ? 'w-8 bg-[#E8A317]' : 'w-2.5 bg-white/30 hover:bg-white/60'
                     }`}
-                  >
-                    <span
-                      className={`h-8 w-8 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                        isActive
-                          ? 'bg-[#E8A317] text-forest font-extrabold shadow-md scale-110'
-                          : 'bg-white/20 text-white'
-                      }`}
-                    >
-                      D{d.day}
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className={`text-sm font-semibold truncate ${isActive ? 'text-white' : 'text-white/80'}`}>
-                        {d.title}
-                      </p>
-                      <p className="text-[11px] text-white/60 truncate">
-                        {d.meta}
-                      </p>
-                    </div>
-                    {isActive && (
-                      <ChevronRight size={16} className="text-[#E8A317] animate-pulse shrink-0" />
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-
-            {/* Right Column: Active Step Animated Text Card (Clean, focused card with crystal clear background) */}
-            <div className="md:col-span-8">
-              <div
-                key={activeDayIndex}
-                className="relative bg-black/60 backdrop-blur-xl border border-white/20 p-6 sm:p-10 rounded-3xl shadow-2xl animate-fade-in transition-all duration-300"
-              >
-                {/* Day Badge & Meta info */}
-                <div className="flex flex-wrap items-center justify-between gap-3 pb-5 border-b border-white/15">
-                  <div className="flex items-center gap-3">
-                    <span className="px-3.5 py-1.5 rounded-xl bg-[#E8A317] text-forest font-display font-extrabold text-sm sm:text-base tracking-wide shadow-md">
-                      DAY {activeDay.day}
-                    </span>
-                    <span className="text-white/85 text-xs sm:text-sm font-medium flex items-center gap-1.5">
-                      <MapPin size={14} className="text-[#E8A317]" />
-                      {activeDay.meta}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center gap-1.5 text-xs text-white/90 bg-white/15 px-3 py-1 rounded-full border border-white/20">
-                    <Mountain size={13} className="text-[#E8A317]" />
-                    Elevation Trail
-                  </div>
-                </div>
-
-                {/* Day Title */}
-                <h3 className="font-display text-2xl sm:text-4xl md:text-5xl font-bold text-white tracking-tight mt-5 leading-tight">
-                  {activeDay.title}
-                </h3>
-
-                {/* Detailed Day Narrative Text */}
-                <p className="mt-4 sm:mt-6 text-sm sm:text-base md:text-lg text-white/90 leading-relaxed font-normal">
-                  {activeDay.text}
-                </p>
-
-                {/* Bottom interactive step dots indicator for mobile */}
-                <div className="flex md:hidden items-center justify-center gap-2 mt-6 pt-4 border-t border-white/15">
-                  {days.map((_, i) => (
-                    <div
-                      key={i}
-                      className={`h-2 rounded-full transition-all duration-300 ${
-                        activeDayIndex === i ? 'w-6 bg-[#E8A317]' : 'w-2 bg-white/30'
-                      }`}
-                    />
-                  ))}
-                </div>
+                    aria-label={f.title}
+                  />
+                ))}
               </div>
             </div>
-
           </div>
 
           {/* Bottom Scroll Prompt Bar */}
           <div className="flex items-center justify-between text-xs text-white/70 pt-4 border-t border-white/15">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#E8A317] animate-ping" />
-              <span>Scroll to scrub frames & advance route</span>
+              <span>Scroll to scrub alpine scenery & explore Treki pillars</span>
             </div>
-            <span className="hidden sm:inline">Frames auto-sync with expedition path</span>
+            <span className="hidden sm:inline">24/7 Operations Hub • Himalayan Certified</span>
           </div>
 
         </div>
