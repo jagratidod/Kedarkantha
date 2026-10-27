@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { ShieldCheck, HeartHandshake, Headphones, Award, Leaf, ChevronRight, Sparkles, CheckCircle2, XCircle } from 'lucide-react'
+import { ShieldCheck, Headphones, Award, Leaf, Sparkles, CheckCircle2 } from 'lucide-react'
+import Img from '../ui/Img'
 
-const FRAME_COUNT = 25
-const frameUrl = (i) => `/BGIMAGES/ezgif-frame-${String(i + 1).padStart(3, '0')}.jpg`
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const ease = (t) => t * t * (3 - 2 * t)
 
@@ -107,224 +106,177 @@ const TREKI_FEATURES = [
   },
 ]
 
+/*
+ * Treki Info, Trust & Support: a scroll-told story on a light background (P = 0..1 over the pinned stage).
+ *
+ *   0.00 - 0.18  headline "Hello, we are Treki Travels." fills in word by word (ghost grey -> ink)
+ *   0.28 - 0.42  headline lifts away; a photo rises and grows, with huge "WHY TREKI" lettering on it
+ *   0.45 - 0.60  photo slides to the left panel, lettering fades, the second headline appears on the right
+ *   0.62 - 1.00  the six feature cards (from TREKI_FEATURES) slide in from the right and travel left, one after another
+ */
+
+const WORDS = [
+  { w: 'Hello,', accent: true },
+  { w: 'we' }, { w: 'are' }, { w: 'Treki' }, { w: 'Travels.' },
+]
+const clamp01 = clamp
+const seg = (p, a, b) => clamp01((p - a) / (b - a))
+const mix = (a, b, t) => a + (b - a) * t
+
+const FOCI = ['60% 40%', '30% 55%', '75% 35%', '50% 25%', '20% 60%', '85% 45%']
+
 export default function ItineraryScrollCanvas() {
-  const wrapRef = useRef(null)
-  const stageRef = useRef(null)
-  const canvasRef = useRef(null)
-  const [activeStep, setActiveStep] = useState(0)
-  const totalSteps = TREKI_FEATURES.length
+  const wrap = useRef(null)
+  const els = useRef({})
+  const [narrow, setNarrow] = useState(false)
+  const reduced = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
   useEffect(() => {
-    const wrap = wrapRef.current
-    const canvas = canvasRef.current
-    if (!wrap || !canvas) return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const set = () => setNarrow(mq.matches)
+    set()
+    mq.addEventListener('change', set)
+    return () => mq.removeEventListener('change', set)
+  }, [])
 
-    const ctx = canvas.getContext('2d')
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
-
-    const frames = []
-    let current = 0
-    let target = 0
+  useEffect(() => {
+    const e = els.current
+    let target = reduced ? 1 : 0
+    let cur = target
     let raf = 0
-    let alive = true
 
-    const resize = () => {
-      if (!canvas) return
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const { width, height } = canvas.getBoundingClientRect()
-      canvas.width = Math.round(width * dpr)
-      canvas.height = Math.round(height * dpr)
-      draw()
-    }
+    const apply = () => {
+      const p = cur
+      const vw = window.innerWidth
+      const vh = window.innerHeight
 
-    const drawCover = (img, alpha) => {
-      if (!img?.complete || !img.naturalWidth) return
-      const cw = canvas.width
-      const ch = canvas.height
-      const s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
-      const w = img.naturalWidth * s
-      const h = img.naturalHeight * s
-      ctx.globalAlpha = alpha
-      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h)
-    }
+      // Headline words
+      const hIn = seg(p, 0, 0.18)
+      const hOut = ease(seg(p, 0.28, 0.4))
+      e.words.forEach((w, i) => {
+        const k = clamp01(hIn * (WORDS.length + 1.5) - i)
+        w.style.opacity = String(mix(0.14, 1, ease(k)))
+      })
+      e.head.style.opacity = String(1 - hOut)
+      e.head.style.transform = `translateY(${-hOut * 14}vh)`
+      e.kicker.style.opacity = String(ease(seg(p, 0, 0.06)) * (1 - hOut))
 
-    function draw() {
-      const frameIndex = current * (FRAME_COUNT - 1)
-      const baseIndex = Math.floor(frameIndex)
-      const nextIndex = Math.min(baseIndex + 1, FRAME_COUNT - 1)
-      const blend = frameIndex - baseIndex
+      // Photo
+      const rise = ease(seg(p, 0.26, 0.42))
+      const side = ease(seg(p, 0.45, 0.6))
+      const leave = ease(seg(p, 0.7, 0.86))
+      const big = narrow ? [4, 24, 92, 52] : [14, 14, 72, 72]
+      const small = narrow ? [0, 0, 100, 34] : [0, 0, 38, 100]
+      const r0 = narrow ? [20, 100, 60, 30] : [30, 100, 40, 60]
+      const r = r0.map((v, i) => mix(mix(v, big[i], rise), small[i], side))
+      const ph = e.photo
+      ph.style.left = `${r[0] - leave * (narrow ? 0 : 42)}%`
+      ph.style.top = `${r[1] - (narrow ? leave * 36 : 0)}%`
+      ph.style.width = `${r[2]}%`
+      ph.style.height = `${r[3]}%`
+      ph.style.borderRadius = `${mix(mix(28, 20, rise), 0, side)}px`
+      ph.style.opacity = String(rise > 0 ? 1 : 0)
+      e.photoImg.style.transform = `scale(${mix(1.25, 1.02, rise + side * 0.2)})`
+      e.big.style.opacity = String(rise * (1 - ease(seg(p, 0.45, 0.55))))
+      e.big.style.transform = `translateY(${(1 - rise) * 8}vh) scale(${mix(0.94, 1, rise)})`
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height)
-      drawCover(frames[baseIndex], 1)
-      if (blend > 0.001 && baseIndex !== nextIndex) {
-        drawCover(frames[nextIndex], blend)
-      }
+      // Second headline + cards track
+      const tIn = ease(seg(p, 0.56, 0.66))
+      const travelP = ease(seg(p, 0.72, 1))
+      const trackW = e.track.scrollWidth
+      const startLeft = narrow ? 5 : 42 // vw
+      const endLeft = 5
+      const left = mix(startLeft, endLeft, ease(seg(p, 0.7, 0.86))) * (vw / 100)
+      const travel = Math.max(0, trackW - (vw - endLeft * (vw / 100) * 1.2))
+      e.track.style.transform = `translate3d(${left - travelP * travel}px, 0, 0)`
+      e.track.style.opacity = String(tIn)
+      e.track.style.top = narrow ? '39%' : '17%'
+      e.track.style.height = narrow ? '56%' : '70%'
+      e.progress.style.transform = `scaleX(${travelP})`
+      e.progressWrap.style.opacity = String(tIn)
+      void vh
     }
 
     const tick = () => {
-      current += (target - current) * 0.14
-      if (Math.abs(target - current) < 0.0005) {
-        current = target
-      }
-      draw()
-
-      // Smooth white border transition at last scroll (from 0.82 to 0.98)
-      if (stageRef.current) {
-        const borderProgress = clamp((current - 0.82) / 0.16, 0, 1)
-        const p = ease(borderProgress)
-        // White frame: the stage is clipped inward, so the white page background shows around it.
-        const inset = p * (window.innerWidth < 768 ? 10 : 24)
-        stageRef.current.style.clipPath = p > 0 ? `inset(${inset}px round ${p * 28}px)` : 'none'
-      }
-
-
-      if (current !== target) {
-        raf = requestAnimationFrame(tick)
-      } else {
-        raf = 0
-      }
+      cur += (target - cur) * 0.12
+      if (Math.abs(target - cur) < 0.0003) cur = target
+      apply()
+      raf = cur === target ? 0 : requestAnimationFrame(tick)
     }
-
     const onScroll = () => {
-      const rect = wrap.getBoundingClientRect()
-      const totalScrollable = wrap.offsetHeight - window.innerHeight
-      if (totalScrollable <= 0) return
-
-      const progress = clamp(-rect.top / totalScrollable, 0, 1)
-      target = progress
+      if (reduced) return
+      const r = wrap.current.getBoundingClientRect()
+      target = clamp(-r.top / Math.max(1, wrap.current.offsetHeight - window.innerHeight))
       if (!raf) raf = requestAnimationFrame(tick)
-
-      const step = Math.min(Math.floor(progress * totalSteps), totalSteps - 1)
-      setActiveStep(step)
     }
-
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      img.onload = () => {
-        if (alive && i === 0) draw()
-      }
-      img.src = frameUrl(i)
-      frames.push(img)
-    }
-
-    resize()
     onScroll()
+    apply()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', resize)
-    return () => {
-      alive = false
-      if (raf) cancelAnimationFrame(raf)
-      window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', resize)
-    }
-  }, [totalSteps])
+    window.addEventListener('resize', () => { onScroll(); apply() })
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', onScroll) }
+  }, [narrow, reduced])
 
-  const feature = TREKI_FEATURES[activeStep] || TREKI_FEATURES[0]
-  const FeatureIcon = feature.icon
+  const reg = (k) => (n) => { els.current[k] = n }
 
   return (
-    <div ref={wrapRef} className="relative w-full h-[450vh] sm:h-[500vh] z-20 bg-white" style={{ marginTop: -100 }}>
-      {/* Sticky stage: on the last scroll it is clipped inward, leaving a white rounded frame around it */}
-      <div ref={stageRef} className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent">
-        <canvas
-          ref={canvasRef}
-          aria-hidden="true"
-          className="absolute inset-0 h-full w-full object-cover"
-          style={{
-            WebkitMaskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 12%, black 22%)',
-            maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 12%, black 22%)',
-          }}
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
+    <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-[#F5F6F2]" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
+      <div className="sticky top-0 h-svh overflow-hidden bg-[#F5F6F2]">
+        {/* 1. Headline */}
+        <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
+          <p ref={reg('kicker')} className="mb-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-forest/70 md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
+          <h2 ref={reg('head')} className="font-bold leading-[1.02] tracking-tight text-ink" style={{ fontSize: narrow ? '15vw' : '8.4vw' }}>
+            {WORDS.map(({ w, accent }, i) => (
+              <span key={w} ref={(n) => { (els.current.words ||= [])[i] = n }} className={`mr-[0.22em] inline-block ${accent ? 'text-cta' : ''}`} style={{ opacity: 0.14 }}>{w}</span>
+            ))}
+          </h2>
+        </div>
 
-        <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col justify-between pt-24 pb-10 sm:pt-32 sm:pb-14">
-          <div className="flex flex-col items-center justify-center text-center w-full">
-            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-white backdrop-blur-md border border-white/20 mb-3">
-              <ShieldCheck size={13} className="text-[#E8A317]" />
-              Why Treki Travels
-            </div>
-            <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">Treki Info, Trust &amp; Support</h2>
-            <div className="mt-3 inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/15">
-              <span className="text-[11px] uppercase font-semibold text-white/70 tracking-wider">Highlight</span>
-              <div className="flex items-center gap-1 font-display text-sm font-bold text-white">
-                <span className="text-[#E8A317]">0{activeStep + 1}</span>
-                <span className="text-white/40">/</span>
-                <span>0{totalSteps}</span>
-              </div>
-            </div>
+        {/* 2. Photo (rises, then becomes the left panel) */}
+        <div ref={reg('photo')} className="absolute overflow-hidden bg-sage" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
+          <div ref={reg('photoImg')} className="h-full w-full will-change-transform"><Img focus="55% 40%" sizes="80vw" /></div>
+          <div className="absolute inset-0 bg-black/25" />
+          <p ref={reg('big')} className="absolute inset-0 flex items-center justify-center text-center font-black uppercase leading-[0.9] tracking-tighter text-white" style={{ fontSize: narrow ? '17vw' : '10vw', opacity: 0 }}>
+            Why<br />Treki
+          </p>
+        </div>
+
+        {/* 3. Second headline + feature cards */}
+        <div ref={reg('track')} className="absolute left-0 flex items-stretch gap-4 md:gap-6" style={{ opacity: 0 }}>
+          <div className="flex shrink-0 flex-col justify-center" style={{ width: narrow ? '78vw' : '30vw' }}>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-forest/70">Why Treki Travels</p>
+            <h3 className="mt-3 font-bold leading-[1.08] tracking-tight text-ink" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
+              Treks you can trust,<br />journeys you <span className="text-cta">won&rsquo;t forget.</span>
+            </h3>
+            <p className="mt-4 max-w-sm text-sm text-muted">Scroll to meet the people, standards and promises behind every Kedarkantha batch.</p>
           </div>
-
-          <div className="w-full max-w-4xl mx-auto my-auto text-center">
-            <div key={activeStep} className="relative p-4 sm:p-6 animate-fade-in transition-all duration-300">
-              <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#E8A317] text-forest font-display font-extrabold text-xs sm:text-sm tracking-wide shadow-md">{feature.badge}</span>
-                <span className="text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
-                  <FeatureIcon size={15} className="text-[#E8A317]" />
-                  {feature.highlight}
-                </span>
-                <span className="inline-flex items-center gap-1.5 text-xs text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
-                  <ShieldCheck size={13} className="text-[#E8A317]" />
-                  Verified Standard
-                </span>
-              </div>
-              <h3 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mt-4 leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">{feature.title}</h3>
-              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-normal [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">{feature.desc}</p>
-
-              {feature.inclusionsList ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mt-6 text-left">
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                    <p className="text-xs font-bold uppercase tracking-wider text-green-300 mb-2.5 flex items-center gap-1.5"><CheckCircle2 size={14} /> What&apos;s Included</p>
-                    <ul className="space-y-1.5 text-xs sm:text-sm text-white/90">
-                      {feature.inclusionsList.map((t) => (
-                        <li key={t} className="flex items-start gap-2"><CheckCircle2 size={13} className="text-green-400 shrink-0 mt-0.5" /><span>{t}</span></li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
-                    <p className="text-xs font-bold uppercase tracking-wider text-red-300 mb-2.5 flex items-center gap-1.5"><XCircle size={14} /> What&apos;s Not Included</p>
-                    <ul className="space-y-1.5 text-xs sm:text-sm text-white/90">
-                      {feature.exclusionsList.map((t) => (
-                        <li key={t} className="flex items-start gap-2"><XCircle size={13} className="text-red-400 shrink-0 mt-0.5" /><span>{t}</span></li>
-                      ))}
-                    </ul>
-                  </div>
+          {TREKI_FEATURES.map((f, i) => {
+            const FIcon = f.icon
+            const lines = f.stats || f.inclusionsList.slice(0, 3).map((t) => ({ value: '✓', label: t }))
+            return (
+              <article key={f.id} className="relative shrink-0 overflow-hidden rounded-2xl bg-ink-bg text-white shadow-card" style={{ width: narrow ? '68vw' : '21vw' }}>
+                <div className="absolute inset-0"><Img focus={FOCI[i % FOCI.length]} sizes="30vw" /></div>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
+                <span className="absolute left-4 top-4 rounded-full bg-[#E8A317] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-forest">{String(i + 1).padStart(2, '0')} · {f.badge}</span>
+                <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
+                  <FIcon size={20} className="mb-2 text-[#E8A317]" aria-hidden="true" />
+                  <h4 className="font-display text-2xl font-bold leading-tight md:text-[1.7vw]" style={{ fontSize: narrow ? undefined : 'clamp(1.35rem,1.7vw,2rem)' }}>{f.title}</h4>
+                  <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-white/80 md:text-[0.82vw]" style={{ fontSize: narrow ? undefined : 'clamp(0.75rem,0.82vw,0.95rem)' }}>{f.desc}</p>
+                  <ul className="mt-3 flex flex-wrap gap-x-4 gap-y-1 border-t border-white/20 pt-3 text-[11px]">
+                    {lines.map((s) => (
+                      <li key={s.label}><span className="font-display font-bold text-[#E8A317]">{s.value}</span> <span className="text-white/80">{s.label}</span></li>
+                    ))}
+                  </ul>
                 </div>
-              ) : (
-                <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto mt-8 pt-6 border-t border-white/20">
-                  {feature.stats.map((s) => (
-                    <div key={s.label} className="p-2 sm:p-3 text-center">
-                      <p className="font-display text-xl sm:text-3xl font-extrabold text-[#E8A317] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{s.value}</p>
-                      <p className="text-xs sm:text-sm text-white/90 mt-1 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{s.label}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
+              </article>
+            )
+          })}
+          <div className="w-2 shrink-0 md:w-10" aria-hidden="true" />
+        </div>
 
-              <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-white/15">
-                {TREKI_FEATURES.map((f, i) => (
-                  <button
-                    key={f.id}
-                    type="button"
-                    onClick={() => setActiveStep(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${activeStep === i ? 'w-8 bg-[#E8A317]' : 'w-2.5 bg-white/30 hover:bg-white/60'}`}
-                    aria-label={f.title}
-                  />
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-xs text-white/70 pt-4 border-t border-white/15">
-            <div className="flex items-center gap-2">
-              <span className="h-2 w-2 rounded-full bg-[#E8A317] animate-ping" />
-              <span>Scroll to scrub alpine scenery &amp; explore Treki pillars</span>
-            </div>
-            <span className="hidden sm:inline">24/7 Operations Hub • Himalayan Certified</span>
-          </div>
+        <div ref={reg('progressWrap')} className="absolute bottom-6 left-6 right-6 h-[2px] overflow-hidden rounded-full bg-forest/15 md:left-[5vw] md:right-[5vw]" style={{ opacity: 0 }} aria-hidden="true">
+          <div ref={reg('progress')} className="h-full origin-left bg-forest" style={{ transform: 'scaleX(0)' }} />
         </div>
       </div>
-    </div>
+    </section>
   )
 }

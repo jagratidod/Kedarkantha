@@ -94,6 +94,8 @@
   .ij-card { transition: opacity .9s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
   .ij-pin[data-on="false"] .ij-card { opacity: 0; transform: translateY(30px) scale(.95); }
   .ij-pin[data-on="past"] .ij-card { opacity: 0; transform: translateY(-24px) scale(.96); pointer-events: none; }
+  .ij-label { transform: translate(-50%, -50%) rotate(var(--rot, 0deg)); text-shadow: 0 1px 0 rgb(255 255 255 / .8), 0 0 8px rgb(252 248 241 / .9); transition: opacity 1.2s ease .5s; }
+  .ij-pin[data-on="false"] .ij-label { opacity: 0; }
   .ij-badge { transition: transform .6s cubic-bezier(.3,1.7,.5,1); }
   .ij-pin[data-on="false"] .ij-badge { transform: scale(0); }
   @keyframes ij-flow { to { stroke-dashoffset: -141; } }

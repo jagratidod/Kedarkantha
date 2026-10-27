@@ -3,7 +3,7 @@ import AsyncView from '../ui/AsyncView'
 import Img from '../ui/Img'
 import { useAsync } from '../../hooks/useAsync'
 import { getItinerary } from '../../features/trek/api'
-const mapUrl = '/dayone to day end image.png'
+const mapUrl = '/map.png'
 
 /*
  * Day-by-day itinerary drawn on the hand-drawn trek map (itinerary-map.webp, 820 x 1919).
@@ -20,16 +20,24 @@ const mapUrl = '/dayone to day end image.png'
  *   card          : 230-300px wide, beside the route stop (desktop); 58vw (200-240px) above the stop (mobile)
  */
 
-const ART = { w: 820, h: 1919 }
-const CREAM = '#F9F0E1' // the paper colour of the artwork, used for the stage and the fading edges
+const ART = { w: 2172, h: 724 }
+const CREAM = '#FCF8F1' // the paper colour of the artwork, used for the stage and the fading edges
 const TAN = '#B8892F'
 
-// Route in artwork pixels, bottom -> summit -> back down. `stop` marks a day.
+// Route in artwork pixels, left -> right: Sankri, Juda Ka Talab, Base Camp, summit, then back down. `stop` marks a day.
 const ROUTE = [
-  [60, 1915], [192, 1757, 1], [290, 1597], [369, 1434, 2], [300, 1330], [247, 1219], [380, 1130],
-  [545, 1016, 3], [500, 930], [420, 825], [480, 720], [540, 672], [500, 473], [590, 380], [520, 194, 4],
-  [640, 290], [730, 440], [775, 640], [700, 820], [700, 905, 5], [640, 1050], [600, 1190], [690, 1340],
-  [770, 1490], [735, 1650, 6], [620, 1790],
+  [40, 620], [230, 565, 1], [420, 500], [690, 525], [950, 470], [1250, 455, 2], [1420, 420], [1560, 335],
+  [1650, 315, 3], [1760, 200], [1860, 95, 4], [1960, 260], [1990, 430], [1900, 560, 5], [2050, 640], [2130, 690, 6],
+]
+
+// Hand-lettered place names written onto the map, per stop. dx/dy: offset from the stop, in artwork px; rot in degrees.
+const PLACES = [
+  { name: 'Sankri', dx: -10, dy: 62, rot: -3 },
+  { name: 'Juda Ka Talab', dx: 70, dy: 42, rot: -4, lake: true },
+  { name: 'Base Camp', dx: 10, dy: -52, rot: 0 },
+  { name: 'Kedarkantha Summit', dx: 0, dy: -58, rot: 0 },
+  { name: 'Back to Sankri', dx: 0, dy: 40, rot: 0 },
+  { name: 'Dehradun', dx: -10, dy: -40, rot: 0 },
 ]
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
@@ -84,22 +92,21 @@ function makeTimeline(stopFs) {
   }
 }
 
-function Stop({ day, n, side, width, above }) {
+function Stop({ day, n, up, width, dx }) {
   return (
     <div
       className="ij-stop absolute"
-     
-      style={{ width, transform: above != null ? `translate(${above}px, calc(-100% - 26px))` : side === 'right' ? 'translate(18px,-50%)' : 'translate(calc(-100% - 18px),-50%)' }}
+      style={{ width, left: dx, top: 0, transform: up ? 'translate(0, calc(-100% - 24px))' : 'translate(0, 24px)' }}
     >
-      <div className="ij-card overflow-hidden rounded-2xl bg-white/95 shadow-[0_18px_50px_rgb(23_61_42/0.22)] ring-1 ring-forest/10">
-        <div className="relative aspect-[16/10] overflow-hidden">
-          <Img image={day.image} focus={day.focus} sizes="300px" />
-          <span className="absolute left-3 top-3 rounded-full bg-forest px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white">Day {n}</span>
+      <div className="ij-card overflow-hidden rounded-xl bg-white/95 shadow-[0_14px_40px_rgb(23_61_42/0.18)] ring-1 ring-forest/10">
+        <div className="relative aspect-[16/9.5] overflow-hidden">
+          <Img image={day.image} focus={day.focus} sizes="260px" />
+          <span className="absolute left-2.5 top-2.5 rounded-full bg-forest px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-white">Day {n}</span>
         </div>
-        <div className="p-4">
-          <p className="font-display text-xl font-semibold leading-tight text-forest sm:text-2xl">{day.title}</p>
-          <p className="mt-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-muted">{day.meta}</p>
-          <p className="mt-2 line-clamp-3 text-[13px] leading-relaxed text-ink/80">{day.text}</p>
+        <div className="p-3 sm:p-3.5">
+          <p className="font-display text-lg font-semibold leading-tight text-forest sm:text-xl">{day.title}</p>
+          <p className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-muted">{day.meta}</p>
+          <p className="mt-1.5 line-clamp-3 text-xs leading-relaxed text-ink/80">{day.text}</p>
         </div>
       </div>
     </div>
@@ -113,6 +120,7 @@ function Journey({ days }) {
   const mask = useRef(null)
   const tip = useRef(null)
   const titleRef = useRef(null)
+  const mapRef = useRef(null)
   const cards = useRef([])
   const [geo, setGeo] = useState(null)
   const [active, setActive] = useState(0)
@@ -123,8 +131,9 @@ function Journey({ days }) {
     const el = stage.current
     const measure = () => {
       const sw = el.clientWidth, sh = el.clientHeight
-      const lw = sw
-      const s = lw / ART.w
+      // Cover the stage height; on very wide screens grow until the map is at least 1.2 screens wide.
+      const s = Math.max(sh / ART.h, (sw * 1.2) / ART.w)
+      const lw = ART.w * s
       const r = buildRoute(s)
       setGeo({ sw, sh, lw, lh: ART.h * s, s, ...r })
     }
@@ -138,7 +147,7 @@ function Journey({ days }) {
 
   useEffect(() => {
     if (!geo || !timeline) return
-    const { sh, lh, len, el, stops } = geo
+    const { sw, sh, lw, len, el, stops } = geo
     let target = reduced ? 1 : 0
     let cur = target
     let raf = 0
@@ -152,8 +161,8 @@ function Journey({ days }) {
         tip.current.setAttribute('transform', `translate(${pt.x} ${pt.y})`)
         tip.current.style.opacity = f > 0.001 && f < 0.999 ? '1' : '0'
       }
-      const camY = clamp(sh * 0.56 - pt.y, Math.min(0, sh - lh), 0)
-      if (layer.current) layer.current.style.transform = `translate3d(0,${reduced ? 0 : camY}px,0)`
+      const camX = clamp(sw * (sw < 640 ? 0.5 : 0.42) - pt.x, Math.min(0, sw - lw), 0)
+      if (layer.current) layer.current.style.transform = `translate3d(${reduced ? 0 : camX}px,0,0)`
       // Only the current day's card is shown; earlier stops keep their numbered badge ('past'), later ones wait.
       const a = stops.reduce((n, s, i) => (f >= s.f - 0.004 ? i : n), -1)
       stops.forEach((s, i) => {
@@ -161,6 +170,11 @@ function Journey({ days }) {
         const c = cards.current[i]
         if (c && c.dataset.on !== state) c.dataset.on = state
       })
+      // Map background: none while the big heading is alone, then a light wash, then full strength.
+      if (mapRef.current) {
+        const o = 0.4 * ease(clamp((cur - 0.035) / 0.075)) + 0.6 * ease(clamp((cur - 0.12) / 0.16))
+        mapRef.current.style.opacity = String(reduced ? 1 : o)
+      }
       // Scale title from big in center to normal fit on top as user scrolls (0 -> 0.15)
       if (titleRef.current) {
         const p = clamp(cur / 0.14) // 0 at start, 1 when reached 14% scroll
@@ -194,9 +208,9 @@ function Journey({ days }) {
     return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', onScroll) }
   }, [geo, timeline, reduced])
 
-  const cardW = geo ? clamp(geo.lw * 0.3, 230, 300) : 260
+  const cardW = geo ? clamp(geo.lw * 0.25, 210, 260) : 230
   const narrow = geo ? geo.sw < 640 : false
-  const w = narrow ? clamp(geo.sw * 0.58, 200, 240) : cardW
+  const w = narrow ? clamp(geo.sw * 0.52, 180, 220) : cardW
 
   return (
     <section
@@ -208,17 +222,17 @@ function Journey({ days }) {
     >
       <div
         ref={stage}
-        className={`ij-stage ${reduced ? 'relative' : 'sticky'} overflow-hidden bg-white`}
-        style={{ height: reduced && geo ? geo.lh : undefined }}
+        className={`ij-stage ${reduced ? 'relative' : 'sticky'} overflow-hidden`}
+        style={{ background: CREAM }}
       >
         {geo && (
           <>
             <div
               ref={layer}
-              className="absolute left-0 top-0 will-change-transform"
-              style={{ width: geo.lw, height: geo.lh }}
+              className="absolute left-0 will-change-transform"
+              style={{ width: geo.lw, height: geo.lh, top: (geo.sh - geo.lh) / 2 }}
             >
-              <img src={mapUrl} alt="" decoding="async" className="absolute inset-0 h-full w-full select-none" draggable="false" />
+              <img ref={mapRef} src={mapUrl} alt="" style={{ opacity: 0 }} decoding="async" className="absolute inset-0 h-full w-full select-none" draggable="false" />
 
               <svg viewBox={`0 0 ${geo.lw} ${geo.lh}`} className="absolute inset-0 h-full w-full overflow-visible" aria-hidden="true">
                 <defs>
@@ -237,12 +251,25 @@ function Journey({ days }) {
               </svg>
 
               {geo.stops.map((s, i) => {
-                const side = s.x < geo.lw * 0.5 ? 'right' : 'left'
+                const up = s.y > geo.lh * 0.5
                 return (
                   <div key={i} className="absolute" style={{ left: s.x, top: s.y }}>
                     <div ref={(n) => { cards.current[i] = n }} data-on="false" className="ij-pin">
                       <span className="ij-badge absolute -left-4 -top-4 flex h-8 w-8 items-center justify-center rounded-full bg-forest text-sm font-semibold text-white shadow-md ring-2 ring-white">{i + 1}</span>
-                      <Stop day={days[i]} n={days[i].day} side={side} width={w} above={narrow ? clamp(s.x - w / 2, 8, geo.lw - w - 8) - s.x : null} />
+                      <span
+                        className={`ij-label pointer-events-none absolute whitespace-nowrap text-center font-display italic ${PLACES[i].lake ? 'font-semibold text-[#2F5D78]' : 'font-medium text-forest/80'}`}
+                        style={{
+                          left: PLACES[i].dx * geo.s,
+                          top: PLACES[i].dy * geo.s,
+                          fontSize: Math.max(PLACES[i].lake ? 20 : 15, geo.s * (PLACES[i].lake ? 30 : 22)),
+                          letterSpacing: PLACES[i].lake ? '0.06em' : '0.02em',
+                          '--rot': `${PLACES[i].rot}deg`,
+                        }}
+                        aria-hidden="true"
+                      >
+                        {PLACES[i].name}
+                      </span>
+                      <Stop day={days[i]} n={days[i].day} up={up} width={w} dx={clamp(s.x - w / 2, 8, geo.lw - w - 8) - s.x} />
                     </div>
                   </div>
                 )
@@ -254,10 +281,10 @@ function Journey({ days }) {
             {/* HUD Title with scroll scale animation (starts Big in center, then fits smoothly on top) */}
             <div
               ref={titleRef}
-              className="pointer-events-none absolute inset-x-0 top-4 flex flex-col items-center text-center will-change-transform sm:top-6"
+              className="pointer-events-none absolute inset-x-0 top-3 flex flex-col items-center text-center will-change-transform sm:top-5"
             >
-              <p className="text-[10px] font-semibold uppercase tracking-[0.35em] text-forest/70 sm:text-xs">Kedarkantha Trek</p>
-              <h2 className="font-display text-4xl font-bold uppercase tracking-tight leading-none text-forest drop-shadow-sm sm:text-5xl lg:text-6xl">Day by Day</h2>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-forest/70 sm:text-[11px]">Kedarkantha Trek</p>
+              <h2 className="font-display text-3xl font-bold uppercase tracking-tight leading-none text-forest drop-shadow-sm sm:text-4xl lg:text-5xl">Day by Day</h2>
             </div>
             <div className="pointer-events-none absolute inset-x-0 bottom-20 flex justify-center md:bottom-4">
               <div className="flex items-center gap-1.5 rounded-full bg-white/85 px-3 py-1.5 shadow ring-1 ring-forest/10 backdrop-blur">
