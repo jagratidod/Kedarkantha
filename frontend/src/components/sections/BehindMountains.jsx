@@ -46,9 +46,9 @@ export default function BehindMountains() {
       const p = cur
       const rise = ease(seg(p, 0.1, 0.62))
       const warm = ease(seg(p, 0.5, 0.9))
-      // Word: starts hidden below the ridge (translateY 95vh) and rises so full text is visible with minimal bottom edges touching the ridge
+      // Word: starts hidden below the ridge (translateY 95vh) and settles right in the middle
       if (e.word) {
-        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 48 : 42, rise)}vh, 0)`
+        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 36 : 30, rise)}vh, 0)`
       }
       if (e.letters) {
         e.letters.forEach((l) => {
