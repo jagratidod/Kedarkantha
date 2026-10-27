@@ -89,8 +89,8 @@
   /* Pinned stage: Itinerary full height, Hero with framed white matte border */
   .ij-stage { top: 0; height: 100svh; }
   @media (min-width: 640px) { .ij-stage { top: 0; height: 100svh; } }
-  .hero-stage { top: 1rem; height: calc(100svh - 2rem); }
-  @media (min-width: 640px) { .hero-stage { top: 1.5rem; height: calc(100svh - 3rem); } }
+  .hero-stage { top: 0; height: 100svh; }
+  @media (min-width: 640px) { .hero-stage { top: 0; height: 100svh; } }
   .ij-card { transition: opacity .9s ease, transform 1s cubic-bezier(.2,.7,.2,1); }
   .ij-pin[data-on="false"] .ij-card { opacity: 0; transform: translateY(30px) scale(.95); }
   .ij-pin[data-on="past"] .ij-card { opacity: 0; transform: translateY(-24px) scale(.96); pointer-events: none; }
@@ -123,6 +123,15 @@
   .fq-opt { animation: fq-rise .5s cubic-bezier(.2,.7,.2,1) both; animation-delay: calc(0.12s + var(--i, 0) * 0.07s); }
   .fq-bar { transform-origin: bottom; animation: fq-grow .6s cubic-bezier(.3,1.4,.5,1) both; animation-delay: calc(0.25s + var(--i, 0) * 0.09s); }
   @media (prefers-reduced-motion: reduce) { .fq-card, .fq-opt, .fq-bar { animation: none !important; } }
+
+  .hero-stage { --word-bottom: 40svh; }
+  .hero-word { font-size: 17.5vw; justify-content: center; }
+  .hero-ridge { height: 52svh; }
+  @media (min-width: 768px) {
+    .hero-stage { --word-bottom: 55svh; }
+    .hero-word { font-size: 14.5vw; }
+    .hero-ridge { height: auto; aspect-ratio: 1942 / 809; }
+  }
 
   .jm-node { opacity: 0; transition: opacity .4s ease var(--d, 0ms); }
   [data-in="true"] .jm-node { opacity: 1; }

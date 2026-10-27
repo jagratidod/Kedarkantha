@@ -2,96 +2,61 @@ import { useEffect, useRef } from 'react'
 import Img from '../ui/Img'
 import Icon from '../ui/Icon'
 import Button from '../ui/Button'
+import ridge from '../../assets/images/hero-3rd.webp'
 
-const FRAME_COUNT = 25
-const frameUrl = (i) => `/hero/ezgif-frame-${String(i + 1).padStart(3, '0')}.jpg`
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const seg = (p, a, b) => clamp((p - a) / (b - a))
 const ease = (t) => t * t * (3 - 2 * t)
 const WORD = 'KEDARKANTHA'
 
 /*
- * Scroll story (P = 0..1 over the whole pinned hero):
- *   0.00 - 0.10  dark screen, only the small "Kedarkantha" wordmark
- *   0.10 - 0.28  background image fades in and starts to move (frame scrub 0.10 -> 0.80)
- *   0.30 - 0.46  giant bold KEDARKANTHA rises letter by letter
- *   0.49 - 0.59  giant word lifts away
- *   0.60 - 0.72  hero copy (tagline, intro, buttons, facts) rises in, leaves at 0.78 - 0.85
- *   0.80 - 0.95  Trek Overview: heading, stat cards from both sides, then photo cards
- *   0.95 - 1.00  dissolves into the cream colour of the next section
+ * Scroll story (P = 0..1 over the whole pinned hero), on a dawn sky with the snowy ridge (3rdhero.png) along the bottom:
+ *   0.00 - 0.08  sky and mountains, a small "Scroll" cue
+ *   0.08 - 0.42  giant KEDARKANTHA rises from behind the ridge
+ *   0.50 - 0.62  the word lifts away while the ridge settles
+ *   0.52 - 0.76  hero copy (tagline, intro, button, facts)
+ *   0.82 - 0.96  Trek Overview: heading, stat cards from both sides, then photo cards
  * Every value is written to a CSS variable on the stage, and the markup reads them with calc().
  */
 const VARS = (p) => ({
-  '--pw': 1 - seg(p, 0.3, 0.37), // small wordmark
-  '--pb': ease(seg(p, 0.1, 0.28)), // background opacity
-  '--ps': 0.05 + 0.1 * ease(seg(p, 0.76, 0.9)), // subtle shade to keep background crisp and clear
-  '--pl': seg(p, 0.3, 0.46), // giant letters in
-  '--lo': ease(seg(p, 0.49, 0.59)), // giant letters out
-  '--ci': seg(p, 0.6, 0.72), // hero copy in
-  '--co': seg(p, 0.78, 0.85), // hero copy out
-  '--po': seg(p, 0.8, 0.95), // overview in
-  '--pe': ease(seg(p, 0.95, 1)), // dissolve to next section
+  '--pw': 1 - seg(p, 0.05, 0.14), // scroll cue
+  '--pl': ease(seg(p, 0.08, 0.42)), // word rises and tilts up
+  '--lo': ease(seg(p, 0.5, 0.56)), // word out
+  '--pm': ease(seg(p, 0, 0.55)), // ridge parallax / zoom
+  '--ps': 0.55 * ease(seg(p, 0.56, 0.7)), // dark veil so copy and cards stay readable
+  '--ci': seg(p, 0.57, 0.7), // hero copy in
+  '--co': seg(p, 0.76, 0.84), // hero copy out
+  '--po': seg(p, 0.82, 0.96), // overview in
 })
 
 /**
  * Scroll-driven hero: a tall wrapper scrolls while the stage stays sticky. `trek`, `facts`,
  * `stats` and `photos` come from the home page data, so the Trek Overview lives inside the hero.
  */
-export default function ScrollHero({ trek, facts = [], stats = [], photos = [], scrollLength = '820vh' }) {
+export default function ScrollHero({ trek, facts = [], stats = [], photos = [], scrollLength = '1500vh' }) {
   const wrapRef = useRef(null)
   const stageRef = useRef(null)
-  const canvasRef = useRef(null)
   const copyRef = useRef(null)
   const ovRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
     const stage = stageRef.current
-    const canvas = canvasRef.current
-    const ctx = canvas.getContext('2d')
-    ctx.imageSmoothingEnabled = true
-    ctx.imageSmoothingQuality = 'high'
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    const frames = []
     let target = reduced ? 0.58 : 0
     let current = target
     let raf = 0
-    let alive = true
-
-    const drawCover = (img, alpha) => {
-      if (!img?.complete || !img.naturalWidth) return
-      const cw = canvas.width, ch = canvas.height
-      const s = Math.max(cw / img.naturalWidth, ch / img.naturalHeight)
-      const w = img.naturalWidth * s, h = img.naturalHeight * s
-      ctx.globalAlpha = alpha
-      ctx.drawImage(img, (cw - w) / 2, (ch - h) / 2, w, h)
-    }
 
     const draw = () => {
-      const f = seg(current, 0.1, 0.8) * (FRAME_COUNT - 1)
-      const i = Math.floor(f), t = f - i
-      ctx.globalAlpha = 1
-      drawCover(frames[i], 1)
-      if (t > 0.001 && i + 1 < FRAME_COUNT) drawCover(frames[i + 1], t)
-      ctx.globalAlpha = 1
-
       const v = VARS(current)
       for (const k in v) stage.style.setProperty(k, String(v[k]))
       if (copyRef.current) copyRef.current.style.pointerEvents = v['--ci'] > 0.4 && v['--co'] < 0.5 ? 'auto' : 'none'
-      if (ovRef.current) ovRef.current.style.pointerEvents = v['--po'] > 0.5 && v['--pe'] < 0.5 ? 'auto' : 'none'
-    }
-
-    const resize = () => {
-      const dpr = Math.min(window.devicePixelRatio || 1, 2)
-      const { width, height } = canvas.getBoundingClientRect()
-      canvas.width = Math.round(width * dpr)
-      canvas.height = Math.round(height * dpr)
-      draw()
+      if (ovRef.current) ovRef.current.style.pointerEvents = v['--po'] > 0.5 ? 'auto' : 'none'
     }
 
     const tick = () => {
       const diff = target - current
-      current = Math.abs(diff) < 0.0003 ? target : current + diff * 0.2
+      current = Math.abs(diff) < 0.0003 ? target : current + diff * 0.16
       draw()
       raf = current === target ? 0 : requestAnimationFrame(tick)
     }
@@ -104,23 +69,12 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
       if (!raf) raf = requestAnimationFrame(tick)
     }
 
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image()
-      img.decoding = 'async'
-      img.onload = () => alive && draw()
-      img.src = frameUrl(i)
-      frames.push(img)
-    }
-
-    resize()
+    draw()
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', resize)
     return () => {
-      alive = false
       cancelAnimationFrame(raf)
       window.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', resize)
     }
   }, [])
 
@@ -135,49 +89,48 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
   }
 
   return (
-    <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-white px-4 pb-4 sm:px-6 sm:pb-6" aria-label="Kedarkantha trek introduction">
+    <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-white" aria-label="Kedarkantha trek introduction">
       <div
         ref={stageRef}
-        className="hero-stage sticky overflow-hidden rounded-2xl bg-ink-bg text-white sm:rounded-3xl"
-        style={{ '--pw': 1, '--pb': 0, '--ps': 0.18, '--pl': 0, '--lo': 0, '--ci': 0, '--co': 0, '--po': 0, '--pe': 0 }}
+        className="hero-stage sticky overflow-hidden bg-[#0E2233] text-white"
+        style={{ '--pw': 1, '--pl': 0, '--lo': 0, '--pm': 0, '--ps': 0, '--ci': 0, '--co': 0, '--po': 0 }}
       >
-        {/* Background sequence with vibrant visibility (heavy black overlay removed) */}
-        <div className="absolute inset-0" style={{ opacity: 'var(--pb)' }}>
-          <canvas ref={canvasRef} className="absolute inset-0 h-full w-full" aria-hidden="true" />
-        </div>
-        <div className="absolute inset-0 bg-ink-bg" style={{ opacity: 'var(--ps)' }} aria-hidden="true" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" aria-hidden="true" />
+        {/* Dawn sky */}
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0E2233 0%, #1F4663 30%, #4F87A8 58%, #B7D6E4 82%, #F3E3C8 100%)' }} aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'radial-gradient(80% 70% at 50% 100%, rgba(255,214,150,0.55), transparent 70%)' }} aria-hidden="true" />
 
-        {/* 1. Scroll cue */}
-        <p className="hero-wordmark absolute inset-x-0 bottom-6 text-center text-[11px] uppercase tracking-[0.35em] text-white/55" style={{ opacity: 'var(--pw)' }} aria-hidden="true">
-          Scroll
-        </p>
-
-        {/* 3. Giant KEDARKANTHA. */}
+        {/* Giant KEDARKANTHA, standing behind the ridge */}
         <div
-          className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center"
-          style={{ opacity: 'calc(1 - var(--lo))', transform: 'translateY(calc(var(--lo) * -26vh)) scale(calc(1 - var(--lo) * 0.35))' }}
+          className="pointer-events-none absolute inset-x-0 flex justify-center"
+          style={{ bottom: 'var(--word-bottom)', perspective: '1100px', opacity: 'calc(1 - var(--lo))', transform: 'translateY(calc(var(--lo) * -10vh))' }}
           aria-hidden="true"
         >
-          <div className="flex justify-center whitespace-nowrap text-[13.2vw] font-black leading-[0.9] tracking-tighter text-white [text-shadow:0_6px_40px_rgb(0_0_0/0.35)]">
-            {WORD.split('').map((ch, i) => (
-              <span key={i} className="inline-block overflow-hidden pb-[0.06em]">
-                <span
-                  className="inline-block"
-                  style={{
-                    transform: `translateY(calc((1 - clamp(0, (var(--pl) * 1.9 - ${(i * 0.085).toFixed(3)}), 1)) * 112%))`,
-                    opacity: `clamp(0, (var(--pl) * 1.9 - ${(i * 0.085).toFixed(3)}) * 3, 1)`,
-                  }}
-                >
-                  {ch}
-                </span>
-              </span>
-            ))}
+          <div
+            className="hero-word flex whitespace-nowrap uppercase leading-[0.9] tracking-[0.02em]"
+            style={{
+              fontFamily: 'Anton, Impact, sans-serif',
+              transformOrigin: '50% 100%',
+              transform: 'translateY(calc((1 - var(--pl)) * 40vh))',
+              opacity: 'clamp(0, var(--pl) * 6, 1)',
+            }}
+          >
+            <span className="block" style={{ color: '#FFFFFF', textShadow: '0 0.04em 0.5em rgba(8,24,40,0.35)' }}>{WORD}</span>
           </div>
-          <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.5em] text-white/80 sm:text-sm" style={rise('--pl', 0.7, 0.3, '14px')}>
-            Sankri · Uttarakhand · 12,500 ft
-          </p>
         </div>
+
+        {/* Snowy ridge along the bottom */}
+        <div className="hero-ridge pointer-events-none absolute inset-x-0 bottom-0" style={{ transform: 'translateY(calc(var(--pm) * 3vh)) scale(calc(1 + var(--pm) * 0.1))', transformOrigin: '50% 100%' }}>
+          <img src={ridge} alt="" decoding="async" fetchPriority="high" className="block h-full w-full object-cover object-bottom" draggable="false" />
+        </div>
+        <div className="absolute inset-0 bg-ink-bg" style={{ opacity: 'var(--ps)' }} aria-hidden="true" />
+
+        {/* Scroll cue and place line */}
+        <p className="hero-wordmark absolute inset-x-0 top-[16%] text-center text-[11px] uppercase tracking-[0.4em] text-white/70" style={{ opacity: 'var(--pw)' }} aria-hidden="true">
+          Scroll
+        </p>
+        <p className="absolute inset-x-0 top-[10%] text-center text-[11px] font-semibold uppercase tracking-[0.5em] text-white/80 sm:text-sm" style={{ opacity: 'calc(1 - var(--lo))' }}>
+          Sankri · Uttarakhand · 12,500 ft
+        </p>
 
         {/* 4. Hero copy. */}
         <div ref={copyRef} className="container-page absolute inset-0 flex flex-col justify-end pb-6 sm:justify-center sm:pb-10" style={{ pointerEvents: 'none' }}>
