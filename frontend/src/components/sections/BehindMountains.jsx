@@ -46,20 +46,20 @@ export default function BehindMountains() {
     let raf = 0
     const apply = () => {
       const p = cur
-      const rise = ease(seg(p, 0.1, 0.62))
-      const warm = ease(seg(p, 0.5, 0.9))
-      // Word: starts hidden below the ridge (translateY 42vh) and ends with its feet touching the ridge.
-      e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 52 : 32, rise)}vh, 0)`
+      const rise = ease(seg(p, 0.05, 0.55))
+      const warm = ease(seg(p, 0.2, 0.8))
+      // Word: rises cleanly into view on first scroll gesture
+      e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 50 : 28, rise)}vh, 0)`
       e.letters.forEach((l) => {
         l.style.opacity = '1'
       })
       e.ridge.style.transform = `scale(1)`
       e.sky.style.opacity = String(warm)
-      e.tag.style.opacity = String(ease(seg(p, 0.66, 0.82)))
-      e.tag.style.transform = `translateY(${(1 - ease(seg(p, 0.66, 0.82))) * 28}px)`
-      e.cta.style.opacity = String(ease(seg(p, 0.76, 0.9)))
-      e.cta.style.transform = `translateY(${(1 - ease(seg(p, 0.76, 0.9))) * 22}px)`
-      e.hint.style.opacity = String(1 - seg(p, 0.03, 0.12))
+      e.tag.style.opacity = String(ease(seg(p, 0.25, 0.65)))
+      e.tag.style.transform = `translateY(${(1 - ease(seg(p, 0.25, 0.65))) * 20}px)`
+      e.cta.style.opacity = String(ease(seg(p, 0.35, 0.75)))
+      e.cta.style.transform = `translateY(${(1 - ease(seg(p, 0.35, 0.75))) * 16}px)`
+      e.hint.style.opacity = String(1 - seg(p, 0.02, 0.15))
       e.stars.style.opacity = String(mix(0.5, 0, warm))
     }
     const tick = () => {
@@ -84,7 +84,7 @@ export default function BehindMountains() {
   const reg = (k) => (n) => { els.current[k] = n }
 
   return (
-    <section ref={wrap} id="behind-the-mountains" aria-label="Behind the mountains" className="relative bg-[#E8EFE5]" style={{ height: reduced ? '100svh' : narrow ? '300vh' : '340vh' }}>
+    <section ref={wrap} id="behind-the-mountains" aria-label="Behind the mountains" className="relative bg-[#E8EFE5]" style={{ height: reduced ? '100svh' : narrow ? '135vh' : '145vh' }}>
       <div className="sticky top-0 h-svh overflow-hidden" style={{ background: 'linear-gradient(to bottom, #DCE8EE 0%, #E8EFE5 38%, #F5F1E4 68%, #F7E3C4 100%)' }}>
         {/* Warm horizon glow that fades in */}
         <div ref={reg('sky')} className="absolute inset-0" style={{ opacity: 0, background: 'radial-gradient(90% 70% at 50% 100%, rgba(255,214,150,0.75), rgba(255,226,180,0.35) 45%, transparent 72%)' }} aria-hidden="true" />
