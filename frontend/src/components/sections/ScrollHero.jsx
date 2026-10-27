@@ -25,8 +25,9 @@ const VARS = (p) => ({
   '--pm': ease(seg(p, 0, 0.55)), // ridge parallax / zoom
   '--ps': 0.55 * ease(seg(p, 0.56, 0.7)), // dark veil so copy and cards stay readable
   '--ci': seg(p, 0.57, 0.7), // hero copy in
-  '--co': seg(p, 0.76, 0.84), // hero copy out
-  '--po': seg(p, 0.82, 0.96), // overview in
+  '--co': seg(p, 0.74, 0.82), // hero copy out
+  '--po': seg(p, 0.80, 0.90), // overview in
+  '--pz': ease(seg(p, 0.93, 0.98)), // fast snap zoom: border expands outward to fit screen border
 })
 
 /**
@@ -153,55 +154,87 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
           </ul>
         </div>
 
-        {/* 5. Trek Overview, inside the hero. */}
-        <div ref={ovRef} className="container-page absolute inset-0 flex flex-col justify-center gap-4 py-4 sm:gap-6" style={{ pointerEvents: 'none' }}>
-          <div className="text-center" style={rise('--po', 0, 0.3, '24px')}>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-white/90 ring-1 ring-white/20 backdrop-blur">
-              <span className="h-1.5 w-1.5 rounded-full bg-cta" /> Key Highlights
-            </span>
-            <h2 className="mt-2 text-3xl font-bold sm:text-5xl">Trek Overview</h2>
-            <p className="mt-1 text-sm text-white/75">Essential details at a glance</p>
-          </div>
+        {/* 5. Trek Overview, inside the hero with sequential border draw & fast screen border expansion */}
+        <div ref={ovRef} className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          {/* SVG Border that smoothly expands from content card size out to exact screen edges (inset 12px on mobile, 20px on desktop) */}
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            {/*
+              At --pz = 0: sits neatly around the max-w-6xl center box
+              At --pz = 1: expands out to the screen edges (left 16px, top 16px, width 100% - 32px, height 100% - 32px) like the second image
+            */}
+            <rect
+              x="calc(max(16px, (100% - 72rem) / 2) * (1 - var(--pz)) + 16px * var(--pz))"
+              y="calc(max(24px, (100% - 38rem) / 2) * (1 - var(--pz)) + 16px * var(--pz))"
+              width="calc(min(calc(100% - 32px), 72rem) * (1 - var(--pz)) + (100% - 32px) * var(--pz))"
+              height="calc(min(calc(100% - 48px), 38rem) * (1 - var(--pz)) + (100% - 32px) * var(--pz))"
+              rx="calc(20px * (1 - var(--pz)) + 24px * var(--pz))"
+              ry="calc(20px * (1 - var(--pz)) + 24px * var(--pz))"
+              fill="none"
+              stroke="rgba(255, 255, 255, calc(0.35 + var(--pz) * 0.65))"
+              strokeWidth="calc(1.5px + var(--pz) * 6.5px)"
+              pathLength="100"
+              style={{
+                strokeDasharray: '100',
+                strokeDashoffset: 'calc(100 - clamp(0, var(--po), 1) * 100)',
+                transition: 'all 0.12s ease-out',
+              }}
+            />
+          </svg>
 
-          <ul className="grid grid-cols-3 gap-2 sm:gap-3 lg:grid-cols-6">
-            {stats.map((s, i) => {
-              const left = i < stats.length / 2
-              const k = `clamp(0, (var(--po) - ${(0.12 + (i % 3) * 0.06).toFixed(2)}) / 0.4, 1)`
-              return (
-                <li
-                  key={s.label}
-                  style={{ opacity: k, transform: `translateX(calc((1 - ${k}) * ${left ? '-' : ''}90px))` }}
-                >
-                  <div className="flex h-full flex-col items-center gap-1 rounded-xl bg-black/20 p-3 text-center ring-1 ring-white/20 backdrop-blur-md sm:p-4">
-                    <span className="mb-0.5 flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-white/35 sm:h-10 sm:w-10"><Icon name={s.icon} size={18} /></span>
-                    <p className="text-xs font-bold sm:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
-                    <p className="text-[10px] text-white/80 sm:text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
+          {/* Middle text & cards container: stays strictly stationary with NO zoom/scaling */}
+          <div className="container-page relative z-10 mx-auto max-w-6xl p-4 sm:p-7 md:p-8">
+            <div className="text-center" style={rise('--po', 0, 0.3, '24px')}>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-white/90 ring-1 ring-white/20 backdrop-blur">
+                <span className="h-1.5 w-1.5 rounded-full bg-cta" /> Key Highlights
+              </span>
+              <h2 className="mt-2 text-3xl font-bold sm:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">Trek Overview</h2>
+              <p className="mt-1 text-sm text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">Essential details at a glance</p>
+            </div>
 
-          <ul className="grid grid-cols-3 gap-2 sm:gap-4">
-            {photos.map((h, i) => {
-              const k = `clamp(0, (var(--po) - ${(0.45 + i * 0.1).toFixed(2)}) / 0.4, 1)`
-              return (
-                <li key={h.id} style={{ opacity: k, transform: `translateY(calc((1 - ${k}) * 60px)) scale(calc(0.94 + ${k} * 0.06))` }}>
-                  <div className="overflow-hidden rounded-xl ring-1 ring-white/25">
-                    <div className="relative aspect-[4/3] sm:aspect-[16/9]">
-                      <Img image={h.image} focus={h.focus} sizes="(min-width:640px) 33vw, 33vw" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink-bg/85 via-transparent to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3">
-                        <p className="text-xs font-semibold sm:text-sm">{h.title}</p>
-                        <p className="hidden text-xs text-white/75 sm:block">{h.caption}</p>
+            <ul className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3 lg:grid-cols-6">
+                {stats.map((s, i) => {
+                  const left = i < stats.length / 2
+                  const k = `clamp(0, (var(--po) - ${(0.12 + (i % 3) * 0.06).toFixed(2)}) / 0.4, 1)`
+                  return (
+                    <li
+                      key={s.label}
+                      style={{ opacity: k, transform: `translateX(calc((1 - ${k}) * ${left ? '-' : ''}90px))` }}
+                    >
+                      <div className="flex h-full flex-col items-center gap-1 rounded-xl bg-black/25 p-3 text-center ring-1 ring-white/20 backdrop-blur-md sm:p-4">
+                        <span className="mb-0.5 flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-white/35 sm:h-10 sm:w-10"><Icon name={s.icon} size={18} /></span>
+                        <p className="text-xs font-bold sm:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
+                        <p className="text-[10px] text-white/80 sm:text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
                       </div>
-                    </div>
-                  </div>
-                </li>
-              )
-            })}
-          </ul>
-        </div>
+                    </li>
+                  )
+                })}
+              </ul>
+
+              <ul className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-4">
+                {photos.map((h, i) => {
+                  const k = `clamp(0, (var(--po) - ${(0.45 + i * 0.1).toFixed(2)}) / 0.4, 1)`
+                  return (
+                    <li key={h.id} style={{ opacity: k, transform: `translateY(calc((1 - ${k}) * 60px)) scale(calc(0.94 + ${k} * 0.06))` }}>
+                      <div className="overflow-hidden rounded-xl ring-1 ring-white/25">
+                        <div className="relative aspect-[4/3] sm:aspect-[16/9]">
+                          <Img image={h.image} focus={h.focus} sizes="(min-width:640px) 33vw, 33vw" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-ink-bg/85 via-transparent to-transparent" />
+                          <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3">
+                            <p className="text-xs font-semibold sm:text-sm">{h.title}</p>
+                            <p className="hidden text-xs text-white/75 sm:block">{h.caption}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </li>
+                  )
+                })}
+              </ul>
+            </div>
+          </div>
 
         {/* 6. Dissolve into next section removed to prevent hiding hero screen */}
       </div>
