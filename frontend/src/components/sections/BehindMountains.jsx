@@ -18,21 +18,6 @@ const ease = (t) => t * t * (3 - 2 * t)
 const mix = (a, b, t) => a + (b - a) * t
 
 const LETTERS = 'KEDARKANTHA'.split('')
-// Only minimal extension on the outer edges so the bottom edges lightly touch the mountain ridge while showing the full text
-const stretch = (i, isNarrow) => {
-  const isOuterEdge = i === 0 || i === LETTERS.length - 1
-  const isInnerEdge = i === 1 || i === LETTERS.length - 2
-  const scale = isOuterEdge
-    ? (isNarrow ? 1.15 : 1.12)
-    : isInnerEdge
-      ? (isNarrow ? 1.08 : 1.06)
-      : 1.0
-  return {
-    display: 'inline-block',
-    transform: `scaleY(${scale})`,
-    transformOrigin: 'top center',
-  }
-}
 const STARS = Array.from({ length: 46 }, (_, i) => {
   const h = (n) => { const s = Math.sin(n * 91.7 + 12.3) * 43758.5; return s - Math.floor(s) }
   return { x: h(i) * 100, y: h(i + 77) * 62, r: 0.6 + h(i + 150) * 1.4, o: 0.25 + h(i + 220) * 0.6 }
@@ -135,7 +120,7 @@ export default function BehindMountains() {
                 ref={(n) => {
                   (els.current.letters ||= [])[i] = n
                 }}
-                style={{ opacity: 0, ...stretch(i, narrow) }}
+                style={{ opacity: 0, display: 'inline-block' }}
               >
                 {ch}
               </span>
