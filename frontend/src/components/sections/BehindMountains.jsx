@@ -23,10 +23,10 @@ const stretch = (i, isNarrow) => {
   const isOuterEdge = i === 0 || i === LETTERS.length - 1
   const isInnerEdge = i === 1 || i === LETTERS.length - 2
   const scale = isOuterEdge
-    ? (isNarrow ? 1.84 : 1.74)
+    ? (isNarrow ? 2.15 : 1.95)
     : isInnerEdge
-      ? (isNarrow ? 1.72 : 1.64)
-      : (isNarrow ? 1.62 : 1.54)
+      ? (isNarrow ? 2.00 : 1.82)
+      : (isNarrow ? 1.88 : 1.70)
   return {
     display: 'inline-block',
     transform: `scaleY(${scale})`,
@@ -61,9 +61,9 @@ export default function BehindMountains() {
       const p = cur
       const rise = ease(seg(p, 0.1, 0.62))
       const warm = ease(seg(p, 0.5, 0.9))
-      // Word: starts hidden below the ridge (translateY 95vh) and ends with its feet touching and sinking into the ridge
+      // Word: starts hidden below the ridge (translateY 95vh) and rises higher up into the sky with its feet sinking into the ridge
       if (e.word) {
-        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 36 : 32, rise)}vh, 0)`
+        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 22 : 18, rise)}vh, 0)`
       }
       if (e.letters) {
         e.letters.forEach((l) => {
