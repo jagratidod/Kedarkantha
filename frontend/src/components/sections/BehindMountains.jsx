@@ -18,8 +18,21 @@ const ease = (t) => t * t * (3 - 2 * t)
 const mix = (a, b, t) => a + (b - a) * t
 
 const LETTERS = 'KEDARKANTHA'.split('')
-// K and E already reach the ridge; every other letter grows a little further down so it touches the valleys too.
-const stretch = (i) => (i >= 2 ? { display: 'inline-block', transform: 'scaleY(1.28)', transformOrigin: 'top center' } : {})
+// All letters grow downwards, with outer edge letters stretching further so both the text edges and middle letters touch and sink deep into the mountains
+const stretch = (i, isNarrow) => {
+  const isOuterEdge = i === 0 || i === LETTERS.length - 1
+  const isInnerEdge = i === 1 || i === LETTERS.length - 2
+  const scale = isOuterEdge
+    ? (isNarrow ? 1.84 : 1.74)
+    : isInnerEdge
+      ? (isNarrow ? 1.72 : 1.64)
+      : (isNarrow ? 1.62 : 1.54)
+  return {
+    display: 'inline-block',
+    transform: `scaleY(${scale})`,
+    transformOrigin: 'top center',
+  }
+}
 const STARS = Array.from({ length: 46 }, (_, i) => {
   const h = (n) => { const s = Math.sin(n * 91.7 + 12.3) * 43758.5; return s - Math.floor(s) }
   return { x: h(i) * 100, y: h(i + 77) * 62, r: 0.6 + h(i + 150) * 1.4, o: 0.25 + h(i + 220) * 0.6 }
@@ -46,21 +59,29 @@ export default function BehindMountains() {
     let raf = 0
     const apply = () => {
       const p = cur
-      const rise = ease(seg(p, 0.05, 0.55))
-      const warm = ease(seg(p, 0.2, 0.8))
-      // Word: rises cleanly into view on first scroll gesture
-      e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 50 : 28, rise)}vh, 0)`
-      e.letters.forEach((l) => {
-        l.style.opacity = '1'
-      })
-      e.ridge.style.transform = `scale(1)`
-      e.sky.style.opacity = String(warm)
-      e.tag.style.opacity = String(ease(seg(p, 0.25, 0.65)))
-      e.tag.style.transform = `translateY(${(1 - ease(seg(p, 0.25, 0.65))) * 20}px)`
-      e.cta.style.opacity = String(ease(seg(p, 0.35, 0.75)))
-      e.cta.style.transform = `translateY(${(1 - ease(seg(p, 0.35, 0.75))) * 16}px)`
-      e.hint.style.opacity = String(1 - seg(p, 0.02, 0.15))
-      e.stars.style.opacity = String(mix(0.5, 0, warm))
+      const rise = ease(seg(p, 0.1, 0.62))
+      const warm = ease(seg(p, 0.5, 0.9))
+      // Word: starts hidden below the ridge (translateY 95vh) and ends with its feet touching and sinking into the ridge
+      if (e.word) {
+        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 36 : 32, rise)}vh, 0)`
+      }
+      if (e.letters) {
+        e.letters.forEach((l) => {
+          if (l) l.style.opacity = '1'
+        })
+      }
+      if (e.ridge) e.ridge.style.transform = `scale(1)`
+      if (e.sky) e.sky.style.opacity = String(warm)
+      if (e.tag) {
+        e.tag.style.opacity = String(ease(seg(p, 0.66, 0.82)))
+        e.tag.style.transform = `translateY(${(1 - ease(seg(p, 0.66, 0.82))) * 28}px)`
+      }
+      if (e.cta) {
+        e.cta.style.opacity = String(ease(seg(p, 0.76, 0.9)))
+        e.cta.style.transform = `translateY(${(1 - ease(seg(p, 0.76, 0.9))) * 22}px)`
+      }
+      if (e.hint) e.hint.style.opacity = String(1 - seg(p, 0.03, 0.12))
+      if (e.stars) e.stars.style.opacity = String(mix(0.5, 0, warm))
     }
     const tick = () => {
       cur += (target - cur) * 0.12
@@ -84,7 +105,7 @@ export default function BehindMountains() {
   const reg = (k) => (n) => { els.current[k] = n }
 
   return (
-    <section ref={wrap} id="behind-the-mountains" aria-label="Behind the mountains" className="relative bg-[#E8EFE5]" style={{ height: reduced ? '100svh' : narrow ? '135vh' : '145vh' }}>
+    <section ref={wrap} id="behind-the-mountains" aria-label="Behind the mountains" className="relative bg-[#E8EFE5]" style={{ height: reduced ? '100svh' : narrow ? '300vh' : '340vh' }}>
       <div className="sticky top-0 h-svh overflow-hidden" style={{ background: 'linear-gradient(to bottom, #DCE8EE 0%, #E8EFE5 38%, #F5F1E4 68%, #F7E3C4 100%)' }}>
         {/* Warm horizon glow that fades in */}
         <div ref={reg('sky')} className="absolute inset-0" style={{ opacity: 0, background: 'radial-gradient(90% 70% at 50% 100%, rgba(255,214,150,0.75), rgba(255,226,180,0.35) 45%, transparent 72%)' }} aria-hidden="true" />
@@ -99,29 +120,38 @@ export default function BehindMountains() {
         {/* Giant word behind the ridge */}
         <div ref={reg('word')} className="absolute inset-x-0 top-0 flex justify-center" aria-hidden="true">
           <p
-            className="flex select-none font-normal uppercase leading-[0.9] tracking-[0.01em] text-forest"
-            style={narrow ? { fontFamily: 'Anton, Impact, sans-serif', fontSize: '25vw', transform: 'scaleY(1.45)', transformOrigin: 'top center', flexDirection: 'column', alignItems: 'center' } : { fontFamily: 'Anton, Impact, sans-serif', fontSize: '13vw', transform: 'scaleY(1.8)', transformOrigin: 'top center', whiteSpace: 'nowrap' }}
+            className="flex select-none font-normal uppercase whitespace-nowrap tracking-[0.01em] text-forest justify-center"
+            style={{
+              fontFamily: 'Anton, Impact, sans-serif',
+              fontSize: narrow ? 'clamp(28px, 14.6vw, 54px)' : '13vw',
+              lineHeight: 1,
+              transform: narrow ? 'scaleY(1.65)' : 'scaleY(1.8)',
+              transformOrigin: 'top center',
+            }}
           >
-            {narrow ? (
-              <>
-                <span className="flex">{LETTERS.slice(0, 5).map((ch, i) => <span key={i} ref={(n) => { (els.current.letters ||= [])[i] = n }} style={{ opacity: 0, ...stretch(i) }}>{ch}</span>)}</span>
-                <span className="flex">{LETTERS.slice(5).map((ch, i) => <span key={i} ref={(n) => { (els.current.letters ||= [])[i + 5] = n }} style={{ opacity: 0, ...stretch(i + 5) }}>{ch}</span>)}</span>
-              </>
-            ) : (
-              LETTERS.map((ch, i) => <span key={i} ref={(n) => { (els.current.letters ||= [])[i] = n }} style={{ opacity: 0, ...stretch(i) }}>{ch}</span>)
-            )}
+            {LETTERS.map((ch, i) => (
+              <span
+                key={i}
+                ref={(n) => {
+                  (els.current.letters ||= [])[i] = n
+                }}
+                style={{ opacity: 0, ...stretch(i, narrow) }}
+              >
+                {ch}
+              </span>
+            ))}
           </p>
         </div>
         <h2 className="sr-only">Kedarkantha, behind the mountains</h2>
 
         {/* Ridge */}
-        <div ref={reg('ridge')} className="absolute inset-x-0 bottom-0 will-change-transform" style={{ height: narrow ? '56svh' : undefined }}>
+        <div ref={reg('ridge')} className="absolute inset-x-0 bottom-0 will-change-transform" style={{ height: narrow ? '54svh' : undefined }}>
           <img
             src={mountains}
             alt=""
             decoding="async"
             className={narrow ? 'h-full w-full object-cover object-bottom' : 'block w-full'}
-            style={narrow ? { objectPosition: '45% 100%' } : undefined}
+            style={narrow ? { objectPosition: '50% 100%' } : undefined}
             draggable="false"
           />
         </div>
@@ -129,10 +159,10 @@ export default function BehindMountains() {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-t from-[#E8EFE5] to-transparent" aria-hidden="true" />
 
         {/* Tagline + call to action */}
-        <div className="absolute inset-x-0 top-[12%] z-10 flex flex-col items-center px-5 text-center md:top-auto md:bottom-[3.5%]">
-          <p ref={reg('tag')} className="font-display text-3xl italic text-forest md:text-[3.2vw]" style={{ opacity: 0 }}>Behind the mountains.</p>
-          <div ref={reg('cta')} className="mt-5" style={{ opacity: 0 }}>
-            <Link to="/book" className="inline-flex items-center rounded-full bg-[#E8A317] px-7 py-3 text-sm font-bold uppercase tracking-widest text-forest shadow-lg transition-transform hover:scale-105">
+        <div className="absolute inset-x-0 top-[8%] z-10 flex flex-col items-center px-4 text-center md:top-auto md:bottom-[3.5%]">
+          <p ref={reg('tag')} className="font-display text-2xl italic text-forest sm:text-3xl md:text-[3.2vw]" style={{ opacity: 0 }}>Behind the mountains.</p>
+          <div ref={reg('cta')} className="mt-3 sm:mt-5" style={{ opacity: 0 }}>
+            <Link to="/book" className="inline-flex items-center rounded-full bg-[#E8A317] px-6 py-2.5 text-xs sm:px-7 sm:py-3 sm:text-sm font-bold uppercase tracking-widest text-forest shadow-lg transition-transform hover:scale-105">
               Book Your Trek
             </Link>
           </div>
