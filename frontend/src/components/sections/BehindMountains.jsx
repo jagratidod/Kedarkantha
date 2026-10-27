@@ -18,15 +18,15 @@ const ease = (t) => t * t * (3 - 2 * t)
 const mix = (a, b, t) => a + (b - a) * t
 
 const LETTERS = 'KEDARKANTHA'.split('')
-// All letters grow downwards, with outer edge letters stretching further so both the text edges and middle letters touch and sink deep into the mountains
+// Only minimal extension on the outer edges so the bottom edges lightly touch the mountain ridge while showing the full text
 const stretch = (i, isNarrow) => {
   const isOuterEdge = i === 0 || i === LETTERS.length - 1
   const isInnerEdge = i === 1 || i === LETTERS.length - 2
   const scale = isOuterEdge
-    ? (isNarrow ? 2.15 : 1.95)
+    ? (isNarrow ? 1.15 : 1.12)
     : isInnerEdge
-      ? (isNarrow ? 2.00 : 1.82)
-      : (isNarrow ? 1.88 : 1.70)
+      ? (isNarrow ? 1.08 : 1.06)
+      : 1.0
   return {
     display: 'inline-block',
     transform: `scaleY(${scale})`,
@@ -61,9 +61,9 @@ export default function BehindMountains() {
       const p = cur
       const rise = ease(seg(p, 0.1, 0.62))
       const warm = ease(seg(p, 0.5, 0.9))
-      // Word: starts hidden below the ridge (translateY 95vh) and rises higher up into the sky with its feet sinking into the ridge
+      // Word: starts hidden below the ridge (translateY 95vh) and rises so full text is visible with minimal bottom edges touching the ridge
       if (e.word) {
-        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 22 : 18, rise)}vh, 0)`
+        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 48 : 42, rise)}vh, 0)`
       }
       if (e.letters) {
         e.letters.forEach((l) => {
@@ -123,9 +123,9 @@ export default function BehindMountains() {
             className="flex select-none font-normal uppercase whitespace-nowrap tracking-[0.01em] text-forest justify-center"
             style={{
               fontFamily: 'Anton, Impact, sans-serif',
-              fontSize: narrow ? 'clamp(28px, 14.6vw, 54px)' : '13vw',
+              fontSize: narrow ? 'clamp(28px, 14.5vw, 54px)' : '12.5vw',
               lineHeight: 1,
-              transform: narrow ? 'scaleY(1.65)' : 'scaleY(1.8)',
+              transform: narrow ? 'scaleY(1.12)' : 'scaleY(1.15)',
               transformOrigin: 'top center',
             }}
           >
