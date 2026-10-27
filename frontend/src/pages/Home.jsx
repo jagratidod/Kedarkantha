@@ -4,6 +4,7 @@ import Itinerary from './Itinerary'
 import Departures from './Departures'
 import PhotoStory from '../components/sections/PhotoStory'
 import FullscreenMoments from '../components/sections/FullscreenMoments'
+import BehindMountains from '../components/sections/BehindMountains'
 import HorizontalGallery from '../components/sections/HorizontalGallery'
 import ThingsCarryShowcase from '../components/sections/ThingsCarryShowcase'
 import About from './About'
@@ -53,41 +54,18 @@ function HomeSections() {
         <BestTimeShowcase />
       </div>
 
-      {/* CONTINUOUS LONG BG SECTION: From Trek Highlights to before FAQs */}
-      <div className="relative w-full overflow-hidden">
-        {/* Continuous Long Background Image */}
-        <div
-          className="pointer-events-none absolute inset-0 -z-10 bg-repeat-y bg-cover bg-top"
-          style={{
-            backgroundImage: "url('/long bg.png')",
-          }}
-        >
-          {/* Subtle overlay so all text and cards remain crystal-clear and readable */}
-          <div className="absolute inset-0 bg-[#F5F6F2]/30 backdrop-blur-[1px]" />
-
-          {/* Top fade melt blending from Gallery section above */}
-          <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#F5F6F2] to-transparent" />
-
-          {/* Bottom fade melt into FAQs section */}
-          <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-[#F5F6F2] to-transparent" />
-        </div>
-
-        {LONG_BG_SECTIONS.map(([id, Section]) => (
-          <div key={id} id={id} className="relative z-10 scroll-mt-16">
-            <Section embedded />
-          </div>
-        ))}
-      </div>
-
-      {/* REVIEWS SECTION */}
-      <div id="reviews" className="relative z-10 scroll-mt-16">
-        <Reviews embedded />
+      {/* DIFFICULTY & FITNESS: interactive quiz */}
+      <div id="difficulty" className="relative z-10 scroll-mt-16">
+        <Difficulty embedded />
       </div>
 
       {/* FAQS SECTION - Just above Footer */}
       <div id="faqs" className="relative z-10 scroll-mt-16">
         <Faqs embedded />
       </div>
+
+      {/* CLOSING SCENE: mountains at the bottom, giant KEDARKANTHA rising from behind them */}
+      <BehindMountains />
     </>
   )
 }

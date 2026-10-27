@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import Img from '../ui/Img'
 import Icon from '../ui/Icon'
 import Button from '../ui/Button'
-import { Play } from 'lucide-react'
 
 const FRAME_COUNT = 25
 const frameUrl = (i) => `/hero/ezgif-frame-${String(i + 1).padStart(3, '0')}.jpg`
@@ -149,10 +148,7 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
         <div className="absolute inset-0 bg-ink-bg" style={{ opacity: 'var(--ps)' }} aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/20" aria-hidden="true" />
 
-        {/* 1. The small wordmark, where the logo sits. */}
-        <div className="container-page absolute inset-x-0 top-5" style={{ opacity: 'var(--pw)' }}>
-          <p className="hero-wordmark text-sm font-bold uppercase tracking-wide sm:text-base">Kedarkantha</p>
-        </div>
+        {/* 1. Scroll cue */}
         <p className="hero-wordmark absolute inset-x-0 bottom-6 text-center text-[11px] uppercase tracking-[0.35em] text-white/55" style={{ opacity: 'var(--pw)' }} aria-hidden="true">
           Scroll
         </p>
@@ -190,8 +186,6 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
           <p className="mt-4 max-w-md text-sm text-white/85 sm:text-base" style={copyIn(0.2)}>{trek.intro}</p>
           <div className="mt-6 flex flex-wrap gap-3" style={copyIn(0.3)}>
             <Button to="/book" variant="cta" size="lg">Book Your Trek</Button>
-            {/* No video asset yet - jumps to the gallery until a video URL is provided. */}
-            <Button to="/#gallery" variant="outline" size="lg"><Play size={14} aria-hidden="true" /> Watch Video</Button>
           </div>
           <ul className="mt-8 grid grid-cols-2 gap-4 border-t border-white/15 pt-5 sm:grid-cols-4" style={copyIn(0.4)}>
             {facts.map(({ Icon: I, value, label }) => (
