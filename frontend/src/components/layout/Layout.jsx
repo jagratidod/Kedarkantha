@@ -1,8 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { smoothScrollTo, startSmoothScroll } from '../../lib/smoothScroll'
-
-import Footer from './Footer'
 import Button from '../ui/Button'
 
 export default function Layout() {
@@ -38,7 +36,6 @@ export default function Layout() {
       <main id="main" className={`flex-1 ${inBooking ? '' : 'pb-16 md:pb-0'}`}>
         <Outlet />
       </main>
-      <Footer />
       {!inBooking && (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 p-3 backdrop-blur md:hidden">
           <Button to="/book" variant="primary" size="lg" className="w-full">Book Your Trek</Button>

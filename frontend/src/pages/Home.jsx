@@ -2,20 +2,20 @@ import { Clock, Gauge, MapPin, Mountain } from 'lucide-react'
 import AsyncView from '../components/ui/AsyncView'
 import Itinerary from './Itinerary'
 import Departures from './Departures'
-import Gallery from './Gallery'
+import PhotoStory from '../components/sections/PhotoStory'
+import FullscreenMoments from '../components/sections/FullscreenMoments'
+import HorizontalGallery from '../components/sections/HorizontalGallery'
+import ThingsCarryShowcase from '../components/sections/ThingsCarryShowcase'
 import About from './About'
 import Inclusions from './Inclusions'
 import PickupDrop from './PickupDrop'
 import Difficulty from './Difficulty'
-import ThingsToCarry from './ThingsToCarry'
-import BestTime from './BestTime'
+import BestTimeShowcase from '../components/sections/BestTimeShowcase'
 import Faqs from './Faqs'
 import Reviews from './Reviews'
 import RaggedBridge from '../components/layout/RaggedBridge'
 import ItineraryJourney from '../components/sections/ItineraryJourney'
 import ScrollHero from '../components/sections/ScrollHero'
-import TrekHighlightsCinematic from '../components/sections/TrekHighlightsCinematic'
-import AboutTrekFullscreen from '../components/sections/AboutTrekFullscreen'
 import CTABanner from '../components/layout/CTABanner'
 import { useSeo } from '../hooks/useSeo'
 import { useAsync } from '../hooks/useAsync'
@@ -40,19 +40,19 @@ const jsonLd = {
 function Hero({ trek, highlights }) {
   return <ScrollHero trek={trek} facts={heroFacts} stats={trek.stats} photos={highlights.slice(0, 3)} />
 }
-// Sections that share the continuous 'long bg.png' background (from Upcoming Departure Dates up to before FAQs)
+// Sections that share the continuous 'long bg.png' background
 const LONG_BG_SECTIONS = [
-  ['departures', Departures],
-  ['inclusions', Inclusions],
-  ['pickup-drop', PickupDrop],
   ['difficulty', Difficulty],
-  ['things-to-carry', ThingsToCarry],
-  ['best-time', BestTime],
 ]
 
 function HomeSections() {
   return (
     <>
+      {/* BEST TIME TO VISIT: framed full-screen photo, one step per season (outside the overflow-hidden wrapper so it can pin) */}
+      <div id="best-time" className="relative z-10">
+        <BestTimeShowcase />
+      </div>
+
       {/* CONTINUOUS LONG BG SECTION: From Trek Highlights to before FAQs */}
       <div className="relative w-full overflow-hidden">
         {/* Continuous Long Background Image */}
@@ -79,14 +79,14 @@ function HomeSections() {
         ))}
       </div>
 
-      {/* FAQS SECTION */}
-      <div id="faqs" className="relative z-10 scroll-mt-16">
-        <Faqs embedded />
-      </div>
-
       {/* REVIEWS SECTION */}
       <div id="reviews" className="relative z-10 scroll-mt-16">
         <Reviews embedded />
+      </div>
+
+      {/* FAQS SECTION - Just above Footer */}
+      <div id="faqs" className="relative z-10 scroll-mt-16">
+        <Faqs embedded />
       </div>
     </>
   )
@@ -118,15 +118,27 @@ export default function Home() {
               <Itinerary embedded />
             </div>
 
-            {/* Photo Gallery directly under Day-by-Day Expedition Itinerary */}
+            {/* Photo Story: 3 photos + Headline text animation */}
             <div id="gallery" className="relative z-30 scroll-mt-16">
-              <Gallery embedded />
+              <PhotoStory />
             </div>
 
-            {/* Cinematic Trek Highlights Carousel (Foxico Style with BACKGROUNDIMAGE.png & Auto Animation) */}
-            <div>
-              <TrekHighlightsCinematic highlights={highlights} />
+            {/* Next Independent Section: Expanding Fullscreen Image Animation with Marquee */}
+            <div className="relative z-30">
+              <FullscreenMoments />
             </div>
+
+            {/* Horizontal photo gallery: vertical scroll slides the photos sideways */}
+            <div className="relative z-30">
+              <HorizontalGallery />
+            </div>
+
+            {/* Things to carry, on a full-screen framed photo */}
+            <div id="things-to-carry" className="relative z-30 scroll-mt-0">
+              <ThingsCarryShowcase />
+            </div>
+
+
           </>
         )}
       </AsyncView>

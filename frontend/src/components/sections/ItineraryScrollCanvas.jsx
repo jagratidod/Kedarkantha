@@ -1,10 +1,10 @@
-import MountainCover from './MountainCover'
 import { useEffect, useRef, useState } from 'react'
-import { ShieldCheck, HeartHandshake, Headphones, Award, Leaf, ChevronRight, Sparkles } from 'lucide-react'
+import { ShieldCheck, HeartHandshake, Headphones, Award, Leaf, ChevronRight, Sparkles, CheckCircle2, XCircle } from 'lucide-react'
 
 const FRAME_COUNT = 25
 const frameUrl = (i) => `/BGIMAGES/ezgif-frame-${String(i + 1).padStart(3, '0')}.jpg`
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
+const ease = (t) => t * t * (3 - 2 * t)
 
 const TREKI_FEATURES = [
   {
@@ -19,6 +19,34 @@ const TREKI_FEATURES = [
       { label: 'Happy Trekkers', value: '15,000+' },
       { label: 'Summit Ratio', value: '98.6%' },
       { label: 'Local Guides', value: '100%' },
+    ],
+  },
+  {
+    id: 'inclusions',
+    badge: 'WHAT IS COVERED',
+    tagline: '100% Transparent Price Coverage',
+    title: 'Inclusions & Exclusions',
+    icon: CheckCircle2,
+    highlight: 'All Meals • Camps • Permits • Safety Kit Included',
+    desc: 'Know exactly what your trek fee covers. We take pride in 100% honest transparency with zero hidden campsite charges.',
+    inclusionsList: [
+      'Accommodation in alpine camps/tents',
+      'All nutritious mountain meals during trek',
+      'Certified trek leader & safety guides',
+      'Forest permits & sanctuary entry fees',
+      'Basic trekking equipment & gaiters',
+      'First aid, oxygen cylinders & stretchers',
+    ],
+    exclusionsList: [
+      'Travel to & from Dehradun base',
+      'Personal expenses, snacks & mineral water',
+      'Trekking shoes & personal thermal layers',
+      'Personal travel/medical insurance',
+    ],
+    stats: [
+      { label: 'Hidden Charges', value: '0%' },
+      { label: 'Meals Included', value: 'All 3 Meals' },
+      { label: 'Permits Covered', value: '100%' },
     ],
   },
   {
@@ -81,6 +109,7 @@ const TREKI_FEATURES = [
 
 export default function ItineraryScrollCanvas() {
   const wrapRef = useRef(null)
+  const stageRef = useRef(null)
   const canvasRef = useRef(null)
   const [activeStep, setActiveStep] = useState(0)
   const totalSteps = TREKI_FEATURES.length
@@ -139,6 +168,17 @@ export default function ItineraryScrollCanvas() {
         current = target
       }
       draw()
+
+      // Smooth white border transition at last scroll (from 0.82 to 0.98)
+      if (stageRef.current) {
+        const borderProgress = clamp((current - 0.82) / 0.16, 0, 1)
+        const p = ease(borderProgress)
+        // White frame: the stage is clipped inward, so the white page background shows around it.
+        const inset = p * (window.innerWidth < 768 ? 10 : 24)
+        stageRef.current.style.clipPath = p > 0 ? `inset(${inset}px round ${p * 28}px)` : 'none'
+      }
+
+
       if (current !== target) {
         raf = requestAnimationFrame(tick)
       } else {
@@ -173,7 +213,6 @@ export default function ItineraryScrollCanvas() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', resize)
-
     return () => {
       alive = false
       if (raf) cancelAnimationFrame(raf)
@@ -183,20 +222,12 @@ export default function ItineraryScrollCanvas() {
   }, [totalSteps])
 
   const feature = TREKI_FEATURES[activeStep] || TREKI_FEATURES[0]
-  const IconComponent = feature.icon
+  const FeatureIcon = feature.icon
 
   return (
-    <div
-      ref={wrapRef}
-      className="relative w-full h-[450vh] sm:h-[500vh] -mb-[95vh] z-20"
-      style={{ marginTop: -100 }}
-    >
-      {/* Sticky full-screen stage. Top melts seamlessly into the white section above */}
-      <div 
-        className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent"
-      >
-        
-        {/* Dynamic Scrubbed Canvas Background - Top dissolves/melts smoothly into white */}
+    <div ref={wrapRef} className="relative w-full h-[450vh] sm:h-[500vh] z-20 bg-white" style={{ marginTop: -100 }}>
+      {/* Sticky stage: on the last scroll it is clipped inward, leaving a white rounded frame around it */}
+      <div ref={stageRef} className="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center bg-transparent">
         <canvas
           ref={canvasRef}
           aria-hidden="true"
@@ -206,24 +237,15 @@ export default function ItineraryScrollCanvas() {
             maskImage: 'linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.85) 12%, black 22%)',
           }}
         />
-
-        {/* Minimal soft gradient just behind the text card */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
 
-        {/* Main Stage Container */}
         <div className="relative z-10 w-full h-full max-w-7xl mx-auto px-4 sm:px-8 md:px-12 flex flex-col justify-between pt-24 pb-10 sm:pt-32 sm:pb-14">
-          
-          {/* Top Section Header - Perfectly Centered */}
           <div className="flex flex-col items-center justify-center text-center w-full">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-white/10 text-white backdrop-blur-md border border-white/20 mb-3">
               <ShieldCheck size={13} className="text-[#E8A317]" />
               Why Treki Travels
             </div>
-            <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">
-              Treki Info, Trust & Support
-            </h2>
-            
-            {/* Step Counter Badge Centered */}
+            <h2 className="font-display text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-white drop-shadow-md">Treki Info, Trust &amp; Support</h2>
             <div className="mt-3 inline-flex items-center gap-2.5 bg-white/10 backdrop-blur-md px-3.5 py-1 rounded-full border border-white/15">
               <span className="text-[11px] uppercase font-semibold text-white/70 tracking-wider">Highlight</span>
               <div className="flex items-center gap-1 font-display text-sm font-bold text-white">
@@ -234,19 +256,12 @@ export default function ItineraryScrollCanvas() {
             </div>
           </div>
 
-          {/* Centered Layout: Clean floating text in the middle of the screen (container bg removed) */}
           <div className="w-full max-w-4xl mx-auto my-auto text-center">
-            <div
-              key={activeStep}
-              className="relative p-4 sm:p-6 animate-fade-in transition-all duration-300"
-            >
-              {/* Badge & Highlight info */}
+            <div key={activeStep} className="relative p-4 sm:p-6 animate-fade-in transition-all duration-300">
               <div className="flex flex-wrap items-center justify-center gap-3 pb-4">
-                <span className="px-3.5 py-1.5 rounded-xl bg-[#E8A317] text-forest font-display font-extrabold text-xs sm:text-sm tracking-wide shadow-md">
-                  {feature.badge}
-                </span>
+                <span className="px-3.5 py-1.5 rounded-xl bg-[#E8A317] text-forest font-display font-extrabold text-xs sm:text-sm tracking-wide shadow-md">{feature.badge}</span>
                 <span className="text-white text-xs sm:text-sm font-semibold flex items-center gap-1.5 [text-shadow:0_2px_8px_rgba(0,0,0,0.8)]">
-                  <IconComponent size={15} className="text-[#E8A317]" />
+                  <FeatureIcon size={15} className="text-[#E8A317]" />
                   {feature.highlight}
                 </span>
                 <span className="inline-flex items-center gap-1.5 text-xs text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/20 backdrop-blur-sm">
@@ -254,37 +269,46 @@ export default function ItineraryScrollCanvas() {
                   Verified Standard
                 </span>
               </div>
+              <h3 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mt-4 leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">{feature.title}</h3>
+              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-normal [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">{feature.desc}</p>
 
-              {/* Title */}
-              <h3 className="font-display text-3xl sm:text-5xl md:text-6xl font-bold text-white tracking-tight mt-4 leading-tight drop-shadow-[0_4px_16px_rgba(0,0,0,0.85)]">
-                {feature.title}
-              </h3>
-
-              {/* Description Narrative */}
-              <p className="mt-4 sm:mt-6 text-base sm:text-lg md:text-xl text-white/95 max-w-2xl mx-auto leading-relaxed font-normal [text-shadow:0_2px_10px_rgba(0,0,0,0.9)]">
-                {feature.desc}
-              </p>
-
-              {/* Stat Badges Grid */}
-              <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto mt-8 pt-6 border-t border-white/20">
-                {feature.stats.map((s) => (
-                  <div key={s.label} className="p-2 sm:p-3 text-center">
-                    <p className="font-display text-xl sm:text-3xl font-extrabold text-[#E8A317] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{s.value}</p>
-                    <p className="text-xs sm:text-sm text-white/90 mt-1 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{s.label}</p>
+              {feature.inclusionsList ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-2xl mx-auto mt-6 text-left">
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                    <p className="text-xs font-bold uppercase tracking-wider text-green-300 mb-2.5 flex items-center gap-1.5"><CheckCircle2 size={14} /> What&apos;s Included</p>
+                    <ul className="space-y-1.5 text-xs sm:text-sm text-white/90">
+                      {feature.inclusionsList.map((t) => (
+                        <li key={t} className="flex items-start gap-2"><CheckCircle2 size={13} className="text-green-400 shrink-0 mt-0.5" /><span>{t}</span></li>
+                      ))}
+                    </ul>
                   </div>
-                ))}
-              </div>
+                  <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20">
+                    <p className="text-xs font-bold uppercase tracking-wider text-red-300 mb-2.5 flex items-center gap-1.5"><XCircle size={14} /> What&apos;s Not Included</p>
+                    <ul className="space-y-1.5 text-xs sm:text-sm text-white/90">
+                      {feature.exclusionsList.map((t) => (
+                        <li key={t} className="flex items-start gap-2"><XCircle size={13} className="text-red-400 shrink-0 mt-0.5" /><span>{t}</span></li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-3 sm:gap-6 max-w-2xl mx-auto mt-8 pt-6 border-t border-white/20">
+                  {feature.stats.map((s) => (
+                    <div key={s.label} className="p-2 sm:p-3 text-center">
+                      <p className="font-display text-xl sm:text-3xl font-extrabold text-[#E8A317] drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">{s.value}</p>
+                      <p className="text-xs sm:text-sm text-white/90 mt-1 [text-shadow:0_1px_6px_rgba(0,0,0,0.8)]">{s.label}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
-              {/* Interactive step indicator pills */}
               <div className="flex items-center justify-center gap-2 mt-6 pt-4 border-t border-white/15">
                 {TREKI_FEATURES.map((f, i) => (
                   <button
                     key={f.id}
                     type="button"
                     onClick={() => setActiveStep(i)}
-                    className={`h-2 rounded-full transition-all duration-300 ${
-                      activeStep === i ? 'w-8 bg-[#E8A317]' : 'w-2.5 bg-white/30 hover:bg-white/60'
-                    }`}
+                    className={`h-2 rounded-full transition-all duration-300 ${activeStep === i ? 'w-8 bg-[#E8A317]' : 'w-2.5 bg-white/30 hover:bg-white/60'}`}
                     aria-label={f.title}
                   />
                 ))}
@@ -292,19 +316,15 @@ export default function ItineraryScrollCanvas() {
             </div>
           </div>
 
-          {/* Bottom Scroll Prompt Bar */}
           <div className="flex items-center justify-between text-xs text-white/70 pt-4 border-t border-white/15">
             <div className="flex items-center gap-2">
               <span className="h-2 w-2 rounded-full bg-[#E8A317] animate-ping" />
-              <span>Scroll to scrub alpine scenery & explore Treki pillars</span>
+              <span>Scroll to scrub alpine scenery &amp; explore Treki pillars</span>
             </div>
             <span className="hidden sm:inline">24/7 Operations Hub • Himalayan Certified</span>
           </div>
-
         </div>
-
       </div>
-      <MountainCover />
     </div>
   )
 }

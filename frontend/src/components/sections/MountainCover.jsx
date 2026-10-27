@@ -3,9 +3,9 @@ import { useEffect, useRef } from 'react'
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const SIDE_LEAD = 0.22 // how much earlier the side mountains rise than the middle
 
-// One layer, in the page colour (#F5F6F2) so the cover melts into the next section.
+// One layer, in the page colour (#FFFFFF) so the cover melts into the next section.
 // Grey-blue only at the very top of the peaks (like shaded rock/snow), fading to the page colour.
-const LAYERS = [{ seed: 7.3, amp: 0.5, lead: 0, top: '#C9CFCB', bottom: '#F5F6F2', rough: 0.55 }]
+const LAYERS = [{ seed: 7.3, amp: 0.5, lead: 0, top: '#C9CFCB', bottom: '#FFFFFF', rough: 0.55 }]
 
 const mix = (a, b, t) => {
   const f = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
