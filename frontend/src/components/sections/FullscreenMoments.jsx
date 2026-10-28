@@ -37,7 +37,7 @@ export default function FullscreenMoments() {
     const apply = () => {
       const p = cur
       const grow = ease(seg(p, 0.22, 0.72))
-      // Last scroll: the full-screen photo settles into a framed panel with a white border.
+      // Last scroll: the full-screen photo settles into a framed panel with a subtle border.
       const frame = ease(seg(p, 0.78, 0.9))
       const sw = stage.current.clientWidth, sh = stage.current.clientHeight
       const inset = narrow ? 10 : 24
@@ -95,20 +95,20 @@ export default function FullscreenMoments() {
     <section
       ref={wrap}
       aria-label="Moments from Kedarkantha"
-      className="relative bg-[#0E2233]"
+      className="relative bg-white"
       style={{ height: reduced ? '100svh' : narrow ? '360vh' : '420vh' }}
     >
-      <div ref={stage} className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
-        {/* Marquee running text behind photo */}
+      <div ref={stage} className="sticky top-0 h-svh overflow-hidden bg-white">
+        {/* Marquee running text behind photo with elegant light theme color */}
         <div ref={reg('marquee')} className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-hidden" style={{ opacity: 0 }} aria-hidden="true">
-          <div className="gs-marquee flex w-max whitespace-nowrap font-semibold leading-none text-[#1B3A54]" style={{ fontSize: narrow ? '20vw' : '10.5vw' }}>
+          <div className="gs-marquee flex w-max whitespace-nowrap font-semibold leading-none text-slate-200" style={{ fontSize: narrow ? '20vw' : '10.5vw' }}>
             <span>{MARQUEE.repeat(3)}</span>
             <span>{MARQUEE.repeat(3)}</span>
           </div>
         </div>
 
         {/* Photo growing to fill the screen */}
-        <div ref={reg('photo')} className="absolute overflow-hidden ring-1 ring-white/10 shadow-2xl" style={{ opacity: 0 }}>
+        <div ref={reg('photo')} className="absolute overflow-hidden ring-1 ring-black/10 shadow-2xl" style={{ opacity: 0 }}>
           <div ref={reg('photoImg')} className="h-full w-full will-change-transform">
             <Img
               image="/KEDARKANTHATRACKOVERVIEWIMAGE/KEDARKANTHATRECKOVERVIEWIMAGE.png"

@@ -9,6 +9,7 @@ const TREKI_FEATURES = [
   {
     id: 'info',
     badge: 'ABOUT TREKI',
+    image: '/gallery/sankri-basecamp.jpg',
     tagline: 'Authentic Himalayan Journeys',
     title: 'Treki Info & Journey',
     icon: Sparkles,
@@ -23,6 +24,7 @@ const TREKI_FEATURES = [
   {
     id: 'inclusions',
     badge: 'WHAT IS COVERED',
+    image: '/gallery/camp-bonfire-evening.jpg',
     tagline: '100% Transparent Price Coverage',
     title: 'Inclusions & Exclusions',
     icon: CheckCircle2,
@@ -51,6 +53,7 @@ const TREKI_FEATURES = [
   {
     id: 'trust',
     badge: 'TREKI TRUST',
+    image: '/gallery/snow-ridge-trail.jpg',
     tagline: 'Transparent & Verified',
     title: 'Uncompromised Alpine Trust',
     icon: ShieldCheck,
@@ -65,6 +68,7 @@ const TREKI_FEATURES = [
   {
     id: 'support',
     badge: 'TREKI SUPPORT',
+    image: '/gallery/summit-crew-12500.jpg',
     tagline: '24/7 Mountain Assistance',
     title: 'Round-The-Clock Alpine Care',
     icon: Headphones,
@@ -79,6 +83,7 @@ const TREKI_FEATURES = [
   {
     id: 'guides',
     badge: 'EXPERT CREW',
+    image: '/gallery/summit-victory-moment.jpg',
     tagline: 'IMF & NIM Certified',
     title: 'Licensed Himalayan Leaders',
     icon: Award,
@@ -93,6 +98,7 @@ const TREKI_FEATURES = [
   {
     id: 'eco',
     badge: 'ECO CONSCIOUS',
+    image: '/gallery/pine-forest-trail.jpg',
     tagline: 'Leave No Trace Behind',
     title: 'Green Trail Commitment',
     icon: Leaf,
@@ -194,6 +200,26 @@ export default function ItineraryScrollCanvas() {
       e.track.style.height = narrow ? '56%' : '70%'
       e.progress.style.transform = `scaleX(${travelP})`
       e.progressWrap.style.opacity = String(tIn)
+      // Gradual background transition to white as user scrolls through the section
+      const bgWhiteP = ease(seg(p, 0.45, 0.95));
+      const rBg = Math.round(mix(14, 255, bgWhiteP));
+      const gBg = Math.round(mix(34, 255, bgWhiteP));
+      const bBg = Math.round(mix(51, 255, bgWhiteP));
+      const bgCol = `rgb(${rBg}, ${gBg}, ${bBg})`;
+      if (wrap.current) wrap.current.style.backgroundColor = bgCol;
+      if (e.stickyBg) e.stickyBg.style.backgroundColor = bgCol;
+      if (e.introTitle) {
+        const rTxt = Math.round(mix(255, 14, bgWhiteP));
+        const gTxt = Math.round(mix(255, 34, bgWhiteP));
+        const bTxt = Math.round(mix(255, 51, bgWhiteP));
+        e.introTitle.style.color = `rgb(${rTxt}, ${gTxt}, ${bTxt})`;
+      }
+      if (e.introDesc) {
+        const rDesc = Math.round(mix(143, 75, bgWhiteP));
+        const gDesc = Math.round(mix(174, 95, bgWhiteP));
+        const bDesc = Math.round(mix(197, 115, bgWhiteP));
+        e.introDesc.style.color = `rgb(${rDesc}, ${gDesc}, ${bDesc})`;
+      }
       void vh
     }
 
@@ -220,7 +246,7 @@ export default function ItineraryScrollCanvas() {
 
   return (
     <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-[#0E2233]" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
-      <div className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
+      <div ref={reg("stickyBg")} className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
         {/* 1. Headline */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
           <p ref={reg('kicker')} className="mb-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-[#7EB5D6] md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
@@ -233,7 +259,7 @@ export default function ItineraryScrollCanvas() {
 
         {/* 2. Photo (rises, then becomes the left panel) */}
         <div ref={reg('photo')} className="absolute overflow-hidden bg-[#132A3E]" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
-          <div ref={reg('photoImg')} className="h-full w-full will-change-transform"><Img focus="55% 40%" sizes="80vw" /></div>
+          <div ref={reg('photoImg')} className="h-full w-full will-change-transform"><Img image="/gallery/kedarkantha-flags.jpg" alt="Why Treki Travels - Kedarkantha" focus="55% 40%" sizes="80vw" /></div>
           <div className="absolute inset-0 bg-black/25" />
           <p ref={reg('big')} className="absolute inset-0 flex items-center justify-center text-center font-black uppercase leading-[0.9] tracking-tighter text-white" style={{ fontSize: narrow ? '17vw' : '10vw', opacity: 0 }}>
             Why<br />Treki
@@ -244,17 +270,17 @@ export default function ItineraryScrollCanvas() {
         <div ref={reg('track')} className="absolute left-0 flex items-stretch gap-4 md:gap-6" style={{ opacity: 0 }}>
           <div className="flex shrink-0 flex-col justify-center" style={{ width: narrow ? '78vw' : '30vw' }}>
             <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#7EB5D6]">Why Treki Travels</p>
-            <h3 className="mt-3 font-bold leading-[1.08] tracking-tight text-white" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
+            <h3 ref={reg("introTitle")} className="mt-3 font-bold leading-[1.08] tracking-tight text-white" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
               Treks you can trust,<br />journeys you <span className="text-[#4F87A8]">won&rsquo;t forget.</span>
             </h3>
-            <p className="mt-4 max-w-sm text-sm text-[#8FAEC5]">Scroll to meet the people, standards and promises behind every Kedarkantha batch.</p>
+            <p ref={reg("introDesc")} className="mt-4 max-w-sm text-sm text-[#8FAEC5]">Scroll to meet the people, standards and promises behind every Kedarkantha batch.</p>
           </div>
           {TREKI_FEATURES.map((f, i) => {
             const FIcon = f.icon
             const lines = f.stats || f.inclusionsList.slice(0, 3).map((t) => ({ value: '✓', label: t }))
             return (
               <article key={f.id} className="relative shrink-0 overflow-hidden rounded-2xl bg-[#132A3E] text-white shadow-card ring-1 ring-white/10" style={{ width: narrow ? '68vw' : '21vw' }}>
-                <div className="absolute inset-0"><Img focus={FOCI[i % FOCI.length]} sizes="30vw" /></div>
+                <div className="absolute inset-0"><Img image={f.image} alt={f.title} focus={FOCI[i % FOCI.length]} sizes="30vw" /></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
                 <span className="absolute left-4 top-4 rounded-full bg-[#E8A317] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2233]">{String(i + 1).padStart(2, '0')} · {f.badge}</span>
                 <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">

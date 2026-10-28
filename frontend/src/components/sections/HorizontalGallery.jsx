@@ -90,13 +90,13 @@ export default function HorizontalGallery() {
       ref={wrap}
       id="gallery-scroll"
       aria-label="Photo gallery"
-      className="relative"
+      className="relative bg-white"
       style={{ height: reduced ? 'auto' : `${Math.round(TRACK_VW * K * 0.62) + 100}vh` }}
     >
-      <div className={`${reduced ? 'relative overflow-x-auto' : 'sticky top-0 overflow-hidden'} h-svh bg-[#0E2233]`}>
-        {/* Contour lines, drifting slower than the photos */}
+      <div className={`${reduced ? 'relative overflow-x-auto' : 'sticky top-0 overflow-hidden'} h-svh bg-white`}>
+        {/* Contour lines in elegant subtle slate on white */}
         <div ref={bg} className="absolute inset-y-0 left-0 will-change-transform" style={{ width: `${TRACK_VW * K}vw` }} aria-hidden="true">
-          <svg className="h-full w-full" viewBox="0 0 2750 1000" preserveAspectRatio="none" fill="none" stroke="#4F87A8" strokeOpacity="0.28" strokeWidth="1.3">
+          <svg className="h-full w-full" viewBox="0 0 2750 1000" preserveAspectRatio="none" fill="none" stroke="#0284C7" strokeOpacity="0.12" strokeWidth="1.3">
             <path d="M0 700 C 200 520, 360 840, 560 620 S 860 180, 1080 420 S 1380 860, 1600 560 S 1900 140, 2140 380 S 2460 760, 2750 480" />
             <path d="M0 560 C 220 380, 380 700, 600 480 S 900 60, 1120 300 S 1420 740, 1640 440 S 1940 20, 2180 260 S 2500 640, 2750 360" />
             <path d="M0 860 C 240 700, 420 960, 640 780 S 940 340, 1160 560 S 1460 980, 1680 700 S 1980 300, 2220 520 S 2540 900, 2750 640" />
@@ -109,12 +109,12 @@ export default function HorizontalGallery() {
         </div>
 
         <div ref={track} className="absolute inset-y-0 left-0 will-change-transform" style={{ width: `${TRACK_VW * K}vw` }}>
-          {/* Intro text, top left */}
+          {/* Intro text, top left - adjusted for light white background */}
           <div className="absolute left-[3vw] top-[12%] max-w-[26rem] md:left-[2vw] md:top-[9%]" style={{ left: `${3 * K}vw`, maxWidth: narrow ? '62vw' : '26vw' }}>
-            <p className="font-display text-2xl leading-snug text-white/95 md:text-[2.1vw]">
-              It doesn&rsquo;t matter where you start, it&rsquo;s how you <em className="text-[#4F87A8]">progress</em> from there.
+            <p className="font-display text-2xl leading-snug text-slate-900 md:text-[2.1vw]">
+              It doesn&rsquo;t matter where you start, it&rsquo;s how you <em className="text-[#0284C7] not-italic font-semibold">progress</em> from there.
             </p>
-            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7EB5D6]">Kedarkantha · Moments</p>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-slate-500">Kedarkantha · Moments</p>
           </div>
 
           {ITEMS.map((it, i) => (
@@ -124,19 +124,19 @@ export default function HorizontalGallery() {
               className="absolute will-change-transform"
               style={{ left: `${it.x * K}vw`, top: `${it.y}%`, width: `${it.w * K}vw` }}
             >
-              <figcaption className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/80 md:text-[0.72vw]" style={{ fontSize: narrow ? 10 : undefined }}>
+              <figcaption className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-700 md:text-[0.72vw]" style={{ fontSize: narrow ? 10 : undefined }}>
                 {it.label}
               </figcaption>
-              <div className="group overflow-hidden rounded-2xl ring-1 ring-white/15 hover:ring-[#4F87A8]/70 shadow-2xl transition-all duration-300 hover:scale-[1.02] bg-[#132A3E]" style={{ aspectRatio: `1 / ${it.ratio}` }}>
+              <div className="group overflow-hidden rounded-2xl ring-1 ring-black/10 hover:ring-[#0284C7]/60 shadow-xl transition-all duration-300 hover:scale-[1.02] bg-slate-100" style={{ aspectRatio: `1 / ${it.ratio}` }}>
                 <Img image={it.image} alt={it.label} focus={it.focus} sizes="40vw" className="transition-transform duration-500 group-hover:scale-105" />
               </div>
             </figure>
           ))}
         </div>
 
-        {/* Progress */}
-        <div className="absolute bottom-6 left-6 right-6 z-10 h-[2px] overflow-hidden rounded-full bg-forest/15 md:left-[3vw] md:right-[3vw]" aria-hidden="true">
-          <div ref={bar} className="h-full origin-left bg-forest" style={{ transform: 'scaleX(0)' }} />
+        {/* Progress bar in blue/slate on white */}
+        <div className="absolute bottom-6 left-6 right-6 z-10 h-[2px] overflow-hidden rounded-full bg-slate-200 md:left-[3vw] md:right-[3vw]" aria-hidden="true">
+          <div ref={bar} className="h-full origin-left bg-[#0284C7]" style={{ transform: 'scaleX(0)' }} />
         </div>
       </div>
     </section>

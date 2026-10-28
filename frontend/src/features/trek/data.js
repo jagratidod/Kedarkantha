@@ -81,12 +81,12 @@ export const journeys = [
 ]
 
 export const itinerary = [
-  { day: 1, title: 'Dehradun to Sankri', meta: 'Drive: 200 km • 8-9 hrs', text: 'Early morning pickup from Dehradun. A scenic drive through Mussoorie, Purola and Mori along the Yamuna and Tons valleys brings you to the village of Sankri, where you settle in and meet your trek leader.', focus: '30% 60%' },
-  { day: 2, title: 'Sankri to Juda Ka Talab', meta: 'Trek: 4 km • 4-5 hrs', text: 'A gentle climb through oak and pine forest leads to the frozen Juda Ka Talab lake, surrounded by snow and tall pines. Camp beside the lake for the night.', focus: '55% 80%' },
-  { day: 3, title: 'Juda Ka Talab to Base Camp', meta: 'Trek: 4 km • 4-5 hrs', text: 'Continue up a snowy ridge with open meadows and wide Himalayan views. Reach Kedarkantha Base Camp by afternoon and rest for the summit push.', focus: '80% 45%' },
-  { day: 4, title: 'Summit Day', meta: 'Trek: 6 km • 6-7 hrs', text: 'Start before dawn for the summit at 12,500 ft. Watch the sunrise over a 360° panorama of Swargarohini, Bandarpoonch and Black Peak, then descend back to camp.', focus: '50% 25%' },
-  { day: 5, title: 'Base Camp to Sankri', meta: 'Trek: 6 km • 5-6 hrs', text: 'A long descent through snow-laden forests back to Sankri. Celebrate the summit with a hot meal and a warm night in the village.', focus: '15% 55%' },
-  { day: 6, title: 'Sankri to Dehradun', meta: 'Drive: 200 km • 8-9 hrs', text: 'Drive back to Dehradun, arriving by evening. Goodbyes, group photos and plans for the next adventure.', focus: '70% 70%' },
+  { day: 1, title: 'Dehradun to Sankri', meta: 'Drive: 200 km • 8-9 hrs', image: '/daybyday/dehraduntosankari.png', text: 'Early morning pickup from Dehradun. A scenic drive through Mussoorie, Purola and Mori along the Yamuna and Tons valleys brings you to the village of Sankri, where you settle in and meet your trek leader.', focus: '50% 50%' },
+  { day: 2, title: 'Sankri to Juda Ka Talab', meta: 'Trek: 4 km • 4-5 hrs', image: '/daybyday/judakatalab.png', text: 'A gentle climb through oak and pine forest leads to the frozen Juda Ka Talab lake, surrounded by snow and tall pines. Camp beside the lake for the night.', focus: '50% 50%' },
+  { day: 3, title: 'Juda Ka Talab to Base Camp', meta: 'Trek: 4 km • 4-5 hrs', image: '/daybyday/basecamp.png', text: 'Continue up a snowy ridge with open meadows and wide Himalayan views. Reach Kedarkantha Base Camp by afternoon and rest for the summit push.', focus: '50% 50%' },
+  { day: 4, title: 'Summit Day', meta: 'Trek: 6 km • 6-7 hrs', image: '/daybyday/kedarkantha.png', text: 'Start before dawn for the summit at 12,500 ft. Watch the sunrise over a 360° panorama of Swargarohini, Bandarpoonch and Black Peak, then descend back to camp.', focus: '50% 50%' },
+  { day: 5, title: 'Base Camp to Sankri', meta: 'Trek: 6 km • 5-6 hrs', image: '/daybyday/step5.png', text: 'A long descent through snow-laden forests back to Sankri. Celebrate the summit with a hot meal and a warm night in the village.', focus: '50% 50%' },
+  { day: 6, title: 'Sankri to Dehradun', meta: 'Drive: 200 km • 8-9 hrs', image: '/daybyday/step6.png', text: 'Drive back to Dehradun, arriving by evening. Goodbyes, group photos and plans for the next adventure.', focus: '50% 50%' },
 ]
 
 export const departureFeatures = [

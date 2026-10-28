@@ -65,8 +65,8 @@ const SEASONS = [
     tagline: 'Warm sunlit days, blooming rhododendrons & widest Himalayan views',
     temp: '-5°C to 15°C',
     weather: 'Pleasant Sunshine · Thawing Snow',
-    accentColor: '#38BDF8',
-    glowColor: 'rgba(56, 189, 248, 0.35)',
+    accentColor: '#4F87A8',
+    glowColor: 'rgba(79, 135, 168, 0.35)',
     Icon: Sun,
     description:
       'As winter relaxes, longer sunlit days open up expansive 360° panoramas of Swargarohini and Bandarpoonch. Pine forests burst into vivid pink rhododendron blooms alongside glistening snow on high ridges.',
@@ -106,8 +106,8 @@ const SEASONS = [
     tagline: 'Golden autumn woods, crisp morning frost & first dusting of snow',
     temp: '0°C to 12°C',
     weather: 'Crisp Mountain Chill · Golden Trails',
-    accentColor: '#2DD4BF',
-    glowColor: 'rgba(45, 212, 191, 0.35)',
+    accentColor: '#3B82A6',
+    glowColor: 'rgba(59, 130, 166, 0.35)',
     Icon: Flame,
     description:
       'The quietest and most serene month to experience Kedarkantha. Witness the dramatic transition from golden autumn canopy to the season’s very first snowfall, with tranquil campsites and intimate batch sizes.',
@@ -318,7 +318,7 @@ export default function BestTimeShowcase() {
                   >
                     <div className="flex flex-wrap items-center gap-2.5">
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0E2233] shadow"
+                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow"
                         style={{ backgroundColor: season0.accentColor }}
                       >
                         <SIcon0 size={13} />
@@ -540,7 +540,7 @@ export default function BestTimeShowcase() {
                             className="flex items-start gap-2.5 rounded-xl bg-white/[0.04] p-2.5 sm:p-3 ring-1 ring-white/10 hover:bg-white/[0.08] transition-all backdrop-blur-sm"
                           >
                             <span
-                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-[#0E2233]"
+                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white"
                               style={{ backgroundColor: season.accentColor }}
                             >
                               <FIcon size={14} strokeWidth={2.5} />
@@ -562,7 +562,7 @@ export default function BestTimeShowcase() {
                     <div className="mt-4 sm:mt-5 flex items-center">
                       <Link
                         to="/departures"
-                        className="group inline-flex items-center gap-2.5 rounded-full px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-[#0E2233] shadow-lg transition-transform hover:scale-105"
+                        className="group inline-flex items-center gap-2.5 rounded-full px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105 hover:brightness-110"
                         style={{ backgroundColor: season.accentColor }}
                       >
                         <Calendar size={15} />

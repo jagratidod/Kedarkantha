@@ -12,7 +12,7 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
   }
 
   return (
-    <div className="w-full py-16 sm:py-20 bg-[#0E2233]">
+    <div className="w-full py-16 sm:py-20 bg-ink-bg">
       <div className="container-page max-w-4xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
@@ -36,7 +36,7 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
             return (
               <div
                 key={f.q}
-                className={`group rounded-2xl transition-all duration-300 overflow-hidden bg-[#132A3E]/80 backdrop-blur-sm border ${
+                className={`group rounded-2xl transition-all duration-300 overflow-hidden bg-[#0E2233]/90 backdrop-blur-sm border ${
                   isOpen
                     ? 'border-[#4F87A8]/50 shadow-lg ring-1 ring-[#4F87A8]/30'
                     : 'border-white/10 hover:border-[#4F87A8]/30 hover:shadow'
@@ -94,7 +94,7 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
         </div>
 
         {/* Need more help banner at the bottom */}
-        <div className="mt-12 p-6 rounded-2xl bg-[#132A3E] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="mt-12 p-6 rounded-2xl bg-[#0E2233] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
             <div className="h-10 w-10 rounded-full bg-[#1F4663] text-[#7EB5D6] flex items-center justify-center shrink-0">
               <MessageSquare size={18} />
