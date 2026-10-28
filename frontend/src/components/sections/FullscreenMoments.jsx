@@ -95,25 +95,30 @@ export default function FullscreenMoments() {
     <section
       ref={wrap}
       aria-label="Moments from Kedarkantha"
-      className="relative bg-white"
+      className="relative bg-[#0E2233]"
       style={{ height: reduced ? '100svh' : narrow ? '360vh' : '420vh' }}
     >
-      <div ref={stage} className="sticky top-0 h-svh overflow-hidden bg-white">
+      <div ref={stage} className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
         {/* Marquee running text behind photo */}
         <div ref={reg('marquee')} className="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 overflow-hidden" style={{ opacity: 0 }} aria-hidden="true">
-          <div className="gs-marquee flex w-max whitespace-nowrap font-semibold leading-none text-forest" style={{ fontSize: narrow ? '20vw' : '10.5vw' }}>
+          <div className="gs-marquee flex w-max whitespace-nowrap font-semibold leading-none text-[#1B3A54]" style={{ fontSize: narrow ? '20vw' : '10.5vw' }}>
             <span>{MARQUEE.repeat(3)}</span>
             <span>{MARQUEE.repeat(3)}</span>
           </div>
         </div>
 
         {/* Photo growing to fill the screen */}
-        <div ref={reg('photo')} className="absolute overflow-hidden" style={{ opacity: 0 }}>
+        <div ref={reg('photo')} className="absolute overflow-hidden ring-1 ring-white/10 shadow-2xl" style={{ opacity: 0 }}>
           <div ref={reg('photoImg')} className="h-full w-full will-change-transform">
-            <Img focus="50% 45%" sizes="100vw" />
+            <Img
+              image="/KEDARKANTHATRACKOVERVIEWIMAGE/KEDARKANTHATRECKOVERVIEWIMAGE.png"
+              alt="Moments from our Kedarkantha treks"
+              focus="50% 50%"
+              sizes="100vw"
+            />
           </div>
-          <div ref={reg('caption')} className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent p-6 text-center text-white sm:p-10" style={{ opacity: 0 }}>
-            <p className="font-display text-3xl font-medium sm:text-5xl">Moments from our Kedarkantha treks</p>
+          <div ref={reg('caption')} className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-6 text-center text-white sm:p-10" style={{ opacity: 0 }}>
+            <p className="font-display text-2xl font-bold tracking-tight sm:text-5xl drop-shadow-lg">Moments from our Kedarkantha treks</p>
           </div>
         </div>
       </div>

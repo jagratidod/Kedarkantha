@@ -128,21 +128,21 @@ export default function FitnessQuiz({ info }) {
         <span className="text-xs font-semibold tabular-nums text-forest/70">{done ? n : step + 1} / {n}</span>
       </div>
 
-      <div className="overflow-hidden rounded-3xl bg-white shadow-pop ring-1 ring-forest/10">
+      <div className="overflow-hidden rounded-3xl bg-[#132A3E] shadow-2xl ring-1 ring-white/10">
         <div
           key={step}
-          className="fq-card p-6 sm:p-9"
+          className="fq-card p-6 sm:p-9 text-white"
           data-state={leaving ? 'out' : 'in'}
           style={{ '--dx': `${dir * 56}px` }}
         >
           {!done ? (
             <>
               <div className="flex items-center gap-3">
-                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-sage text-forest"><Icon size={22} aria-hidden="true" /></span>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-forest/60">Question {step + 1}</p>
+                <span className="flex h-11 w-11 items-center justify-center rounded-full bg-[#1F4663] text-[#7EB5D6]"><Icon size={22} aria-hidden="true" /></span>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7EB5D6]">Question {step + 1}</p>
               </div>
-              <h3 className="mt-4 font-display text-3xl font-semibold leading-tight text-ink sm:text-4xl">{q.q}</h3>
-              <p className="mt-2 text-sm text-muted">{q.hint}</p>
+              <h3 className="mt-4 font-display text-3xl font-semibold leading-tight text-white sm:text-4xl">{q.q}</h3>
+              <p className="mt-2 text-sm text-[#8FAEC5]">{q.hint}</p>
 
               <ul className="mt-6 grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label={q.q}>
                 {q.options.map((o, i) => {
@@ -154,14 +154,14 @@ export default function FitnessQuiz({ info }) {
                         role="radio"
                         aria-checked={on}
                         onClick={() => pick(i)}
-                        className={`group flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-300 ${on ? 'border-forest bg-forest text-white shadow-lg' : 'border-line bg-offwhite hover:-translate-y-0.5 hover:border-cta hover:bg-sage'}`}
+                        className={`group flex w-full items-center gap-3 rounded-2xl border p-4 text-left transition-all duration-300 ${on ? 'border-[#4F87A8] bg-[#1F4663] text-white shadow-lg' : 'border-white/10 bg-[#0E2233]/70 text-white hover:-translate-y-0.5 hover:border-[#4F87A8] hover:bg-[#16334D]'}`}
                       >
-                        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors ${on ? 'border-white bg-white text-forest' : 'border-forest/30 text-forest/70 group-hover:border-cta'}`}>
+                        <span className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-bold transition-colors ${on ? 'border-white bg-white text-[#0E2233]' : 'border-white/20 text-[#7EB5D6] group-hover:border-[#4F87A8]'}`}>
                           {on ? <Check size={15} aria-hidden="true" /> : String.fromCharCode(65 + i)}
                         </span>
                         <span>
                           <span className="block text-[15px] font-semibold leading-snug">{o.label}</span>
-                          {o.note && <span className={`block text-xs ${on ? 'text-white/80' : 'text-muted'}`}>{o.note}</span>}
+                          {o.note && <span className={`block text-xs ${on ? 'text-white/80' : 'text-[#8FAEC5]'}`}>{o.note}</span>}
                         </span>
                       </button>
                     </li>
@@ -174,12 +174,12 @@ export default function FitnessQuiz({ info }) {
                   type="button"
                   onClick={() => go(step - 1, -1)}
                   disabled={step === 0}
-                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest transition-opacity disabled:pointer-events-none disabled:opacity-30"
+                  className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7EB5D6] transition-opacity hover:text-white disabled:pointer-events-none disabled:opacity-30"
                 >
                   <ArrowLeft size={16} aria-hidden="true" /> Back
                 </button>
                 {answers[q.id] && (
-                  <button type="button" onClick={() => go(step + 1, 1)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest">
+                  <button type="button" onClick={() => go(step + 1, 1)} className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#7EB5D6] hover:text-white">
                     Next <ArrowRight size={16} aria-hidden="true" />
                   </button>
                 )}
@@ -187,8 +187,8 @@ export default function FitnessQuiz({ info }) {
             </>
           ) : (
             <div className="text-center">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-forest/60">{v.tag}</p>
-              <h3 className="mt-2 font-display text-4xl font-semibold leading-tight text-ink sm:text-5xl">{v.title}</h3>
+              <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7EB5D6]">{v.tag}</p>
+              <h3 className="mt-2 font-display text-4xl font-semibold leading-tight text-white sm:text-5xl">{v.title}</h3>
 
               {/* Meter */}
               <div className="mx-auto mt-6 max-w-sm">
@@ -196,31 +196,31 @@ export default function FitnessQuiz({ info }) {
                   {[1, 2, 3, 4, 5].map((k) => (
                     <span
                       key={k}
-                      className={`fq-bar w-9 rounded-sm ${k <= Math.max(1, Math.round((total / MAX) * 5)) ? 'bg-cta' : 'bg-sage'}`}
+                      className={`fq-bar w-9 rounded-sm ${k <= Math.max(1, Math.round((total / MAX) * 5)) ? 'bg-[#4F87A8]' : 'bg-white/10'}`}
                       style={{ height: 14 + k * 11, '--i': k }}
                     />
                   ))}
                 </div>
-                <p className="mt-3 text-sm font-semibold text-forest">{Math.round((total / MAX) * 100)}% ready</p>
+                <p className="mt-3 text-sm font-semibold text-[#7EB5D6]">{Math.round((total / MAX) * 100)}% ready</p>
               </div>
 
-              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted">{v.text}</p>
+              <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-[#8FAEC5]">{v.text}</p>
 
               <div className="mx-auto mt-6 grid max-w-xl gap-2 text-left sm:grid-cols-2">
-                <div className="rounded-2xl bg-sage p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-forest/60">Trek difficulty</p>
-                  <p className="mt-1 font-display text-2xl font-semibold text-forest">{info.level}</p>
+                <div className="rounded-2xl bg-[#0E2233] ring-1 ring-white/10 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-[#7EB5D6]">Trek difficulty</p>
+                  <p className="mt-1 font-display text-2xl font-semibold text-white">{info.level}</p>
                 </div>
-                <ul className="space-y-1.5 rounded-2xl bg-offwhite p-4 text-[13px] text-muted">
+                <ul className="space-y-1.5 rounded-2xl bg-[#0E2233] ring-1 ring-white/10 p-4 text-[13px] text-[#8FAEC5]">
                   {info.fitness.map((t) => (
-                    <li key={t} className="flex items-start gap-2"><Check size={14} className="mt-0.5 shrink-0 text-cta" aria-hidden="true" />{t}</li>
+                    <li key={t} className="flex items-start gap-2"><Check size={14} className="mt-0.5 shrink-0 text-[#4F87A8]" aria-hidden="true" />{t}</li>
                   ))}
                 </ul>
               </div>
 
               <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-                <Button to="/book" size="lg">Book Your Trek</Button>
-                <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-forest ring-1 ring-forest/25 transition-colors hover:bg-sage">
+                <Button to="/book" variant="cta" size="lg">Book Your Trek</Button>
+                <button type="button" onClick={reset} className="inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-white ring-1 ring-white/25 transition-colors hover:bg-white/10">
                   <RotateCcw size={15} aria-hidden="true" /> Retake quiz
                 </button>
               </div>

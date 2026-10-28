@@ -1,7 +1,5 @@
 import { useEffect, useRef } from 'react'
-import Img from '../ui/Img'
 import Icon from '../ui/Icon'
-import Button from '../ui/Button'
 import ridge from '../../assets/images/hero-3rd.webp'
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
@@ -10,50 +8,47 @@ const ease = (t) => t * t * (3 - 2 * t)
 const WORD = 'KEDARKANTHA'
 
 /*
- * Scroll story (P = 0..1 over 900vh pinned hero):
- *   0.00 - 0.04  Scroll cue fades out immediately on first movement
- *   0.00 - 0.28  giant KEDARKANTHA immediately rises from behind the ridge on the very first scroll
- *   0.36 - 0.46  the word lifts away while the ridge settles
- *   0.44 - 0.60  hero copy (tagline, intro, button, facts)
- *   0.63 - 0.70  hero copy exits
- *   0.70 - 0.82  All overview parts scroll in together from right to left
- *   0.82 - 0.91  Then Border: draws around the overview section
- *   0.92 - 0.98  Border expansion: expands outward to screen edges
+ * Scroll story (P = 0..1 over 800vh pinned hero):
+ *   0.00 - 0.03  Scroll cue fades out immediately on first movement
+ *   0.00 - 0.18  Giant KEDARKANTHA rises immediately from behind the ridge
+ *   0.18 - 0.28  Word lifts away & dark atmospheric veil prepares stage
+ *   0.30 - 0.44  Trek Overview header + 6 Stat cards slide in from right to left
+ *   0.44 - 0.58  Trek Overview & stats shift upward to top while rich storytelling text appears
+ *   0.58 - 0.72  Bold border draws smoothly and completely around the overview section
+ *   0.72 - 0.78  Pause to view fully drawn overview card
+ *   0.78 - 0.98  Dedicated Border Zoom: ONLY the border zooms on all 4 sides to fit the screen's outer edges
  */
 const VARS = (p) => ({
-  '--pw': 1 - seg(p, 0.00, 0.04), // scroll cue fades right on first touch
-  '--pl': ease(seg(p, 0.00, 0.28)), // KEDARKANTHA starts rising immediately on first scroll!
-  '--lo': ease(seg(p, 0.36, 0.46)), // word out
-  '--pm': ease(seg(p, 0, 0.45)), // ridge parallax / zoom
-  '--ps': 0.55 * ease(seg(p, 0.44, 0.58)), // dark veil so copy and cards stay readable
-  '--ci': seg(p, 0.46, 0.60), // hero copy in
-  '--co': seg(p, 0.63, 0.70), // hero copy out
-  '--po': ease(seg(p, 0.70, 0.82)), // ALL parts slide in together from right to left
-  '--pb': ease(seg(p, 0.82, 0.91)), // THEN border draws around the section
-  '--pz': ease(seg(p, 0.92, 0.98)), // fast snap zoom / border expand
+  '--pw': 1 - seg(p, 0.00, 0.03), // scroll cue fades right on first touch
+  '--pl': ease(seg(p, 0.00, 0.18)), // KEDARKANTHA starts rising immediately
+  '--lo': ease(seg(p, 0.18, 0.28)), // word out
+  '--pm': ease(seg(p, 0, 0.32)), // ridge parallax / zoom
+  '--ps': 0.65 * ease(seg(p, 0.24, 0.38)), // dark veil for readability
+  '--po': ease(seg(p, 0.30, 0.44)), // ALL parts slide in together from right to left
+  '--pu': ease(seg(p, 0.44, 0.58)), // Upward shift for header & icons + reveal of detailed overview text
+  '--pb': ease(seg(p, 0.58, 0.72)), // Border draws completely around the card
+  '--pz': ease(seg(p, 0.78, 0.98)), // Dedicated Zoom: ONLY the border zooms outward on all 4 sides to screen edges
 })
 
 /**
  * Scroll-driven hero: a wrapper scrolls while the stage stays sticky.
  */
-export default function ScrollHero({ trek, facts = [], stats = [], photos = [], scrollLength = '900vh' }) {
+export default function ScrollHero({ trek, facts = [], stats = [], photos = [], scrollLength = '800vh' }) {
   const wrapRef = useRef(null)
   const stageRef = useRef(null)
-  const copyRef = useRef(null)
   const ovRef = useRef(null)
 
   useEffect(() => {
     const wrap = wrapRef.current
     const stage = stageRef.current
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    let target = reduced ? 0.58 : 0
+    let target = reduced ? 0.75 : 0
     let current = target
     let raf = 0
 
     const draw = () => {
       const v = VARS(current)
       for (const k in v) stage.style.setProperty(k, String(v[k]))
-      if (copyRef.current) copyRef.current.style.pointerEvents = v['--ci'] > 0.4 && v['--co'] < 0.5 ? 'auto' : 'none'
       if (ovRef.current) ovRef.current.style.pointerEvents = v['--po'] > 0.4 ? 'auto' : 'none'
     }
 
@@ -81,22 +76,12 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
     }
   }, [])
 
-  // d = delay inside the 0..1 range of a progress variable; w = how long each item takes.
-  const rise = (v, d, w = 0.45, dist = '36px') => ({
-    opacity: `clamp(0, (var(${v}) - ${d}) / ${w}, 1)`,
-    transform: `translateY(calc((1 - clamp(0, (var(${v}) - ${d}) / ${w}, 1)) * ${dist}))`,
-  })
-  const copyIn = (d) => {
-    const k = `clamp(0, (var(--ci) - ${d}) / 0.5, 1)`
-    return { opacity: `calc(${k} * (1 - var(--co)))`, transform: `translateY(calc((1 - ${k}) * 44px - var(--co) * 36px))` }
-  }
-
   return (
     <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-white" aria-label="Kedarkantha trek introduction">
       <div
         ref={stageRef}
         className="hero-stage sticky overflow-hidden bg-[#0E2233] text-white"
-        style={{ '--pw': 1, '--pl': 0, '--lo': 0, '--pm': 0, '--ps': 0, '--ci': 0, '--co': 0, '--po': 0, '--pb': 0, '--pz': 0 }}
+        style={{ '--pw': 1, '--pl': 0, '--lo': 0, '--pm': 0, '--ps': 0, '--po': 0, '--pb': 0, '--pu': 0, '--pz': 0 }}
       >
         {/* Dawn sky */}
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0E2233 0%, #1F4663 30%, #4F87A8 58%, #B7D6E4 82%, #F3E3C8 100%)' }} aria-hidden="true" />
@@ -132,45 +117,27 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
           Scroll
         </p>
 
-        {/* 4. Hero copy. */}
-        <div ref={copyRef} className="container-page absolute inset-0 flex flex-col justify-end pb-6 sm:justify-center sm:pb-10" style={{ pointerEvents: 'none' }}>
-          <p className="text-xs font-semibold uppercase tracking-widest text-white/90 sm:text-sm" style={copyIn(0)}>{trek.name}</p>
-          <h1 className="mt-2 max-w-xl text-4xl font-bold leading-tight sm:text-5xl lg:text-6xl" style={copyIn(0.1)}>{trek.tagline}</h1>
-          <p className="mt-4 max-w-md text-sm text-white/85 sm:text-base" style={copyIn(0.2)}>{trek.intro}</p>
-          <div className="mt-6 flex flex-wrap gap-3" style={copyIn(0.3)}>
-            <Button to="/book" variant="cta" size="lg">Book Your Trek</Button>
-          </div>
-          <ul className="mt-8 grid grid-cols-2 gap-4 border-t border-white/15 pt-5 sm:grid-cols-4" style={copyIn(0.4)}>
-            {facts.map(({ Icon: I, value, label }) => (
-              <li key={label} className="flex items-center gap-3">
-                <I size={22} className="shrink-0 text-white/90" aria-hidden="true" />
-                <div>
-                  <p className="text-sm font-semibold">{value}</p>
-                  <p className="text-xs text-white/70">{label}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* 5. Trek Overview, inside the hero with right-to-left entrance and subsequent border draw */}
+        {/* 5. Trek Overview, inside the hero with right-to-left entrance, border draw, and edge zoom */}
         <div ref={ovRef} className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          {/* SVG Border that draws around the card AFTER content appears, then expands on further scroll */}
+          {/* SVG Border that draws around the card AFTER content appears, then zooms outward to screen edges */}
           <svg
             className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
             <rect
-              x="calc(max(16px, (100% - 72rem) / 2) * (1 - var(--pz)) + 16px * var(--pz))"
-              y="calc(max(24px, (100% - 38rem) / 2) * (1 - var(--pz)) + 16px * var(--pz))"
-              width="calc(min(calc(100% - 32px), 72rem) * (1 - var(--pz)) + (100% - 32px) * var(--pz))"
-              height="calc(min(calc(100% - 48px), 38rem) * (1 - var(--pz)) + (100% - 32px) * var(--pz))"
-              rx="calc(20px * (1 - var(--pz)) + 24px * var(--pz))"
-              ry="calc(20px * (1 - var(--pz)) + 24px * var(--pz))"
+              x="calc(max(16px, (100% - 72rem) / 2) * (1 - var(--pz)))"
+              y="calc((max(16px, (100% - 22rem) / 2 * (1 - var(--pu)) + 2.6rem * var(--pu))) * (1 - var(--pz)))"
+              width="calc(min(calc(100% - 32px), 72rem) * (1 - var(--pz)) + 100% * var(--pz))"
+              height="calc((min(calc(100% - 48px), 21.5rem) * (1 - var(--pu)) + min(calc(100% - 5.5rem), 34.5rem) * var(--pu)) * (1 - var(--pz)) + 100% * var(--pz))"
+              rx="calc(24px * (1 - var(--pz)))"
+              ry="calc(24px * (1 - var(--pz)))"
               fill="none"
-              stroke="rgba(255, 255, 255, calc(0.35 + var(--pz) * 0.65))"
-              strokeWidth="calc(1.8px + var(--pz) * 6.2px)"
+              stroke="rgba(255, 255, 255, calc(0.9 * (1 - var(--pz)) + var(--pz)))"
+              strokeWidth="calc(3px + var(--pz) * 2px)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="drop-shadow-[0_0_12px_rgba(255,255,255,0.45)]"
               pathLength="100"
               style={{
                 strokeDasharray: '100',
@@ -181,53 +148,71 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
             />
           </svg>
 
-          {/* Middle text & cards container: all parts scroll in together from right to left */}
+          {/* Middle text & cards container: stays stationary while ONLY the border zooms outward */}
           <div
-            className="container-page relative z-10 mx-auto max-w-6xl p-4 sm:p-7 md:p-8"
+            className="container-page relative z-10 mx-auto max-w-6xl p-4 sm:p-7 md:p-8 flex flex-col justify-center"
             style={{
-              opacity: 'clamp(0, var(--po) * 1.5, 1)',
-              transform: 'translateX(calc((1 - var(--po)) * 75vw))',
+              opacity: 'calc(clamp(0, var(--po) * 1.5, 1) * (1 - var(--pz) * 0.9))',
+              transform: 'translateX(calc((1 - var(--po)) * 75vw)) translateY(calc(var(--pu) * -4.5rem))',
+              transition: 'transform 0.1s ease-out',
             }}
           >
-            {/* Heading */}
-            <div className="text-center">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-white/90 ring-1 ring-white/20 backdrop-blur">
-                <span className="h-1.5 w-1.5 rounded-full bg-cta" /> Key Highlights
-              </span>
-              <h2 className="mt-2 text-3xl font-bold sm:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">Trek Overview</h2>
+            {/* Heading (Moves smoothly upwards as --pu increases) */}
+            <div className="text-center transition-all duration-300">
+              <h2 className="text-3xl font-bold sm:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">Trek Overview</h2>
               <p className="mt-1 text-sm text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">Essential details at a glance</p>
             </div>
 
-            {/* 6 Stat cards */}
-            <ul className="mt-4 grid grid-cols-3 gap-2 sm:mt-6 sm:gap-3 lg:grid-cols-6">
+            {/* 6 Stat cards (Compact on mobile & desktop, seamlessly transitions upward) */}
+            <ul className="mt-4 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-3 lg:grid-cols-6">
               {stats.map((s) => (
                 <li key={s.label}>
-                  <div className="flex h-full flex-col items-center gap-1 rounded-xl bg-black/25 p-3 text-center ring-1 ring-white/20 backdrop-blur-md sm:p-4">
-                    <span className="mb-0.5 flex h-8 w-8 items-center justify-center rounded-full ring-1 ring-white/35 sm:h-10 sm:w-10"><Icon name={s.icon} size={18} /></span>
-                    <p className="text-xs font-bold sm:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
-                    <p className="text-[10px] text-white/80 sm:text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
+                  <div className="flex h-full flex-col items-center gap-1 rounded-xl bg-black/35 p-2.5 sm:p-3.5 text-center ring-1 ring-white/20 backdrop-blur-md shadow-lg transition-transform duration-300 hover:scale-[1.02]">
+                    <span className="mb-0.5 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 text-sky-300 ring-1 ring-white/30"><Icon name={s.icon} size={16} /></span>
+                    <p className="text-xs font-bold sm:text-sm md:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
+                    <p className="text-[9px] text-white/75 sm:text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
                   </div>
                 </li>
               ))}
             </ul>
 
-            {/* 3 Photo cards */}
-            <ul className="mt-3 grid grid-cols-3 gap-2 sm:mt-4 sm:gap-4">
-              {photos.map((h) => (
-                <li key={h.id}>
-                  <div className="overflow-hidden rounded-xl ring-1 ring-white/25">
-                    <div className="relative aspect-[4/3] sm:aspect-[16/9]">
-                      <Img image={h.image} focus={h.focus} sizes="(min-width:640px) 33vw, 33vw" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-ink-bg/85 via-transparent to-transparent" />
-                      <div className="absolute inset-x-0 bottom-0 p-2 sm:p-3">
-                        <p className="text-xs font-semibold sm:text-sm">{h.title}</p>
-                        <p className="hidden text-xs text-white/75 sm:block">{h.caption}</p>
-                      </div>
-                    </div>
+            {/* Detailed text & expedition description: smoothly appears as user scrolls further */}
+            <div
+              className="mt-6 sm:mt-8 px-2 py-3 sm:px-4 sm:py-4 transition-all duration-300"
+              style={{
+                opacity: 'clamp(0, (var(--pu) - 0.25) * 1.5, 1)',
+                transform: 'translateY(calc((1 - var(--pu)) * 36px))',
+                pointerEvents: 'var(--pu) > 0.6 ? "auto" : "none"',
+              }}
+            >
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left items-center">
+                <div className="md:col-span-2 space-y-3">
+                  <div className="flex items-center gap-2.5">
+                    <span className="h-2.5 w-2.5 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]" />
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+                      The Classic Himalayan Winter Odyssey
+                    </h3>
                   </div>
-                </li>
-              ))}
-            </ul>
+                  <p className="text-base sm:text-lg md:text-xl leading-relaxed text-slate-100 font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                    Perched in the Govind Wildlife Sanctuary of Uttarkashi at 12,500 ft, Kedarkantha is India's most celebrated summit trek. Journey from quiet pine-scented trails into majestic alpine clearings, camp beside the mythical frozen waters of Juda Ka Talab, and witness an awe-inspiring 360-degree sunrise over Swargarohini, Black Peak, and Bandarpoonch.
+                  </p>
+                </div>
+                <div className="flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/25 pt-4 md:pt-0 md:pl-7 space-y-3 text-sm sm:text-base md:text-lg text-slate-200 font-medium">
+                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
+                    <span>Best Season: Dec to April</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
+                    <span>Forest: Oak, Pine & Deodar</span>
+                  </div>
+                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
+                    <span>Trail: Beginner to Pro Friendly</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

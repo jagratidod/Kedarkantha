@@ -7,7 +7,7 @@ export default function CTABanner({ title, text, label, to, focus = '50% 70%' })
     <section className="relative isolate overflow-hidden bg-ink-bg">
       <div className="absolute inset-0 -z-10">
         <Img focus={focus} sizes="100vw" />
-        <div className="absolute inset-0 bg-gradient-to-r from-ink-bg/90 via-forest/75 to-ink-bg/50" />
+        <div className="absolute inset-0 bg-gradient-to-r from-[#091724]/95 via-[#162E44]/85 to-[#0E2233]/60" />
       </div>
       <div className="container-page py-12 sm:py-16">
         <h2 className="text-2xl font-bold text-white sm:text-3xl">{title}</h2>

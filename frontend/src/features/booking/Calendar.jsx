@@ -14,24 +14,24 @@ export default function Calendar({ cursor, available, selectedDate, onSelect, on
   const iso = (d) => `${cursor.y}-${String(cursor.m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`
 
   return (
-    <div className="rounded-xl border border-line bg-white p-4">
+    <div className="rounded-xl border border-white/10 bg-[#132A3E] p-4 text-white">
       <div className="mb-3 flex items-center justify-between">
-        <button type="button" aria-label="Previous month" disabled={!canPrev} onClick={() => onMonth(-1)} className="rounded p-1 text-muted hover:bg-sage disabled:opacity-30">
+        <button type="button" aria-label="Previous month" disabled={!canPrev} onClick={() => onMonth(-1)} className="rounded p-1 text-white/70 hover:bg-white/10 disabled:opacity-30">
           <ChevronLeft size={18} />
         </button>
         <p className="text-sm font-bold" aria-live="polite">{NAMES[cursor.m]} {cursor.y}</p>
-        <button type="button" aria-label="Next month" disabled={!canNext} onClick={() => onMonth(1)} className="rounded p-1 text-muted hover:bg-sage disabled:opacity-30">
+        <button type="button" aria-label="Next month" disabled={!canNext} onClick={() => onMonth(1)} className="rounded p-1 text-white/70 hover:bg-white/10 disabled:opacity-30">
           <ChevronRight size={18} />
         </button>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs">
-        {DOW.map((d) => <span key={d} className="py-1 font-semibold text-muted">{d}</span>)}
+        {DOW.map((d) => <span key={d} className="py-1 font-semibold text-[#8FAEC5]">{d}</span>)}
         {cells.map((d, i) => {
           if (!d) return <span key={`e${i}`} />
           const date = iso(d)
           const dep = available[date]
           const selected = date === selectedDate
-          if (!dep) return <span key={date} className="py-2 text-muted/60">{d}</span>
+          if (!dep) return <span key={date} className="py-2 text-white/30">{d}</span>
           return (
             <button
               key={date}
@@ -40,7 +40,7 @@ export default function Calendar({ cursor, available, selectedDate, onSelect, on
               aria-pressed={selected}
               aria-label={`${d} ${NAMES[cursor.m]}, ${dep.seats} seats left`}
               onClick={() => onSelect(dep)}
-              className={`rounded-md py-2 font-semibold ${selected ? 'bg-forest text-white' : 'bg-sage text-forest ring-1 ring-cta hover:bg-cta hover:text-white'} disabled:opacity-40`}
+              className={`rounded-md py-2 font-semibold ${selected ? 'bg-[#4F87A8] text-white shadow' : 'bg-white/10 text-white hover:bg-[#1F4663]'} disabled:opacity-40`}
             >
               {d}
             </button>

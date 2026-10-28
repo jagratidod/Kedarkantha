@@ -1,16 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
+import { ArrowUpRight, Compass, Mountain, ShieldCheck, Sparkles } from 'lucide-react'
 import mountains from '../../assets/images/footer-mountains.webp'
 
-/*
- * Closing scene before the footer: a morning sky, the mountain ridge along the bottom of the screen and a huge
- * KEDARKANTHA that rises from behind the ridge as you scroll (P = 0..1 over the pinned stage).
- *
- *   0.00 - 0.12  sky and mountains only, a small "Scroll" hint
- *   0.10 - 0.62  the giant word rises from behind the ridge, letter by letter
- *   0.55 - 0.80  the word settles with its feet fading into the ridge
- *   0.66 - 0.90  "Behind the mountains." and the call-to-action fade in; the sky warms toward the horizon
- */
+/* =========================================================================
+   Closing Scene: Behind the Mountains
+   A cinematic Himalayan sunrise where the giant KEDARKANTHA rises letter-by-letter
+   from behind the snow-capped mountain ridge as you scroll.
+========================================================================= */
 
 const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 const seg = (p, a, b) => clamp((p - a) / (b - a))
@@ -18,16 +15,29 @@ const ease = (t) => t * t * (3 - 2 * t)
 const mix = (a, b, t) => a + (b - a) * t
 
 const LETTERS = 'KEDARKANTHA'.split('')
-const STARS = Array.from({ length: 46 }, (_, i) => {
-  const h = (n) => { const s = Math.sin(n * 91.7 + 12.3) * 43758.5; return s - Math.floor(s) }
-  return { x: h(i) * 100, y: h(i + 77) * 62, r: 0.6 + h(i + 150) * 1.4, o: 0.25 + h(i + 220) * 0.6 }
+
+// Ambient stars across the night sky
+const STARS = Array.from({ length: 50 }, (_, i) => {
+  const h = (n) => {
+    const s = Math.sin(n * 91.7 + 12.3) * 43758.5
+    return s - Math.floor(s)
+  }
+  return {
+    x: h(i) * 100,
+    y: h(i + 77) * 55,
+    r: 0.8 + h(i + 150) * 1.6,
+    o: 0.2 + h(i + 220) * 0.7,
+  }
 })
 
 export default function BehindMountains() {
   const wrap = useRef(null)
   const els = useRef({})
   const [narrow, setNarrow] = useState(false)
-  const reduced = useMemo(() => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches, [])
+  const reduced = useMemo(
+    () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+    []
+  )
 
   useEffect(() => {
     const mq = window.matchMedia('(max-width: 767px)')
@@ -42,118 +52,278 @@ export default function BehindMountains() {
     let target = reduced ? 1 : 0
     let cur = target
     let raf = 0
+
     const apply = () => {
       const p = cur
-      const rise = ease(seg(p, 0.1, 0.62))
-      const warm = ease(seg(p, 0.5, 0.9))
-      // Word: starts hidden below the ridge (translateY 95vh) and settles right in the middle
-      if (e.word) {
-        e.word.style.transform = `translate3d(0, ${mix(95, narrow ? 36 : 30, rise)}vh, 0)`
-      }
+      // Timing phases
+      const riseProgress = seg(p, 0.08, 0.65)
+      const dawnWarmth = ease(seg(p, 0.35, 0.85))
+      const contentFade = ease(seg(p, 0.58, 0.88))
+      const hintOpacity = 1 - seg(p, 0.02, 0.12)
+
+      // 1. Staggered Letter Ascent behind the peaks
       if (e.letters) {
-        e.letters.forEach((l) => {
-          if (l) l.style.opacity = '1'
+        e.letters.forEach((l, i) => {
+          if (!l) return
+          // Wave offset based on letter index
+          const offset = (i / LETTERS.length) * 0.25
+          const letterP = ease(clamp((riseProgress - offset) / 0.75))
+
+          // Y translation: starts deep behind ridge (55vh) and rises to peak height
+          const startY = narrow ? 48 : 42
+          const endY = narrow ? 4 : 2
+          const currentY = mix(startY, endY, letterP)
+          const currentOpacity = clamp(mix(0.1, 1, letterP * 1.5))
+          const currentScale = mix(0.9, 1, letterP)
+
+          l.style.transform = `translate3d(0, ${currentY}vh, 0) scale(${currentScale})`
+          l.style.opacity = String(currentOpacity)
         })
       }
-      if (e.ridge) e.ridge.style.transform = `scale(1)`
-      if (e.sky) e.sky.style.opacity = String(warm)
-      if (e.tag) {
-        e.tag.style.opacity = String(ease(seg(p, 0.66, 0.82)))
-        e.tag.style.transform = `translateY(${(1 - ease(seg(p, 0.66, 0.82))) * 28}px)`
+
+      // 2. Sunrise Dawn Glow
+      if (e.sky) {
+        e.sky.style.opacity = String(dawnWarmth)
+        e.sky.style.transform = `scale(${mix(0.85, 1.15, dawnWarmth)})`
       }
-      if (e.cta) {
-        e.cta.style.opacity = String(ease(seg(p, 0.76, 0.9)))
-        e.cta.style.transform = `translateY(${(1 - ease(seg(p, 0.76, 0.9))) * 22}px)`
+
+      // 3. Stars fade out as dawn breaks
+      if (e.stars) {
+        e.stars.style.opacity = String(mix(0.65, 0, dawnWarmth))
       }
-      if (e.hint) e.hint.style.opacity = String(1 - seg(p, 0.03, 0.12))
-      if (e.stars) e.stars.style.opacity = String(mix(0.5, 0, warm))
+
+      // 4. Summit content reveal (Title, perks, CTA)
+      if (e.content) {
+        e.content.style.opacity = String(contentFade)
+        e.content.style.transform = `translate3d(0, ${(1 - contentFade) * 35}px, 0)`
+      }
+
+      // 5. Scroll hint
+      if (e.hint) {
+        e.hint.style.opacity = String(hintOpacity)
+      }
     }
+
     const tick = () => {
       cur += (target - cur) * 0.12
       if (Math.abs(target - cur) < 0.0003) cur = target
       apply()
       raf = cur === target ? 0 : requestAnimationFrame(tick)
     }
+
     const onScroll = () => {
-      if (reduced) return
+      if (reduced || !wrap.current) return
       const r = wrap.current.getBoundingClientRect()
-      target = clamp(-r.top / Math.max(1, wrap.current.offsetHeight - window.innerHeight))
+      const maxScroll = Math.max(1, wrap.current.offsetHeight - window.innerHeight)
+      target = clamp(-r.top / maxScroll)
       if (!raf) raf = requestAnimationFrame(tick)
     }
+
     onScroll()
     apply()
     window.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', () => { onScroll(); apply() })
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('scroll', onScroll) }
+    window.addEventListener('resize', () => {
+      onScroll()
+      apply()
+    })
+
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('scroll', onScroll)
+    }
   }, [narrow, reduced])
 
-  const reg = (k) => (n) => { els.current[k] = n }
+  const reg = (k) => (n) => {
+    els.current[k] = n
+  }
 
   return (
-    <section ref={wrap} id="behind-the-mountains" aria-label="Behind the mountains" className="relative bg-[#E8EFE5]" style={{ height: reduced ? '100svh' : narrow ? '300vh' : '340vh' }}>
-      <div className="sticky top-0 h-svh overflow-hidden" style={{ background: 'linear-gradient(to bottom, #DCE8EE 0%, #E8EFE5 38%, #F5F1E4 68%, #F7E3C4 100%)' }}>
-        {/* Warm horizon glow that fades in */}
-        <div ref={reg('sky')} className="absolute inset-0" style={{ opacity: 0, background: 'radial-gradient(90% 70% at 50% 100%, rgba(255,214,150,0.75), rgba(255,226,180,0.35) 45%, transparent 72%)' }} aria-hidden="true" />
+    <section
+      ref={wrap}
+      id="behind-the-mountains"
+      aria-label="Kedarkantha Grand Finale"
+      className="relative bg-[#060F17]"
+      style={{ height: reduced ? '100svh' : narrow ? '280vh' : '320vh' }}
+    >
+      <div className="sticky top-0 h-svh overflow-hidden flex flex-col justify-between select-none">
+        {/* ================= Deep Midnight Alpine Sky Backdrop ================= */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-30"
+          style={{
+            background: 'linear-gradient(to bottom, #050E17 0%, #0A1A28 35%, #0F263A 70%, #153852 100%)',
+          }}
+          aria-hidden="true"
+        />
 
-        {/* Stars */}
-        <div ref={reg('stars')} className="absolute inset-0" aria-hidden="true">
+        {/* Ambient Twinkling Stars in High Altitude Sky */}
+        <div ref={reg('stars')} className="pointer-events-none absolute inset-0 -z-20 will-change-opacity" aria-hidden="true">
           {STARS.map((s, i) => (
-            <span key={i} className="absolute rounded-full bg-white/80" style={{ left: `${s.x}%`, top: `${s.y}%`, width: s.r, height: s.r, opacity: s.o }} />
+            <span
+              key={i}
+              className="absolute rounded-full bg-white"
+              style={{
+                left: `${s.x}%`,
+                top: `${s.y}%`,
+                width: `${s.r}px`,
+                height: `${s.r}px`,
+                opacity: s.o,
+                boxShadow: s.r > 1.4 ? '0 0 6px rgba(255,255,255,0.8)' : undefined,
+              }}
+            />
           ))}
         </div>
 
-        {/* Giant word behind the ridge */}
-        <div ref={reg('word')} className="absolute inset-x-0 top-0 flex justify-center" aria-hidden="true">
-          <p
-            className="flex select-none font-normal uppercase whitespace-nowrap tracking-[0.01em] text-forest justify-center"
+        {/* ================= Himalayan Alpenglow / Sunrise Aura ================= */}
+        <div
+          ref={reg('sky')}
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[80vh] -z-10 will-change-transform will-change-opacity"
+          style={{
+            opacity: 0,
+            background:
+              'radial-gradient(ellipse 90% 65% at 50% 90%, rgba(255, 191, 105, 0.55) 0%, rgba(232, 163, 23, 0.3) 35%, rgba(79, 135, 168, 0.18) 65%, transparent 85%)',
+          }}
+          aria-hidden="true"
+        />
+
+        {/* ================= GIANT KEDARKANTHA LETTERS (Behind Peaks) ================= */}
+        <div
+          className="pointer-events-none absolute inset-x-0 top-0 z-0 flex justify-center overflow-hidden"
+          aria-hidden="true"
+        >
+          <div
+            className="flex w-full max-w-[100vw] justify-center px-2"
             style={{
-              fontFamily: 'Anton, Impact, sans-serif',
-              fontSize: narrow ? 'clamp(28px, 14.5vw, 54px)' : '12.5vw',
-              lineHeight: 1,
-              transform: narrow ? 'scaleY(1.12)' : 'scaleY(1.15)',
-              transformOrigin: 'top center',
+              paddingTop: narrow ? '16vh' : '10vh',
             }}
           >
-            {LETTERS.map((ch, i) => (
-              <span
-                key={i}
-                ref={(n) => {
-                  (els.current.letters ||= [])[i] = n
-                }}
-                style={{ opacity: 0, display: 'inline-block' }}
-              >
-                {ch}
-              </span>
-            ))}
-          </p>
+            <h2
+              className="flex select-none uppercase tracking-[0.04em] sm:tracking-[0.08em] md:tracking-[0.14em] font-black justify-center"
+              style={{
+                fontFamily: 'Montserrat, Inter, system-ui, sans-serif',
+                fontSize: narrow ? 'clamp(36px, 12.8vw, 68px)' : 'clamp(54px, 10.6vw, 165px)',
+                lineHeight: 1,
+              }}
+            >
+              {LETTERS.map((ch, i) => (
+                <span
+                  key={i}
+                  ref={(n) => {
+                    (els.current.letters ||= [])[i] = n
+                  }}
+                  className="inline-block will-change-transform bg-gradient-to-b from-white via-[#E0F2FE] to-[#7EB5D6]/20 bg-clip-text text-transparent"
+                  style={{
+                    filter: 'drop-shadow(0 0 25px rgba(126, 181, 214, 0.45))',
+                    transform: `translate3d(0, ${narrow ? '48vh' : '42vh'}, 0)`,
+                    opacity: 0.1,
+                  }}
+                >
+                  {ch}
+                </span>
+              ))}
+            </h2>
+          </div>
         </div>
-        <h2 className="sr-only">Kedarkantha, behind the mountains</h2>
 
-        {/* Ridge */}
-        <div ref={reg('ridge')} className="absolute inset-x-0 bottom-0 will-change-transform" style={{ height: narrow ? '54svh' : undefined }}>
+        {/* ================= Initial Scroll Hint ================= */}
+        <div
+          ref={reg('hint')}
+          className="pointer-events-none absolute inset-x-0 top-[18vh] z-30 flex flex-col items-center justify-center text-center transition-opacity will-change-opacity"
+          aria-hidden="true"
+        >
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7EB5D6] backdrop-blur-md ring-1 ring-white/15">
+            <span className="h-2 w-2 rounded-full bg-[#4F87A8] animate-ping" />
+            Scroll to Rise the Summit
+          </div>
+        </div>
+
+        {/* ================= SNOW MOUNTAIN RIDGE (Foreground Over Words) ================= */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 z-10 w-full overflow-hidden"
+          style={{ height: narrow ? '48svh' : '56svh' }}
+        >
+          {/* Authentic Ridge cut-out */}
           <img
             src={mountains}
             alt=""
             decoding="async"
-            className={narrow ? 'h-full w-full object-cover object-bottom' : 'block w-full'}
-            style={narrow ? { objectPosition: '50% 100%' } : undefined}
+            className="h-full w-full object-cover object-bottom"
+            style={{
+              filter: 'drop-shadow(0 -8px 20px rgba(0, 0, 0, 0.4))',
+            }}
             draggable="false"
           />
-        </div>
-        {/* Foot of the ridge melts into the footer colour */}
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-[18%] bg-gradient-to-t from-[#E8EFE5] to-transparent" aria-hidden="true" />
 
-        {/* Tagline + call to action */}
-        <div className="absolute inset-x-0 top-[8%] z-10 flex flex-col items-center px-4 text-center md:top-auto md:bottom-[3.5%]">
-          <p ref={reg('tag')} className="font-display text-2xl italic text-forest sm:text-3xl md:text-[3.2vw]" style={{ opacity: 0 }}>Behind the mountains.</p>
-          <div ref={reg('cta')} className="mt-3 sm:mt-5" style={{ opacity: 0 }}>
-            <Link to="/book" className="inline-flex items-center rounded-full bg-[#E8A317] px-6 py-2.5 text-xs sm:px-7 sm:py-3 sm:text-sm font-bold uppercase tracking-widest text-forest shadow-lg transition-transform hover:scale-105">
-              Book Your Trek
+          {/* Atmospheric Mist rolling across the ridge */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-[15%] h-[30%] opacity-40 mix-blend-screen"
+            style={{
+              background:
+                'radial-gradient(ellipse 100% 60% at 50% 50%, rgba(200, 230, 255, 0.4) 0%, rgba(79, 135, 168, 0.15) 50%, transparent 80%)',
+            }}
+            aria-hidden="true"
+          />
+
+          {/* Deep Melt into Footer */}
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-t from-[#091724] via-[#091724]/90 to-transparent"
+            aria-hidden="true"
+          />
+        </div>
+
+        {/* ================= SUMMIT CALL-TO-ACTION & METADATA ================= */}
+        <div
+          ref={reg('content')}
+          className="relative z-30 mx-auto w-full max-w-4xl px-4 text-center will-change-transform will-change-opacity pt-[6vh] sm:pt-[7vh]"
+          style={{ opacity: 0 }}
+        >
+          {/* Summit Badge */}
+          <div className="inline-flex items-center gap-2 rounded-full bg-[#16334D]/90 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-[#7EB5D6] backdrop-blur-md ring-1 ring-[#4F87A8]/50 shadow-[0_0_20px_rgba(79,135,168,0.3)]">
+            <Sparkles size={14} className="text-[#E8A317]" />
+            Kedarkantha Summit · 12,500 FT
+          </div>
+
+          {/* Inspiring Headline */}
+          <h3 className="mt-3 text-2xl font-black tracking-tight text-white sm:text-4xl md:text-5xl drop-shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
+            Where the Trail Ends, <br className="hidden sm:inline" />
+            <span className="bg-gradient-to-r from-white via-[#E0F2FE] to-[#7EB5D6] bg-clip-text text-transparent">
+              Your Legend Begins.
+            </span>
+          </h3>
+
+          <p className="mt-2 text-xs sm:text-sm md:text-base text-[#8FAEC5] max-w-xl mx-auto drop-shadow-md">
+            Step into the heart of the Garhwal Himalayas. Sub-zero winter snow, ancient pine forests, and a breathtaking 360° summit sunrise.
+          </p>
+
+          {/* Quick Expedition Highlights */}
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-[11px] sm:text-xs font-medium text-white/80">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10 backdrop-blur-sm">
+              <Mountain size={13} className="text-[#7EB5D6]" /> 6 Days · 20 KM Snow Trail
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10 backdrop-blur-sm">
+              <Compass size={13} className="text-[#E8A317]" /> Easy–Moderate Grade
+            </span>
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 ring-1 ring-white/10 backdrop-blur-sm">
+              <ShieldCheck size={13} className="text-[#4F87A8]" /> Certified Expedition Leads
+            </span>
+          </div>
+
+          {/* High-Impact Primary CTA Button */}
+          <div className="mt-5 sm:mt-6 flex flex-col items-center justify-center gap-2">
+            <Link
+              to="/book"
+              className="group relative inline-flex items-center gap-3 rounded-full bg-gradient-to-r from-[#E8A317] to-[#F59E0B] px-8 py-3.5 text-sm sm:text-base font-extrabold uppercase tracking-widest text-[#0E2233] shadow-[0_0_35px_rgba(232,163,23,0.45)] transition-all duration-300 hover:scale-105 hover:shadow-[0_0_50px_rgba(232,163,23,0.7)]"
+            >
+              <span>Book Your Kedarkantha Trek</span>
+              <ArrowUpRight
+                size={18}
+                className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
             </Link>
+            <span className="text-[11px] text-[#7EB5D6]/80 font-medium">
+              Next Batch Starting Soon · Limited 15 Slots Per Team
+            </span>
           </div>
         </div>
-
-        <p ref={reg('hint')} className="absolute inset-x-0 top-[14%] text-center text-[11px] uppercase tracking-[0.4em] text-forest/60" aria-hidden="true">Scroll</p>
       </div>
     </section>
   )

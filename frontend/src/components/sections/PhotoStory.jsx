@@ -25,6 +25,12 @@ const WORDS = [
   ...'and seasoned trekkers alike.'.split(' ').map((w) => ({ w, accent: true })),
 ]
 
+const IMAGES = {
+  a: '/about image/about image 3.png',
+  b: '/about image/aboutimage1.png',
+  c: '/about image/aboutimage2.png',
+}
+
 export default function PhotoStory() {
   const wrap = useRef(null)
   const stage = useRef(null)
@@ -120,8 +126,8 @@ export default function PhotoStory() {
       <div ref={stage} className="sticky top-0 h-svh overflow-hidden bg-white">
         {/* Three photos with collage to separate photos animation */}
         {['a', 'b', 'c'].map((k) => (
-          <div key={k} ref={reg(k)} className="absolute overflow-hidden will-change-transform" aria-hidden="true">
-            <Img focus={L[k].focus} sizes="(min-width:768px) 40vw, 80vw" />
+          <div key={k} ref={reg(k)} className="absolute overflow-hidden will-change-transform shadow-xl rounded-lg ring-1 ring-black/5" aria-hidden="true">
+            <Img image={IMAGES[k]} focus={L[k].focus} sizes="(min-width:768px) 40vw, 80vw" />
           </div>
         ))}
 
@@ -132,18 +138,18 @@ export default function PhotoStory() {
           style={{ '--tp': 0 }}
         >
           <p
-            className="text-lg font-semibold text-forest sm:text-3xl"
+            className="text-lg font-bold text-[#1F4663] sm:text-3xl"
             style={{ opacity: 'clamp(0, var(--tp) * 4, 1)', transform: 'translateY(calc((1 - clamp(0, var(--tp) * 4, 1)) * 20px))' }}
           >
             About Kedarkantha Trek
           </p>
-          <h2 className={`mt-4 font-medium leading-[1.12] text-ink ${narrow ? 'text-[7vw]' : 'text-[3.4vw]'}`}>
+          <h2 className={`mt-4 font-bold leading-[1.15] text-black ${narrow ? 'text-[7vw]' : 'text-[3.4vw]'}`}>
             {WORDS.map(({ w, accent }, i) => {
               const k = `clamp(0, (var(--tp) * ${WORDS.length + 6} - ${i + 3}) / 5, 1)`
               return (
                 <span key={i} className="inline-block">
                   <span
-                    className={`inline-block ${accent ? 'text-cta' : ''}`}
+                    className={`inline-block ${accent ? 'text-[#3B82A6]' : 'text-black'}`}
                     style={{ opacity: k, transform: `translateY(calc((1 - ${k}) * 0.5em))` }}
                   >
                     {w}&nbsp;

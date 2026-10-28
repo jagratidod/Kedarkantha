@@ -219,20 +219,20 @@ export default function ItineraryScrollCanvas() {
   const reg = (k) => (n) => { els.current[k] = n }
 
   return (
-    <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-[#F5F6F2]" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
-      <div className="sticky top-0 h-svh overflow-hidden bg-[#F5F6F2]">
+    <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-[#0E2233]" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
+      <div className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
         {/* 1. Headline */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-          <p ref={reg('kicker')} className="mb-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-forest/70 md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
-          <h2 ref={reg('head')} className="font-bold leading-[1.02] tracking-tight text-ink" style={{ fontSize: narrow ? '15vw' : '8.4vw' }}>
+          <p ref={reg('kicker')} className="mb-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-[#7EB5D6] md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
+          <h2 ref={reg('head')} className="font-bold leading-[1.02] tracking-tight text-white" style={{ fontSize: narrow ? '15vw' : '8.4vw' }}>
             {WORDS.map(({ w, accent }, i) => (
-              <span key={w} ref={(n) => { (els.current.words ||= [])[i] = n }} className={`mr-[0.22em] inline-block ${accent ? 'text-cta' : ''}`} style={{ opacity: 0.14 }}>{w}</span>
+              <span key={w} ref={(n) => { (els.current.words ||= [])[i] = n }} className={`mr-[0.22em] inline-block ${accent ? 'text-[#4F87A8]' : ''}`} style={{ opacity: 0.14 }}>{w}</span>
             ))}
           </h2>
         </div>
 
         {/* 2. Photo (rises, then becomes the left panel) */}
-        <div ref={reg('photo')} className="absolute overflow-hidden bg-sage" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
+        <div ref={reg('photo')} className="absolute overflow-hidden bg-[#132A3E]" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
           <div ref={reg('photoImg')} className="h-full w-full will-change-transform"><Img focus="55% 40%" sizes="80vw" /></div>
           <div className="absolute inset-0 bg-black/25" />
           <p ref={reg('big')} className="absolute inset-0 flex items-center justify-center text-center font-black uppercase leading-[0.9] tracking-tighter text-white" style={{ fontSize: narrow ? '17vw' : '10vw', opacity: 0 }}>
@@ -243,20 +243,20 @@ export default function ItineraryScrollCanvas() {
         {/* 3. Second headline + feature cards */}
         <div ref={reg('track')} className="absolute left-0 flex items-stretch gap-4 md:gap-6" style={{ opacity: 0 }}>
           <div className="flex shrink-0 flex-col justify-center" style={{ width: narrow ? '78vw' : '30vw' }}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-forest/70">Why Treki Travels</p>
-            <h3 className="mt-3 font-bold leading-[1.08] tracking-tight text-ink" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
-              Treks you can trust,<br />journeys you <span className="text-cta">won&rsquo;t forget.</span>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#7EB5D6]">Why Treki Travels</p>
+            <h3 className="mt-3 font-bold leading-[1.08] tracking-tight text-white" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
+              Treks you can trust,<br />journeys you <span className="text-[#4F87A8]">won&rsquo;t forget.</span>
             </h3>
-            <p className="mt-4 max-w-sm text-sm text-muted">Scroll to meet the people, standards and promises behind every Kedarkantha batch.</p>
+            <p className="mt-4 max-w-sm text-sm text-[#8FAEC5]">Scroll to meet the people, standards and promises behind every Kedarkantha batch.</p>
           </div>
           {TREKI_FEATURES.map((f, i) => {
             const FIcon = f.icon
             const lines = f.stats || f.inclusionsList.slice(0, 3).map((t) => ({ value: '✓', label: t }))
             return (
-              <article key={f.id} className="relative shrink-0 overflow-hidden rounded-2xl bg-ink-bg text-white shadow-card" style={{ width: narrow ? '68vw' : '21vw' }}>
+              <article key={f.id} className="relative shrink-0 overflow-hidden rounded-2xl bg-[#132A3E] text-white shadow-card ring-1 ring-white/10" style={{ width: narrow ? '68vw' : '21vw' }}>
                 <div className="absolute inset-0"><Img focus={FOCI[i % FOCI.length]} sizes="30vw" /></div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
-                <span className="absolute left-4 top-4 rounded-full bg-[#E8A317] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-forest">{String(i + 1).padStart(2, '0')} · {f.badge}</span>
+                <span className="absolute left-4 top-4 rounded-full bg-[#E8A317] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2233]">{String(i + 1).padStart(2, '0')} · {f.badge}</span>
                 <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
                   <FIcon size={20} className="mb-2 text-[#E8A317]" aria-hidden="true" />
                   <h4 className="font-display text-2xl font-bold leading-tight md:text-[1.7vw]" style={{ fontSize: narrow ? undefined : 'clamp(1.35rem,1.7vw,2rem)' }}>{f.title}</h4>
@@ -273,8 +273,8 @@ export default function ItineraryScrollCanvas() {
           <div className="w-2 shrink-0 md:w-10" aria-hidden="true" />
         </div>
 
-        <div ref={reg('progressWrap')} className="absolute bottom-6 left-6 right-6 h-[2px] overflow-hidden rounded-full bg-forest/15 md:left-[5vw] md:right-[5vw]" style={{ opacity: 0 }} aria-hidden="true">
-          <div ref={reg('progress')} className="h-full origin-left bg-forest" style={{ transform: 'scaleX(0)' }} />
+        <div ref={reg('progressWrap')} className="absolute bottom-6 left-6 right-6 h-[2px] overflow-hidden rounded-full bg-white/15 md:left-[5vw] md:right-[5vw]" style={{ opacity: 0 }} aria-hidden="true">
+          <div ref={reg('progress')} className="h-full origin-left bg-[#4F87A8]" style={{ transform: 'scaleX(0)' }} />
         </div>
       </div>
     </section>

@@ -12,18 +12,18 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
   }
 
   return (
-    <div className="w-full py-16 sm:py-20 bg-white/60">
+    <div className="w-full py-16 sm:py-20 bg-[#0E2233]">
       <div className="container-page max-w-4xl mx-auto px-4 sm:px-6">
         {/* Section Header */}
         <div className="text-center max-w-2xl mx-auto mb-12 sm:mb-16">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-forest/10 text-forest mb-4 border border-forest/15">
-            <HelpCircle size={14} className="text-cta" />
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-widest bg-[#16334D] text-[#7EB5D6] mb-4 border border-white/10">
+            <HelpCircle size={14} className="text-[#4F87A8]" />
             Frequently Asked Questions
           </div>
-          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-forest">
+          <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white">
             Got Questions? We've Got Answers.
           </h2>
-          <p className="mt-3 text-sm sm:text-base text-muted">
+          <p className="mt-3 text-sm sm:text-base text-[#8FAEC5]">
             Everything you need to know about weather, safety, preparation, and summit day on the Kedarkantha winter trek.
           </p>
         </div>
@@ -36,10 +36,10 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
             return (
               <div
                 key={f.q}
-                className={`group rounded-2xl transition-all duration-300 overflow-hidden bg-white shadow-sm border ${
+                className={`group rounded-2xl transition-all duration-300 overflow-hidden bg-[#132A3E]/80 backdrop-blur-sm border ${
                   isOpen
-                    ? 'border-forest/30 shadow-md ring-1 ring-forest/10'
-                    : 'border-line/90 hover:border-forest/25 hover:shadow'
+                    ? 'border-[#4F87A8]/50 shadow-lg ring-1 ring-[#4F87A8]/30'
+                    : 'border-white/10 hover:border-[#4F87A8]/30 hover:shadow'
                 }`}
               >
                 {/* Accordion Question Header */}
@@ -52,15 +52,15 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
                     <span
                       className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-xs font-bold transition-all duration-300 ${
                         isOpen
-                          ? 'bg-forest text-white shadow-sm'
-                          : 'bg-sage/70 text-forest group-hover:bg-forest/15'
+                          ? 'bg-[#4F87A8] text-white shadow-sm'
+                          : 'bg-white/10 text-[#7EB5D6] group-hover:bg-[#1F4663]'
                       }`}
                     >
                       {idx + 1}
                     </span>
                     <span
                       className={`text-base sm:text-lg font-semibold leading-snug transition-colors ${
-                        isOpen ? 'text-forest' : 'text-ink group-hover:text-forest'
+                        isOpen ? 'text-[#7EB5D6]' : 'text-white group-hover:text-[#7EB5D6]'
                       }`}
                     >
                       {f.q}
@@ -69,7 +69,7 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
 
                   <div
                     className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-all duration-300 ${
-                      isOpen ? 'bg-forest text-white rotate-180' : 'bg-offwhite text-muted group-hover:text-forest'
+                      isOpen ? 'bg-[#4F87A8] text-white rotate-180' : 'bg-white/10 text-white/70 group-hover:text-white'
                     }`}
                   >
                     <ChevronDown size={18} />
@@ -83,7 +83,7 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <div className="px-6 pb-6 pt-2 text-sm sm:text-base leading-relaxed text-muted border-t border-line/50">
+                    <div className="px-6 pb-6 pt-2 text-sm sm:text-base leading-relaxed text-[#A8C2D5] border-t border-white/10">
                       <p>{f.a}</p>
                     </div>
                   </div>
@@ -94,19 +94,19 @@ export default function FaqPhoneShowcase({ faqs = [] }) {
         </div>
 
         {/* Need more help banner at the bottom */}
-        <div className="mt-12 p-6 rounded-2xl bg-forest/5 border border-forest/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+        <div className="mt-12 p-6 rounded-2xl bg-[#132A3E] border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
           <div className="flex items-center gap-3.5">
-            <div className="h-10 w-10 rounded-full bg-forest text-white flex items-center justify-center shrink-0">
+            <div className="h-10 w-10 rounded-full bg-[#1F4663] text-[#7EB5D6] flex items-center justify-center shrink-0">
               <MessageSquare size={18} />
             </div>
             <div>
-              <p className="text-sm font-bold text-forest">Still have questions?</p>
-              <p className="text-xs text-muted">Can't find the answer you're looking for? Talk to our expedition leader.</p>
+              <p className="text-sm font-bold text-white">Still have questions?</p>
+              <p className="text-xs text-[#8FAEC5]">Can't find the answer you're looking for? Talk to our expedition leader.</p>
             </div>
           </div>
           <a
             href="#contact"
-            className="px-5 py-2.5 rounded-xl bg-forest text-white text-xs sm:text-sm font-semibold hover:bg-forest/90 transition-colors shadow-sm shrink-0"
+            className="px-5 py-2.5 rounded-xl bg-[#1F4663] text-white text-xs sm:text-sm font-semibold hover:bg-[#2A5E85] ring-1 ring-white/20 transition-colors shadow-sm shrink-0"
           >
             Contact Expedition Team
           </a>

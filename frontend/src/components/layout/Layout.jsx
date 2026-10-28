@@ -37,8 +37,8 @@ export default function Layout() {
         <Outlet />
       </main>
       {!inBooking && (
-        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 p-3 backdrop-blur md:hidden">
-          <Button to="/book" variant="primary" size="lg" className="w-full">Book Your Trek</Button>
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-white/10 bg-[#0E2233]/95 p-3 backdrop-blur md:hidden">
+          <Button to="/book" variant="cta" size="lg" className="w-full">Book Your Trek</Button>
         </div>
       )}
     </div>

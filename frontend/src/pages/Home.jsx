@@ -1,4 +1,3 @@
-import { Clock, Gauge, MapPin, Mountain } from 'lucide-react'
 import AsyncView from '../components/ui/AsyncView'
 import Itinerary from './Itinerary'
 import Departures from './Departures'
@@ -22,13 +21,6 @@ import { useSeo } from '../hooks/useSeo'
 import { useAsync } from '../hooks/useAsync'
 import { getHome } from '../features/trek/api'
 
-const heroFacts = [
-  { Icon: Clock, value: '5-6 Days', label: 'Duration' },
-  { Icon: Mountain, value: '12,500 ft', label: 'Max Altitude' },
-  { Icon: Gauge, value: 'Easy-Moderate', label: 'Difficulty' },
-  { Icon: MapPin, value: 'Sankri', label: 'Base Location' },
-]
-
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'TouristTrip',
@@ -39,7 +31,7 @@ const jsonLd = {
 }
 
 function Hero({ trek, highlights }) {
-  return <ScrollHero trek={trek} facts={heroFacts} stats={trek.stats} photos={highlights.slice(0, 3)} />
+  return <ScrollHero trek={trek} stats={trek.stats} photos={highlights.slice(0, 3)} />
 }
 // Sections that share the continuous 'long bg.png' background
 const LONG_BG_SECTIONS = [
@@ -52,11 +44,6 @@ function HomeSections() {
       {/* BEST TIME TO VISIT: framed full-screen photo, one step per season (outside the overflow-hidden wrapper so it can pin) */}
       <div id="best-time" className="relative z-10">
         <BestTimeShowcase />
-      </div>
-
-      {/* DIFFICULTY & FITNESS: interactive quiz */}
-      <div id="difficulty" className="relative z-10 scroll-mt-16">
-        <Difficulty embedded />
       </div>
 
       {/* FAQS SECTION - Just above Footer */}
@@ -85,20 +72,23 @@ export default function Home() {
           <>
             <Hero trek={trek} highlights={highlights} />
 
+            {/* Photo Story: 3 photos + Headline text animation */}
+            <div id="about" className="relative z-30 scroll-mt-16">
+              <PhotoStory />
+            </div>
+
             {/* Day-by-day itinerary drawn along the hand-drawn route map */}
             <ItineraryJourney />
             <RaggedBridge />
 
-
-
-            {/* Day-by-Day Expedition Itinerary directly under Discover Treki Travels */}
-            <div id="itinerary" className="scroll-mt-16">
-              <Itinerary embedded />
+            {/* DIFFICULTY & FITNESS: interactive quiz - placed directly above Why Treki */}
+            <div id="difficulty" className="relative z-30 scroll-mt-16">
+              <Difficulty embedded />
             </div>
 
-            {/* Photo Story: 3 photos + Headline text animation */}
-            <div id="gallery" className="relative z-30 scroll-mt-16">
-              <PhotoStory />
+            {/* Why Treki Travels: Trust, Support & Safety */}
+            <div id="itinerary" className="scroll-mt-16">
+              <Itinerary embedded />
             </div>
 
             {/* Next Independent Section: Expanding Fullscreen Image Animation with Marquee */}
@@ -107,7 +97,7 @@ export default function Home() {
             </div>
 
             {/* Horizontal photo gallery: vertical scroll slides the photos sideways */}
-            <div className="relative z-30">
+            <div id="gallery" className="relative z-30 scroll-mt-16">
               <HorizontalGallery />
             </div>
 

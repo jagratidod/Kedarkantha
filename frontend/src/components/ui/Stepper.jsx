@@ -10,13 +10,13 @@ export default function Stepper({ steps, current }) {
           <li key={s} className="flex flex-1 items-center gap-2" aria-current={active ? 'step' : undefined}>
             <span
               className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                done || active ? 'bg-forest text-white' : 'bg-sage text-muted'
+                done || active ? 'bg-[#1F4663] text-white ring-1 ring-white/20' : 'bg-white/10 text-white/50'
               }`}
             >
               {done ? <Check size={14} /> : i + 1}
             </span>
-            <span className={`hidden text-xs font-semibold sm:block ${active ? 'text-ink' : 'text-muted'}`}>{s}</span>
-            {i < steps.length - 1 && <span className="h-px flex-1 bg-line" />}
+            <span className={`hidden text-xs font-semibold sm:block ${active ? 'text-white' : 'text-white/60'}`}>{s}</span>
+            {i < steps.length - 1 && <span className="h-px flex-1 bg-white/20" />}
           </li>
         )
       })}

@@ -69,11 +69,11 @@ export default function FramedShowcase({ label, heading, steps, panel, panelLabe
     <section
       ref={wrap}
       aria-label={label}
-      className="relative bg-white"
+      className="relative bg-[#0E2233]"
       style={{ height: reduced ? '100svh' : `${count * (narrow ? 85 : 95) + 100}vh` }}
     >
-      <div data-in={entered || reduced} className="sticky top-0 h-svh bg-white p-[10px] md:p-6">
-        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-ink-bg md:rounded-3xl">
+      <div data-in={entered || reduced} className="sticky top-0 h-svh bg-[#0E2233] p-[10px] md:p-6">
+        <div className="relative h-full w-full overflow-hidden rounded-2xl bg-[#0A1826] md:rounded-3xl ring-1 ring-white/10">
           <div ref={photo} className="absolute inset-0 will-change-transform">
             <Img focus={Array.isArray(focus) ? focus[active] : focus} sizes="100vw" />
           </div>
@@ -105,7 +105,7 @@ export default function FramedShowcase({ label, heading, steps, panel, panelLabe
             aria-expanded={open}
             aria-label={open ? `Close ${panelLabel}` : `Open ${panelLabel}`}
             onClick={() => setOpen((v) => !v)}
-            className="absolute bottom-[5.2rem] left-5 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-forest text-white shadow-xl transition-transform duration-300 hover:scale-105 md:bottom-8 md:left-[1.6%] md:h-[4.5rem] md:w-[4.5rem]"
+            className="absolute bottom-[5.2rem] left-5 z-20 flex h-14 w-14 items-center justify-center rounded-full bg-[#1F4663] text-white ring-1 ring-white/20 shadow-xl transition-transform duration-300 hover:scale-105 hover:bg-[#2A5E85] md:bottom-8 md:left-[1.6%] md:h-[4.5rem] md:w-[4.5rem]"
           >
             <Plus size={30} strokeWidth={1.6} className={`transition-transform duration-500 ${open ? 'rotate-45' : ''}`} />
           </button>

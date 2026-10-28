@@ -13,20 +13,20 @@ const ease = (t) => t * t * (3 - 2 * t)
 
 // x, w in vw of the track; y in % of stage height; ratio = h / w; depth > 1 moves faster than the track.
 const ITEMS = [
-  { x: 3, y: 34, w: 31, ratio: 0.9, label: 'Sankri, 2025', focus: '60% 45%', depth: 1.0 },
-  { x: 38, y: 8, w: 11, ratio: 1.0, label: 'Juda Ka Talab, 2025', focus: '30% 60%', depth: 0.82 },
-  { x: 52, y: 52, w: 16, ratio: 0.9, label: 'Base Camp, 2024', focus: '75% 35%', depth: 1.12 },
-  { x: 74, y: 24, w: 11, ratio: 1.05, label: 'Pine Forest, 2024', focus: '15% 60%', depth: 0.88 },
-  { x: 90, y: 5, w: 15, ratio: 1.15, label: 'Summit Ridge, 2025', focus: '50% 22%', depth: 1.05 },
-  { x: 108, y: 48, w: 24, ratio: 0.72, label: 'Sunrise, 2025', focus: '65% 40%', depth: 1.15 },
-  { x: 136, y: 12, w: 14, ratio: 1.0, label: 'Prayer Flags, 2024', focus: '40% 62%', depth: 0.85 },
-  { x: 154, y: 46, w: 18, ratio: 1.1, label: 'Above the Clouds, 2025', focus: '85% 30%', depth: 1.1 },
-  { x: 178, y: 18, w: 12, ratio: 0.95, label: 'Camp Fire, 2024', focus: '25% 70%', depth: 0.9 },
-  { x: 194, y: 50, w: 26, ratio: 0.68, label: 'Swargarohini, 2025', focus: '90% 20%', depth: 1.0 },
-  { x: 224, y: 14, w: 15, ratio: 1.2, label: 'First Snow, 2024', focus: '10% 55%', depth: 1.08 },
-  { x: 243, y: 52, w: 12, ratio: 1.0, label: 'Trail Break, 2024', focus: '55% 75%', depth: 0.85 },
+  { x: 3, y: 34, w: 31, ratio: 0.72, label: 'Sankri Trailhead · 14 KM', image: '/gallery/sankri-trailhead.jpg', focus: '50% 50%', depth: 1.0 },
+  { x: 38, y: 8, w: 14, ratio: 1.0, label: 'Base Camp Squad, 2025', image: '/gallery/sankri-basecamp.jpg', focus: '50% 40%', depth: 0.82 },
+  { x: 55, y: 52, w: 18, ratio: 0.88, label: 'Pine Forest Trail, 2024', image: '/gallery/pine-forest-trail.jpg', focus: '50% 45%', depth: 1.12 },
+  { x: 77, y: 18, w: 15, ratio: 1.1, label: 'Juda Ka Talab Ascent, 2024', image: '/gallery/juda-lake-ascent.jpg', focus: '50% 30%', depth: 0.88 },
+  { x: 96, y: 50, w: 16, ratio: 1.05, label: 'Campfire Evening, 2024', image: '/gallery/camp-bonfire-evening.jpg', focus: '50% 40%', depth: 1.05 },
+  { x: 116, y: 14, w: 26, ratio: 0.62, label: 'Snow Ridge Walk, 2025', image: '/gallery/snow-ridge-trail.jpg', focus: '50% 50%', depth: 1.15 },
+  { x: 146, y: 48, w: 18, ratio: 0.82, label: 'Tricolour at Snow Peaks, 2025', image: '/gallery/himalayan-flag-pride.jpg', focus: '50% 40%', depth: 0.85 },
+  { x: 168, y: 15, w: 25, ratio: 0.62, label: 'Summit Crew · 12,500 FT', image: '/gallery/summit-crew-12500.jpg', focus: '50% 45%', depth: 1.1 },
+  { x: 196, y: 50, w: 16, ratio: 1.12, label: 'Crampons & Shrine, 2024', image: '/gallery/shiva-shrine-crampons.jpg', focus: '50% 35%', depth: 0.9 },
+  { x: 216, y: 14, w: 18, ratio: 0.82, label: 'Kedarkantha Shrine, 2025', image: '/gallery/kedarkantha-flags.jpg', focus: '50% 35%', depth: 1.0 },
+  { x: 238, y: 48, w: 18, ratio: 0.82, label: 'Summit Victory, 2025', image: '/gallery/summit-victory-moment.jpg', focus: '50% 35%', depth: 1.08 },
+  { x: 260, y: 16, w: 16, ratio: 0.82, label: 'Peak Celebration, 2025', image: '/gallery/peak-celebration.jpg', focus: '50% 35%', depth: 0.85 },
 ]
-const TRACK_VW = 275
+const TRACK_VW = 280
 
 export default function HorizontalGallery() {
   const wrap = useRef(null)
@@ -93,10 +93,10 @@ export default function HorizontalGallery() {
       className="relative"
       style={{ height: reduced ? 'auto' : `${Math.round(TRACK_VW * K * 0.62) + 100}vh` }}
     >
-      <div className={`${reduced ? 'relative overflow-x-auto' : 'sticky top-0 overflow-hidden'} h-svh bg-white`}>
+      <div className={`${reduced ? 'relative overflow-x-auto' : 'sticky top-0 overflow-hidden'} h-svh bg-[#0E2233]`}>
         {/* Contour lines, drifting slower than the photos */}
         <div ref={bg} className="absolute inset-y-0 left-0 will-change-transform" style={{ width: `${TRACK_VW * K}vw` }} aria-hidden="true">
-          <svg className="h-full w-full" viewBox="0 0 2750 1000" preserveAspectRatio="none" fill="none" stroke="#2D5A40" strokeOpacity="0.45" strokeWidth="1.3">
+          <svg className="h-full w-full" viewBox="0 0 2750 1000" preserveAspectRatio="none" fill="none" stroke="#4F87A8" strokeOpacity="0.28" strokeWidth="1.3">
             <path d="M0 700 C 200 520, 360 840, 560 620 S 860 180, 1080 420 S 1380 860, 1600 560 S 1900 140, 2140 380 S 2460 760, 2750 480" />
             <path d="M0 560 C 220 380, 380 700, 600 480 S 900 60, 1120 300 S 1420 740, 1640 440 S 1940 20, 2180 260 S 2500 640, 2750 360" />
             <path d="M0 860 C 240 700, 420 960, 640 780 S 940 340, 1160 560 S 1460 980, 1680 700 S 1980 300, 2220 520 S 2540 900, 2750 640" />
@@ -111,10 +111,10 @@ export default function HorizontalGallery() {
         <div ref={track} className="absolute inset-y-0 left-0 will-change-transform" style={{ width: `${TRACK_VW * K}vw` }}>
           {/* Intro text, top left */}
           <div className="absolute left-[3vw] top-[12%] max-w-[26rem] md:left-[2vw] md:top-[9%]" style={{ left: `${3 * K}vw`, maxWidth: narrow ? '62vw' : '26vw' }}>
-            <p className="font-display text-2xl leading-snug text-forest/90 md:text-[2.1vw]">
-              It doesn&rsquo;t matter where you start, it&rsquo;s how you <em>progress</em> from there.
+            <p className="font-display text-2xl leading-snug text-white/95 md:text-[2.1vw]">
+              It doesn&rsquo;t matter where you start, it&rsquo;s how you <em className="text-[#4F87A8]">progress</em> from there.
             </p>
-            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-forest/60">Kedarkantha · Moments</p>
+            <p className="mt-3 text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7EB5D6]">Kedarkantha · Moments</p>
           </div>
 
           {ITEMS.map((it, i) => (
@@ -124,9 +124,11 @@ export default function HorizontalGallery() {
               className="absolute will-change-transform"
               style={{ left: `${it.x * K}vw`, top: `${it.y}%`, width: `${it.w * K}vw` }}
             >
-              <figcaption className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-ink/70 md:text-[0.72vw]" style={{ fontSize: narrow ? 10 : undefined }}>{it.label}</figcaption>
-              <div className="overflow-hidden" style={{ aspectRatio: `1 / ${it.ratio}` }}>
-                <Img focus={it.focus} sizes="40vw" />
+              <figcaption className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-white/80 md:text-[0.72vw]" style={{ fontSize: narrow ? 10 : undefined }}>
+                {it.label}
+              </figcaption>
+              <div className="group overflow-hidden rounded-2xl ring-1 ring-white/15 hover:ring-[#4F87A8]/70 shadow-2xl transition-all duration-300 hover:scale-[1.02] bg-[#132A3E]" style={{ aspectRatio: `1 / ${it.ratio}` }}>
+                <Img image={it.image} alt={it.label} focus={it.focus} sizes="40vw" className="transition-transform duration-500 group-hover:scale-105" />
               </div>
             </figure>
           ))}

@@ -12,7 +12,7 @@ export default function Chips({ options, value, onChange, label, className = '',
             type="button"
             onClick={() => onChange(o)}
             className={`shrink-0 rounded-full px-4 py-2 text-xs font-semibold transition-colors sm:text-sm ${
-              active ? 'bg-forest text-white' : variant === 'outline' ? 'border border-line bg-white text-ink hover:bg-sage' : 'bg-offwhite text-muted hover:bg-sage'
+              active ? 'bg-[#1F4663] text-white shadow-md ring-1 ring-white/20' : 'bg-white/10 text-white/70 hover:bg-white/20 hover:text-white'
             }`}
           >
             {o}

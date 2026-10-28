@@ -33,9 +33,9 @@ function TreksDropdown() {
         Treks <ChevronDown size={14} className={open ? 'rotate-180' : ''} aria-hidden="true" />
       </button>
       {open && (
-        <div role="menu" className="absolute left-0 top-full z-50 mt-2 w-60 rounded-xl border border-line bg-white p-2 shadow-pop">
+        <div role="menu" className="absolute left-0 top-full z-50 mt-2 w-60 rounded-xl border border-white/10 bg-[#132A3E] p-2 shadow-2xl">
           {trekInfoLinks.map((l) => (
-            <Link key={l.to} to={l.to} role="menuitem" className="block rounded-lg px-3 py-2 text-sm text-ink hover:bg-sage">
+            <Link key={l.to} to={l.to} role="menuitem" className="block rounded-lg px-3 py-2 text-sm text-white/90 hover:bg-[#1F4663]">
               {l.label}
             </Link>
           ))}
