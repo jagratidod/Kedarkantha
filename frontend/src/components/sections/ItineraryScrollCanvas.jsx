@@ -24,7 +24,7 @@ const TREKI_FEATURES = [
   {
     id: 'inclusions',
     badge: 'WHAT IS COVERED',
-    image: '/gallery/camp-bonfire-evening.jpg',
+    video: '/gallery/mountain-video-1.mp4',
     tagline: '100% Transparent Price Coverage',
     title: 'Inclusions & Exclusions',
     icon: CheckCircle2,
@@ -68,7 +68,7 @@ const TREKI_FEATURES = [
   {
     id: 'support',
     badge: 'TREKI SUPPORT',
-    image: '/gallery/summit-crew-12500.jpg',
+    video: '/gallery/mountain-video-2.mp4',
     tagline: '24/7 Mountain Assistance',
     title: 'Round-The-Clock Alpine Care',
     icon: Headphones,
@@ -98,7 +98,7 @@ const TREKI_FEATURES = [
   {
     id: 'eco',
     badge: 'ECO CONSCIOUS',
-    image: '/gallery/pine-forest-trail.jpg',
+    video: '/gallery/mountain-video-1.mp4',
     tagline: 'Leave No Trace Behind',
     title: 'Green Trail Commitment',
     icon: Leaf,
@@ -280,7 +280,21 @@ export default function ItineraryScrollCanvas() {
             const lines = f.stats || f.inclusionsList.slice(0, 3).map((t) => ({ value: '✓', label: t }))
             return (
               <article key={f.id} className="relative shrink-0 overflow-hidden rounded-2xl bg-[#132A3E] text-white shadow-card ring-1 ring-white/10" style={{ width: narrow ? '68vw' : '21vw' }}>
-                <div className="absolute inset-0"><Img image={f.image} alt={f.title} focus={FOCI[i % FOCI.length]} sizes="30vw" /></div>
+                <div className="absolute inset-0">
+                  {f.video ? (
+                    <video
+                      src={f.video}
+                      autoPlay
+                      muted
+                      loop
+                      playsInline
+                      preload="auto"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <Img image={f.image} alt={f.title} focus={FOCI[i % FOCI.length]} sizes="30vw" />
+                  )}
+                </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/10" />
                 <span className="absolute left-4 top-4 rounded-full bg-[#E8A317] px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-[#0E2233]">{String(i + 1).padStart(2, '0')} · {f.badge}</span>
                 <div className="absolute inset-x-0 bottom-0 p-4 md:p-5">
