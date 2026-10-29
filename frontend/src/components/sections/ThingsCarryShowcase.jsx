@@ -159,42 +159,94 @@ const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v))
 
 export default function ThingsCarryShowcase() {
   const wrapRef = useRef(null)
-  const [scrollProgress, setScrollProgress] = useState(0)
-  const [activeStep, setActiveStep] = useState(0)
+  const stageRef = useRef(null)
+  const cardsRef = useRef([])
+  const buttonsRef = useRef([])
+  const boundaryRef = useRef(null)
+  const meltRef = useRef(null)
+
   const reduced = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
     []
   )
 
   useEffect(() => {
+    const wrap = wrapRef.current
+    if (!wrap) return
+
     let current = 0
     let target = 0
     let raf = 0
+    let lastActiveIdx = -1
 
-    const onScroll = () => {
-      if (reduced) return
-      const rect = wrapRef.current?.getBoundingClientRect()
-      if (!rect) return
-      const totalScrollable = wrapRef.current.offsetHeight - window.innerHeight
-      if (totalScrollable <= 0) return
+    const apply = (p) => {
+      // 1. Directly update slide card transforms & opacities
+      cardsRef.current.forEach((el, idx) => {
+        if (!el) return
+        const diff = idx - p * 4
+        const xOffset = diff * 100
+        const opacity = clamp(1 - Math.abs(diff) * 1.4)
+        const isCurrent = Math.abs(diff) < 0.95
 
-      const progress = clamp(-rect.top / totalScrollable, 0, 1)
-      target = progress
-      if (!raf) raf = requestAnimationFrame(tick)
+        el.style.transform = `translate3d(${xOffset}vw, 0, 0)`
+        el.style.opacity = isCurrent ? String(opacity) : '0'
+        el.style.pointerEvents = isCurrent ? 'auto' : 'none'
+      })
+
+      // 2. Active button highlight directly on DOM without triggering layout shifts
+      const rawIdx = p * 4
+      // Use hysteresis to prevent rapid boundary fluttering
+      let activeIdx = lastActiveIdx
+      if (lastActiveIdx === -1) {
+        activeIdx = clamp(Math.round(rawIdx), 0, 4)
+      } else {
+        if (rawIdx > lastActiveIdx + 0.55 && lastActiveIdx < 4) {
+          activeIdx = Math.min(4, Math.floor(rawIdx + 0.45))
+        } else if (rawIdx < lastActiveIdx - 0.55 && lastActiveIdx > 0) {
+          activeIdx = Math.max(0, Math.ceil(rawIdx - 0.45))
+        }
+      }
+
+      if (activeIdx !== lastActiveIdx) {
+        lastActiveIdx = activeIdx
+        buttonsRef.current.forEach((btn, idx) => {
+          if (!btn) return
+          if (idx === activeIdx) {
+            btn.className = 'group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl px-2.5 sm:px-5 h-13 sm:h-16 transition-colors duration-200 cursor-pointer shrink-0 bg-[#0E283E] text-white ring-2 ring-[#38BDF8] shadow-[0_4px_16px_rgba(14,40,62,0.35)]'
+          } else {
+            btn.className = 'group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl px-2.5 sm:px-5 h-13 sm:h-16 transition-colors duration-200 cursor-pointer shrink-0 bg-white/85 text-[#0A2640] font-bold hover:bg-white hover:text-black ring-2 ring-transparent shadow-sm'
+          }
+        })
+      }
+
+      // 3. Bottom melts
+      if (boundaryRef.current) {
+        boundaryRef.current.style.opacity = String(clamp((p - 0.65) * 3))
+      }
+      if (meltRef.current) {
+        meltRef.current.style.opacity = String(clamp((p - 0.7) * 3.5))
+      }
     }
 
     const tick = () => {
-      current += (target - current) * 0.14
-      if (Math.abs(target - current) < 0.001) current = target
-
-      setScrollProgress(current)
-      const currentStep = clamp(Math.round(current * 4), 0, 4)
-      setActiveStep(currentStep)
-
+      const diff = target - current
+      current = Math.abs(diff) < 0.0002 ? target : current + diff * 0.14
+      apply(current)
       raf = current === target ? 0 : requestAnimationFrame(tick)
     }
 
+    const onScroll = () => {
+      if (reduced) return
+      const rect = wrap.getBoundingClientRect()
+      const totalScrollable = wrap.offsetHeight - window.innerHeight
+      if (totalScrollable <= 0) return
+
+      target = clamp(-rect.top / totalScrollable, 0, 1)
+      if (!raf) raf = requestAnimationFrame(tick)
+    }
+
     onScroll()
+    apply(0)
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
@@ -218,15 +270,36 @@ export default function ThingsCarryShowcase() {
       ref={wrapRef}
       id="things-to-carry"
       aria-label="What to Pack for Kedarkantha"
-      className="relative bg-[#0E2233]"
+      className="relative bg-white"
       style={{ height: reduced ? 'auto' : '460vh' }}
     >
-      <div className="sticky top-0 h-svh w-full overflow-hidden bg-[#0E2233] text-white flex flex-col justify-between py-6 sm:py-8 px-6 sm:px-12 md:px-16 lg:px-24">
-        {/* Soft Alpine Radial Ambient Glow spanning entire full-screen */}
+      <div
+        ref={stageRef}
+        className="sticky top-0 h-svh w-full overflow-hidden bg-[#78B4D4] text-white flex flex-col justify-between py-4 sm:py-8 px-4 sm:px-12 md:px-16 lg:px-24 pb-16 md:pb-8"
+        style={{ '--tcp': 0 }}
+      >
+        {/* Soft white bottom melt to blend seamlessly into Best Time to Visit */}
         <div
-          className="pointer-events-none absolute inset-0 -z-10"
+          ref={meltRef}
+          className="absolute inset-x-0 bottom-0 h-44 pointer-events-none z-20 transition-opacity duration-300"
           style={{
-            background: 'radial-gradient(85% 70% at 50% 35%, rgba(31,70,99,0.45) 0%, rgba(14,34,51,0.9) 65%, #091724 100%)',
+            background: 'linear-gradient(to bottom, transparent 0%, rgba(255, 255, 255, 0.45) 50%, #FFFFFF 100%)',
+            opacity: 0,
+          }}
+          aria-hidden="true"
+        />
+        {/* Sky gradient background like hero / day by day */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to bottom, #FFFFFF 0%, #F0F9FF 14%, #D4ECF9 34%, #97D0EE 58%, #5CA8D3 80%, #3682AD 100%)',
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-4/5 pointer-events-none"
+          style={{
+            background: 'radial-gradient(90% 80% at 50% 88%, rgba(255, 255, 255, 0.7) 0%, rgba(186, 230, 253, 0.45) 45%, transparent 75%)',
           }}
           aria-hidden="true"
         />
@@ -242,38 +315,34 @@ export default function ThingsCarryShowcase() {
         />
 
         {/* 1. Header & Stepper Line-Art Navigation */}
-        <div className="w-full text-center shrink-0">
-          <div className="inline-flex items-center gap-2 rounded-full bg-[#16334D] px-3.5 py-1 text-xs font-semibold uppercase tracking-wider text-[#7EB5D6] ring-1 ring-white/10">
+        <div className="w-full text-center shrink-0 transform-gpu will-change-transform">
+          <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full px-3 py-0.5 text-[10px] sm:text-xs font-semibold uppercase tracking-wider text-[#0A2E4C] ring-1 ring-[#0A2E4C]/20 bg-white/70 backdrop-blur">
             <span className="h-1.5 w-1.5 rounded-full bg-[#4F87A8] animate-pulse" />
             Checklist · Kedarkantha Trek
           </div>
 
-          <h2 className="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl md:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+          <h2 className="mt-1 sm:mt-2 text-2xl sm:text-4xl md:text-5xl font-extrabold tracking-tight text-[#082138] drop-shadow-sm">
             What to Pack
           </h2>
-          <p className="mt-1 text-xs sm:text-sm text-[#8FAEC5] max-w-xl mx-auto">
+          <p className="mt-0.5 sm:mt-1 text-[11px] sm:text-sm text-[#1E4567] font-semibold max-w-xl mx-auto hidden sm:block">
             Essential mountain gear for snow trails, sub-zero nights and 12,500 ft summit
           </p>
 
           {/* Top Line-Art Icons Stepper - Full-width balanced spacing */}
-          <div className="mt-3.5 sm:mt-5 flex items-center justify-center gap-2.5 sm:gap-5 overflow-x-auto py-1 [scrollbar-width:none]">
+          <div className="mt-2 sm:mt-4 flex items-center justify-start sm:justify-center gap-2 sm:gap-5 overflow-x-auto py-1 px-1 [scrollbar-width:none]">
             {CATEGORIES.map((cat, idx) => {
               const IconComp = cat.Icon
-              const isActive = idx === activeStep
               return (
                 <button
                   key={cat.id}
+                  ref={(el) => (buttonsRef.current[idx] = el)}
                   type="button"
                   onClick={() => scrollToStep(idx)}
-                  className={`group relative flex flex-col items-center gap-1.5 rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 transition-all duration-300 cursor-pointer ${
-                    isActive
-                      ? 'bg-[#16334D] text-[#7EB5D6] ring-2 ring-[#4F87A8] shadow-[0_0_24px_rgba(79,135,168,0.4)] scale-102'
-                      : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white ring-1 ring-white/10'
-                  }`}
+                  className="group relative flex flex-col items-center justify-center gap-1 sm:gap-1.5 rounded-xl sm:rounded-2xl px-2.5 sm:px-5 h-13 sm:h-16 transition-colors duration-200 cursor-pointer shrink-0 bg-white/85 text-[#0A2640] font-bold hover:bg-white hover:text-black ring-2 ring-transparent shadow-sm"
                   aria-label={`Jump to ${cat.title}`}
                 >
-                  <IconComp className={`transition-transform duration-300 ${isActive ? 'scale-105' : 'group-hover:scale-105'} h-6 w-6 sm:h-7 sm:w-7`} />
-                  <span className="text-[10px] sm:text-xs font-bold tracking-wider uppercase whitespace-nowrap">
+                  <IconComp className="h-5 w-5 sm:h-7 sm:w-7" />
+                  <span className="text-[9px] sm:text-xs font-bold tracking-wider uppercase whitespace-nowrap">
                     {cat.number}. {cat.title}
                   </span>
                 </button>
@@ -283,66 +352,57 @@ export default function ThingsCarryShowcase() {
         </div>
 
         {/* 2. Full-Screen Right-to-Left Sliding Stage - Proportional and Spaced */}
-        <div className="relative flex-1 w-full overflow-hidden my-auto min-h-[340px] flex items-center">
+        <div className="relative flex-1 w-full overflow-hidden my-auto min-h-[300px] sm:min-h-[340px] flex items-center">
           {CATEGORIES.map((cat, idx) => {
             const IconComp = cat.Icon
-            const diff = idx - scrollProgress * 4
-            const xOffset = diff * 100
-            const opacity = clamp(1 - Math.abs(diff) * 1.4)
-            const isCurrent = Math.abs(diff) < 0.95
 
             return (
               <div
                 key={cat.id}
+                ref={(el) => (cardsRef.current[idx] = el)}
                 className="absolute inset-0 w-full h-full flex flex-col justify-center will-change-transform"
                 style={{
-                  transform: `translate3d(${xOffset}vw, 0, 0)`,
-                  opacity: isCurrent ? opacity : 0,
-                  pointerEvents: isCurrent ? 'auto' : 'none',
-                  transition: 'opacity 0.15s ease-out',
+                  transform: `translate3d(${idx * 100}vw, 0, 0)`,
+                  opacity: idx === 0 ? 1 : 0,
+                  pointerEvents: idx === 0 ? 'auto' : 'none',
                 }}
-                aria-hidden={!isCurrent}
               >
                 {/* Category Header with Line-Art Icon */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/15 pb-3 sm:pb-4">
-                  <div className="flex items-center gap-3.5 sm:gap-5">
-                    <div className="flex h-12 w-12 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-2xl bg-[#16334D] text-[#7EB5D6] ring-1.5 ring-[#4F87A8]/60 shadow-[0_0_24px_rgba(79,135,168,0.3)]">
-                      <IconComp className="h-7 w-7 sm:h-9 sm:w-9 animate-pulse" />
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-1.5 sm:gap-3 border-b border-[#082138]/15 pb-2 sm:pb-4">
+                  <div className="flex items-center gap-2.5 sm:gap-5">
+                    <div className="flex h-10 w-10 sm:h-16 sm:w-16 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-[#0E283E] text-[#38BDF8] ring-1 sm:ring-1.5 ring-[#38BDF8]/50 shadow-[0_4px_20px_rgba(14,40,62,0.25)]">
+                      <IconComp className="h-5 w-5 sm:h-9 sm:w-9" />
                     </div>
                     <div>
-                      <span className="rounded-full bg-[#4F87A8]/20 px-3 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#7EB5D6] ring-1 ring-[#4F87A8]/30">
+                      <span className="rounded-full bg-[#0E283E]/10 px-2 sm:px-3 py-0.5 text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#0284C7] ring-1 ring-[#0284C7]/30">
                         Category {cat.number} of 05
                       </span>
-                      <h3 className="mt-1 text-2xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                      <h3 className="mt-0.5 sm:mt-1 text-xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#082138] leading-tight drop-shadow-sm">
                         {cat.title}
                       </h3>
                     </div>
                   </div>
-                  <p className="text-xs sm:text-sm lg:text-base text-[#8FAEC5] max-w-md sm:text-right">
+                  <p className="text-[11px] sm:text-sm lg:text-base text-[#1E4567] font-medium max-w-md sm:text-right line-clamp-1 sm:line-clamp-none">
                     {cat.tagline}
                   </p>
                 </div>
 
                 {/* Checklist Items Grid - Full screen proportional cards */}
-                <ul className="mt-5 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5 w-full">
-                  {cat.items.map((it, itemIdx) => {
-                    const itemDelay = `${itemIdx * 50}ms`
+                <ul className="mt-3 sm:mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-5 w-full max-h-[50vh] sm:max-h-none overflow-y-auto sm:overflow-visible pr-1 sm:pr-0">
+                  {cat.items.map((it) => {
                     return (
                       <li
                         key={it.title}
-                        className="flex items-start gap-3.5 rounded-2xl bg-white/[0.04] p-4 sm:p-4.5 ring-1 ring-white/10 hover:bg-white/[0.08] hover:ring-[#4F87A8]/50 transition-all duration-300 backdrop-blur-sm shadow-md"
-                        style={{
-                          animationDelay: itemDelay,
-                        }}
+                        className="flex items-start gap-2.5 sm:gap-3.5 rounded-xl sm:rounded-2xl bg-white/95 p-2.5 sm:p-4.5 ring-1 ring-[#0E283E]/15 hover:bg-white hover:ring-[#0284C7] transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.05)] sm:shadow-[0_4px_16px_rgba(0,0,0,0.06)]"
                       >
-                        <span className="mt-0.5 flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full bg-[#1F4663] text-[#7EB5D6] ring-1 ring-white/20 shadow">
-                          <Check size={15} strokeWidth={2.8} />
+                        <span className="mt-0.5 flex h-5 w-5 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-full bg-[#0E283E] text-[#38BDF8] ring-1 ring-[#0E283E]/20 shadow-sm">
+                          <Check size={13} strokeWidth={2.8} className="sm:w-4 sm:h-4" />
                         </span>
                         <div className="min-w-0">
-                          <h4 className="text-sm sm:text-base font-bold text-white leading-snug">
+                          <h4 className="text-xs sm:text-base font-bold text-[#082138] leading-snug">
                             {it.title}
                           </h4>
-                          <p className="mt-1 text-xs text-[#8FAEC5] leading-relaxed">
+                          <p className="mt-0.5 text-[10px] sm:text-xs text-[#335574] font-medium leading-relaxed">
                             {it.note}
                           </p>
                         </div>
@@ -353,6 +413,18 @@ export default function ThingsCarryShowcase() {
               </div>
             )
           })}
+        </div>
+
+
+
+        {/* Bottom boundary line between What to Pack and Best Time */}
+        <div
+          ref={boundaryRef}
+          className="absolute inset-x-0 bottom-0 z-30 pointer-events-none transition-opacity duration-300"
+          style={{ opacity: 0 }}
+          aria-hidden="true"
+        >
+          <div className="h-[2.5px] w-full bg-gradient-to-r from-transparent via-[#0284C7] to-transparent shadow-[0_0_12px_rgba(2,132,199,0.5)]" />
         </div>
       </div>
     </section>
