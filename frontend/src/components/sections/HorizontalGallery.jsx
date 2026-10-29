@@ -134,10 +134,7 @@ export default function HorizontalGallery() {
           ))}
         </div>
 
-        {/* Progress bar in blue/slate on white */}
-        <div className="absolute bottom-6 left-6 right-6 z-10 h-[2px] overflow-hidden rounded-full bg-slate-200 md:left-[3vw] md:right-[3vw]" aria-hidden="true">
-          <div ref={bar} className="h-full origin-left bg-[#0284C7]" style={{ transform: 'scaleX(0)' }} />
-        </div>
+
       </div>
     </section>
   )

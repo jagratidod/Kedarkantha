@@ -42,16 +42,9 @@ export default function BehindMountains() {
     <section
       id="behind-the-mountains"
       aria-label="Kedarkantha Grand Finale"
-      className="relative bg-ink-bg min-h-[90svh] lg:min-h-screen overflow-hidden flex flex-col justify-between select-none"
+      className="relative bg-transparent min-h-[90svh] lg:min-h-screen overflow-hidden flex flex-col justify-between select-none"
     >
-      {/* Deep Midnight Alpine Sky Backdrop */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-30"
-        style={{
-          background: 'linear-gradient(to bottom, #091724 0%, #0A1A28 35%, #0F263A 70%, #153852 100%)',
-        }}
-        aria-hidden="true"
-      />
+
 
       {/* Ambient Twinkling Stars in Sky */}
       <div className="pointer-events-none absolute inset-0 -z-20" aria-hidden="true">
@@ -95,9 +88,9 @@ export default function BehindMountains() {
           {LETTERS.map((ch, i) => (
             <span
               key={i}
-              className="inline-block bg-gradient-to-b from-white via-[#E0F2FE] to-[#7EB5D6]/30 bg-clip-text text-transparent"
+              className="inline-block bg-gradient-to-b from-[#082138] via-[#103D61] to-[#2B6D9E] bg-clip-text text-transparent"
               style={{
-                filter: 'drop-shadow(0 0 25px rgba(126, 181, 214, 0.35))',
+                filter: 'drop-shadow(0 4px 28px rgba(16, 61, 97, 0.25))',
               }}
             >
               {ch}
@@ -119,7 +112,7 @@ export default function BehindMountains() {
               className="transition-transform duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
             />
           </Link>
-          <span className="text-[11px] sm:text-xs text-[#7EB5D6]/80 font-semibold tracking-wide">
+          <span className="text-[11px] sm:text-xs text-[#0E3555] font-bold tracking-wide">
             Next Batch Starting Soon · Limited 15 Slots Per Team
           </span>
         </div>
@@ -153,7 +146,7 @@ export default function BehindMountains() {
 
         {/* Melt seamlessly into Footer */}
         <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-t from-ink-bg via-ink-bg/90 to-transparent"
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-[28%] bg-gradient-to-t from-[#091724] via-[#091724]/80 to-transparent"
           aria-hidden="true"
         />
       </div>

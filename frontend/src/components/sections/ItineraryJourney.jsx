@@ -202,13 +202,28 @@ function Journey({ days }) {
       ref={wrap}
       id="journey"
       aria-label="Day-by-day itinerary"
-      className="relative bg-[#0E2233]"
+      className="relative bg-white"
       style={{ height: reduced ? 'auto' : narrow ? '560vh' : '720vh' }}
     >
       <div
         ref={stage}
-        className={`ij-stage ${reduced ? 'relative' : 'sticky'} overflow-hidden bg-[#0A1826]`}
+        className={`ij-stage ${reduced ? 'relative' : 'sticky'} overflow-hidden bg-[#78B4D4]`}
       >
+        {/* Sky gradient background like hero section */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'linear-gradient(to bottom, #FFFFFF 0%, #F0F9FF 14%, #D4ECF9 34%, #97D0EE 58%, #5CA8D3 80%, #3682AD 100%)',
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 h-4/5 pointer-events-none"
+          style={{
+            background: 'radial-gradient(90% 80% at 50% 88%, rgba(255, 255, 255, 0.7) 0%, rgba(186, 230, 253, 0.45) 45%, transparent 75%)',
+          }}
+          aria-hidden="true"
+        />
         {geo && (
           <>
             <div
@@ -226,22 +241,22 @@ function Journey({ days }) {
               >
                 <defs>
                   {/* Glowing background gradient */}
-                  <radialGradient id="ij-sky-glow" cx="85%" cy="20%" r="60%">
+                  <radialGradient id="ij-sky-glow" cx="85%" cy="20%" r="60%" display="none">
                     <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.12" />
                     <stop offset="50%" stopColor="#1E3A5F" stopOpacity="0.06" />
                     <stop offset="100%" stopColor="#0A1826" stopOpacity="0" />
                   </radialGradient>
                   <linearGradient id="ridge-grad-1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#162D42" stopOpacity="0.75" />
-                    <stop offset="100%" stopColor="#0A1826" stopOpacity="0.9" />
+                    <stop offset="0%" stopColor="#1E4D6E" stopOpacity="0.7" />
+                    <stop offset="100%" stopColor="#0E2D44" stopOpacity="0.85" />
                   </linearGradient>
                   <linearGradient id="ridge-grad-2" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#1C3852" stopOpacity="0.55" />
-                    <stop offset="100%" stopColor="#0A1826" stopOpacity="0.8" />
+                    <stop offset="0%" stopColor="#28628A" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="#123B5A" stopOpacity="0.75" />
                   </linearGradient>
                   <linearGradient id="ridge-grad-3" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#254868" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#0A1826" stopOpacity="0.7" />
+                    <stop offset="0%" stopColor="#357DA8" stopOpacity="0.38" />
+                    <stop offset="100%" stopColor="#19486D" stopOpacity="0.65" />
                   </linearGradient>
 
                   {/* Topographic pattern / grid */}
@@ -263,7 +278,7 @@ function Journey({ days }) {
                 </defs>
 
                 {/* Base atmospheric glow */}
-                <rect width={geo.lw} height={geo.lh} fill="url(#ij-sky-glow)" />
+                
                 <rect width={geo.lw} height={geo.lh} fill="url(#ij-geo-grid)" />
 
                 {/* Elegant Distant Mountain Ranges (Silhouette layers) */}
@@ -375,13 +390,13 @@ function Journey({ days }) {
               ref={titleRef}
               className="pointer-events-none absolute inset-x-0 top-3 flex flex-col items-center text-center will-change-transform sm:top-5 z-30"
             >
-              <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-[#38BDF8] sm:text-[11px]">Kedarkantha Expedition</p>
-              <h2 className="font-display text-3xl font-bold uppercase tracking-tight leading-none text-white drop-shadow-[0_4px_16px_rgba(0,0,0,0.6)] sm:text-4xl lg:text-5xl">Day by Day</h2>
+              <p className="text-[9px] font-semibold uppercase tracking-[0.35em] text-[#0F3859] sm:text-[11px] font-bold">Kedarkantha Expedition</p>
+              <h2 className="font-display text-3xl font-bold uppercase tracking-tight leading-none text-white drop-shadow-[0_4px_24px_rgba(15,56,89,0.45)] sm:text-4xl lg:text-5xl">Day by Day</h2>
             </div>
 
             {/* HUD Progress pill at bottom */}
             <div className="pointer-events-none absolute inset-x-0 bottom-20 flex justify-center md:bottom-6 z-30">
-              <div className="flex items-center gap-2 rounded-full bg-[#0A1826]/80 px-4 py-2 shadow-2xl border border-white/10 ring-1 ring-[#38BDF8]/20 backdrop-blur-md">
+              <div className="flex items-center gap-2 rounded-full bg-[#0E283E]/85 px-4 py-2 shadow-2xl border border-white/20 ring-1 ring-[#38BDF8]/30 backdrop-blur-md">
                 {days.slice(0, geo.stops.length).map((d, i) => (
                   <span
                     key={d.day}
