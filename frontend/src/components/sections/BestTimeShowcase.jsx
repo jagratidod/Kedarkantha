@@ -143,8 +143,17 @@ const SEASONS = [
 
 export default function BestTimeShowcase() {
   const wrapRef = useRef(null)
+  const buttonsRef = useRef([])
+  // Season 1 (Dec-Feb) refs
+  const s0TextRef = useRef(null)
+  const topPhotoRef = useRef(null)
+  const bottomPhotoRef = useRef(null)
+  const rightPhotoRef = useRef(null)
+  const s0WrapRef = useRef(null)
+  // Seasons 2 & 3 refs
+  const otherSeasonsRef = useRef([])
+
   const [activeSeason, setActiveSeason] = useState(0)
-  const [scrollProgress, setScrollProgress] = useState(0)
   const reduced = useMemo(
     () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
     []
@@ -154,28 +163,88 @@ export default function BestTimeShowcase() {
     let target = 0
     let current = 0
     let raf = 0
+    let lastSeasonIdx = -1
+
+    const apply = (p) => {
+      // 1. Season tabs update without state re-render during scroll
+      const seasonIdx = Math.min(2, Math.floor(p * 2.999))
+      if (seasonIdx !== lastSeasonIdx) {
+        lastSeasonIdx = seasonIdx
+        setActiveSeason(seasonIdx)
+        buttonsRef.current.forEach((btn, idx) => {
+          if (!btn) return
+          const s = SEASONS[idx]
+          if (idx === seasonIdx) {
+            btn.className = 'group flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 cursor-pointer shrink-0 bg-[#16334D] text-white ring-1.5 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
+            btn.style.borderColor = s.accentColor
+          } else {
+            btn.className = 'group flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 cursor-pointer shrink-0 bg-slate-100 text-[#0E3555]/70 hover:bg-slate-200 hover:text-[#082138] ring-1 ring-slate-200'
+            btn.style.borderColor = ''
+          }
+        })
+      }
+
+      // 2. Season 1 (Dec-Feb) transformations directly in DOM
+      const disperseProgress = ease(clamp(p / 0.36))
+      const s0TextTranslateX = -disperseProgress * 110
+      const topPhotoTranslateY = -disperseProgress * 135
+      const bottomPhotoTranslateY = disperseProgress * 135
+      const rightPhotoTranslateX = disperseProgress * 135
+      const s0Opacity = clamp(1 - disperseProgress * 1.7)
+      const isVisible0 = s0Opacity > 0.02
+
+      if (s0WrapRef.current) {
+        s0WrapRef.current.style.opacity = isVisible0 ? String(s0Opacity) : '0'
+        s0WrapRef.current.style.pointerEvents = isVisible0 && seasonIdx === 0 ? 'auto' : 'none'
+      }
+      if (s0TextRef.current) {
+        s0TextRef.current.style.transform = `translate3d(${s0TextTranslateX}%, 0, 0)`
+      }
+      if (topPhotoRef.current) {
+        topPhotoRef.current.style.transform = `translate3d(0, ${topPhotoTranslateY}vh, 0)`
+        topPhotoRef.current.style.opacity = String(s0Opacity)
+      }
+      if (bottomPhotoRef.current) {
+        bottomPhotoRef.current.style.transform = `translate3d(0, ${bottomPhotoTranslateY}vh, 0)`
+        bottomPhotoRef.current.style.opacity = String(s0Opacity)
+      }
+      if (rightPhotoRef.current) {
+        rightPhotoRef.current.style.transform = `translate3d(${rightPhotoTranslateX}vw, 0, 0)`
+        rightPhotoRef.current.style.opacity = String(s0Opacity)
+      }
+
+      // 3. Seasons 2 & 3 transformations directly in DOM
+      otherSeasonsRef.current.forEach((el, sliceIdx) => {
+        if (!el) return
+        const actualIdx = sliceIdx + 1
+        const diff = actualIdx - p * 2
+        const isCurrent = Math.abs(diff) < 1.05
+        const xSlideVw = diff * 100
+        const opacity = clamp(1 - Math.abs(diff) * 1.3)
+
+        el.style.transform = `translate3d(${xSlideVw}vw, 0, 0)`
+        el.style.opacity = isCurrent ? String(opacity) : '0'
+        el.style.pointerEvents = isCurrent ? 'auto' : 'none'
+      })
+    }
+
+    const tick = () => {
+      const diff = target - current
+      current = Math.abs(diff) < 0.0002 ? target : current + diff * 0.14
+      apply(current)
+      raf = current === target ? 0 : requestAnimationFrame(tick)
+    }
 
     const onScroll = () => {
-      if (!wrapRef.current) return
+      if (!wrapRef.current || reduced) return
       const rect = wrapRef.current.getBoundingClientRect()
       const maxScroll = wrapRef.current.offsetHeight - window.innerHeight
       target = clamp(maxScroll > 0 ? -rect.top / maxScroll : 0)
       if (!raf) raf = requestAnimationFrame(tick)
     }
 
-    const tick = () => {
-      const diff = target - current
-      current = Math.abs(diff) < 0.0004 ? target : current + diff * 0.14
-      setScrollProgress(current)
-
-      // 3 seasons across 0..1
-      const seasonIdx = Math.min(2, Math.floor(current * 2.999))
-      setActiveSeason(seasonIdx)
-
-      raf = current === target ? 0 : requestAnimationFrame(tick)
-    }
-
     onScroll()
+    apply(0)
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     return () => {
@@ -183,7 +252,7 @@ export default function BestTimeShowcase() {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
     }
-  }, [])
+  }, [reduced])
 
   const scrollToSeason = (idx) => {
     if (!wrapRef.current) return
@@ -193,38 +262,18 @@ export default function BestTimeShowcase() {
     window.scrollTo({ top: targetScrollY, behavior: 'smooth' })
   }
 
-  const currentSeasonData = SEASONS[activeSeason]
-
-  // Progress of scrolling away from Season 0 (December-February)
-  const disperseProgress = ease(clamp(scrollProgress / 0.36))
-
-  // Season 1 (Dec-Feb) exit animations:
-  // Text scrolls to the LEFT side
-  const s0TextTranslateX = -disperseProgress * 110
-  // Top photo scrolls to TOP SIDE
-  const topPhotoTranslateY = -disperseProgress * 135
-  // Bottom photo scrolls to BOTTOM SIDE
-  const bottomPhotoTranslateY = disperseProgress * 135
-  // Right photo scrolls to RIGHT SIDE
-  const rightPhotoTranslateX = disperseProgress * 135
-  // Opacity of Season 1
-  const s0Opacity = clamp(1 - disperseProgress * 1.7)
-
   return (
     <section
       ref={wrapRef}
       id="best-time"
       aria-label="Best Time to Visit Kedarkantha"
-      className="relative bg-[#0E2233]"
+      className="relative bg-white"
       style={{ height: reduced ? 'auto' : '340vh' }}
     >
-      <div className="sticky top-0 h-svh overflow-hidden bg-[#0E2233] text-white flex flex-col justify-between py-4 sm:py-6">
-        {/* Ambient Seasonal Glow */}
+      <div className="sticky top-0 h-svh overflow-hidden bg-white text-[#082138] flex flex-col justify-between py-2 sm:py-6 pb-16 md:pb-6">
+        {/* Pure White Background with very subtle clean glow */}
         <div
-          className="pointer-events-none absolute inset-0 -z-10 transition-all duration-700 ease-out"
-          style={{
-            background: `radial-gradient(85% 70% at 75% 45%, ${currentSeasonData.glowColor} 0%, rgba(14, 34, 51, 0.8) 55%, #091724 100%)`,
-          }}
+          className="absolute inset-0 pointer-events-none bg-white"
           aria-hidden="true"
         />
 
@@ -232,39 +281,40 @@ export default function BestTimeShowcase() {
         <div
           className="pointer-events-none absolute inset-0 -z-10 opacity-15"
           style={{
-            backgroundImage: 'radial-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px)',
+            backgroundImage: 'radial-gradient(rgba(14, 40, 62, 0.05) 1px, transparent 1px)',
             backgroundSize: '36px 36px',
           }}
           aria-hidden="true"
         />
 
         {/* 1. Top Header & Tabs */}
-        <div className="w-full px-6 sm:px-12 md:px-16 lg:px-24 shrink-0 pt-4 sm:pt-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 border-b border-white/10 pb-2.5 sm:pb-3">
+        <div className="w-full px-4 sm:px-12 md:px-16 lg:px-24 shrink-0 pt-2 sm:pt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 sm:gap-2.5 border-b border-slate-200 pb-1.5 sm:pb-3">
             <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#16334D] px-3 py-0.5 text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#7EB5D6] ring-1 ring-white/10">
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2.5 py-0.5 text-[9px] sm:text-xs font-bold uppercase tracking-widest text-[#0E3555] ring-1 ring-slate-300">
                 <Sparkles size={11} className="text-[#38BDF8]" />
                 Season Planning · Kedarkantha
               </div>
-              <h2 className="mt-1 text-xl sm:text-3xl md:text-4xl font-black tracking-tight text-white drop-shadow-md">
+              <h2 className="mt-0.5 sm:mt-1 text-lg sm:text-3xl md:text-4xl font-black tracking-tight text-[#082138] drop-shadow-sm">
                 Best Time to Visit
               </h2>
             </div>
 
             {/* Season Tabs */}
-            <div className="flex items-center gap-1.5 overflow-x-auto py-1 [scrollbar-width:none]">
+            <div className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto py-0.5 sm:py-1 [scrollbar-width:none]">
               {SEASONS.map((s, idx) => {
                 const SIcon = s.Icon
                 const isActive = idx === activeSeason
                 return (
                   <button
                     key={s.id}
+                    ref={(el) => (buttonsRef.current[idx] = el)}
                     type="button"
                     onClick={() => scrollToSeason(idx)}
-                    className={`group flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] sm:text-xs font-bold tracking-wide transition-all duration-300 cursor-pointer ${
+                    className={`group flex items-center gap-1 sm:gap-1.5 rounded-full px-2.5 py-1 sm:px-3 sm:py-1.5 text-[10px] sm:text-xs font-bold tracking-wide transition-all duration-300 cursor-pointer shrink-0 ${
                       isActive
                         ? 'bg-[#16334D] text-white ring-1.5 shadow-[0_0_15px_rgba(56,189,248,0.3)]'
-                        : 'bg-white/5 text-white/50 hover:bg-white/10 hover:text-white ring-1 ring-white/10'
+                        : 'bg-slate-100 text-[#0E3555]/70 hover:bg-slate-200 hover:text-[#082138] ring-1 ring-slate-200'
                     }`}
                     style={{
                       borderColor: isActive ? s.accentColor : undefined,
@@ -284,7 +334,7 @@ export default function BestTimeShowcase() {
         </div>
 
         {/* 2. Main Animated Stage */}
-        <div className="relative flex-1 w-full overflow-hidden my-auto min-h-[400px]">
+        <div className="relative flex-1 w-full overflow-hidden my-auto min-h-[300px] sm:min-h-[400px]">
           {/* =========================================================================
               SEASON 1: DECEMBER – FEBRUARY
               On scroll forward:
@@ -296,88 +346,83 @@ export default function BestTimeShowcase() {
           {(() => {
             const season0 = SEASONS[0]
             const SIcon0 = season0.Icon
-            const isVisible0 = s0Opacity > 0.02
 
             return (
               <div
-                className="absolute inset-0 w-full h-full flex items-center px-6 sm:px-12 md:px-16 lg:px-24 will-change-transform"
+                ref={s0WrapRef}
+                className="absolute inset-0 w-full h-full flex items-center px-4 sm:px-12 md:px-16 lg:px-24 will-change-transform overflow-y-auto lg:overflow-visible"
                 style={{
-                  opacity: isVisible0 ? s0Opacity : 0,
-                  pointerEvents: isVisible0 && activeSeason === 0 ? 'auto' : 'none',
-                  transition: 'opacity 0.2s ease-out',
+                  opacity: 1,
+                  pointerEvents: 'auto',
                 }}
-                aria-hidden={activeSeason !== 0}
               >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-8 lg:gap-12 items-center w-full my-auto py-2">
                   {/* TEXT: Scrolls to LEFT SIDE */}
                   <div
+                    ref={s0TextRef}
                     className="lg:col-span-5 flex flex-col justify-center will-change-transform"
-                    style={{
-                      transform: `translate3d(${s0TextTranslateX}%, 0, 0)`,
-                    }}
                   >
-                    <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-white shadow"
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white shadow"
                         style={{ backgroundColor: season0.accentColor }}
                       >
-                        <SIcon0 size={13} />
+                        <SIcon0 size={12} />
                         {season0.badge}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
-                        <Thermometer size={13} className="text-[#7EB5D6]" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-semibold text-[#082138] ring-1 ring-slate-200 shadow-xs">
+                        <Thermometer size={12} className="text-[#0284C7]" />
                         {season0.temp}
                       </span>
                     </div>
 
-                    <h3 className="mt-3 text-3xl sm:text-5xl font-black tracking-tight text-white drop-shadow-md">
+                    <h3 className="mt-1.5 sm:mt-3 text-2xl sm:text-5xl font-black tracking-tight text-[#082138] drop-shadow-sm leading-tight">
                       {season0.months}
                     </h3>
 
-                    <p className="mt-1 text-sm sm:text-base font-semibold text-[#7EB5D6]">
+                    <p className="mt-0.5 sm:mt-1 text-xs sm:text-base font-semibold text-[#3B82A6]">
                       {season0.tagline}
                     </p>
 
-                    <p className="mt-3 text-xs sm:text-sm text-[#8FAEC5] leading-relaxed">
+                    <p className="mt-1.5 sm:mt-3 text-[11px] sm:text-sm text-[#1E4567] font-medium leading-relaxed line-clamp-3 sm:line-clamp-none">
                       {season0.description}
                     </p>
 
-                    <ul className="mt-4 sm:mt-5 space-y-2">
+                    <ul className="mt-2 sm:mt-5 space-y-1 sm:space-y-2">
                       {season0.highlights.map((point) => (
-                        <li key={point} className="flex items-start gap-2.5 text-xs sm:text-sm text-white/90">
+                        <li key={point} className="flex items-start gap-2 text-[11px] sm:text-sm text-[#082138] font-medium">
                           <span
-                            className="mt-0.5 flex h-4 w-4 shrink-0 items-center justify-center rounded-full text-[#0E2233]"
+                            className="mt-0.5 flex h-3.5 w-3.5 sm:h-4 sm:w-4 shrink-0 items-center justify-center rounded-full text-[#0E2233]"
                             style={{ backgroundColor: season0.accentColor }}
                           >
-                            <Check size={11} strokeWidth={3} />
+                            <Check size={9} strokeWidth={3} className="sm:w-2.5 sm:h-2.5" />
                           </span>
-                          <span>{point}</span>
+                          <span className="leading-tight">{point}</span>
                         </li>
                       ))}
                     </ul>
 
-                    <div className="mt-5 sm:mt-6">
+                    <div className="mt-3 sm:mt-6">
                       <Link
                         to="/departures"
-                        className="inline-flex items-center gap-2 rounded-full bg-[#16334D] px-5 py-2.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-[#7EB5D6] ring-1 ring-[#4F87A8]/60 hover:bg-[#1F4663] hover:text-white transition-all shadow-md"
+                        className="inline-flex items-center gap-2 rounded-full bg-[#0E283E] px-4 py-2 sm:px-5 sm:py-2.5 text-[11px] sm:text-sm font-bold uppercase tracking-wider text-white ring-1 ring-[#0E283E]/50 hover:bg-[#0284C7] shadow-md transition-all shadow-md"
                       >
-                        <Calendar size={14} />
+                        <Calendar size={13} />
                         <span>View December – February Dates</span>
-                        <ArrowUpRight size={14} />
+                        <ArrowUpRight size={13} />
                       </Link>
                     </div>
                   </div>
 
                   {/* 3 IMAGES: Top to top, bottom to bottom, right to right */}
-                  <div className="lg:col-span-7 relative h-[280px] sm:h-[350px] md:h-[420px] lg:h-[460px] w-full">
+                  <div className="lg:col-span-7 relative h-[140px] xs:h-[180px] sm:h-[350px] md:h-[420px] lg:h-[460px] w-full">
                     {/* Top photo */}
                     <div
-                      className="absolute top-0 left-0 w-[45%] h-[47%] overflow-hidden rounded-2xl ring-2 shadow-2xl transition-all duration-300 will-change-transform"
+                      ref={topPhotoRef}
+                      className="absolute top-0 left-0 w-[46%] h-[47%] overflow-hidden rounded-xl sm:rounded-2xl ring-1.5 sm:ring-2 shadow-xl sm:shadow-2xl transition-all duration-300 will-change-transform"
                       style={{
                         borderColor: `${season0.accentColor}50`,
-                        boxShadow: `0 15px 35px rgba(0,0,0,0.6), 0 0 25px ${season0.glowColor}`,
-                        transform: `translate3d(0, ${topPhotoTranslateY}vh, 0)`,
-                        opacity: s0Opacity,
+                        boxShadow: `0 20px 40px rgba(10,30,50,0.18), 0 4px 12px rgba(0,0,0,0.08)`,
                       }}
                     >
                       <Img
@@ -385,8 +430,8 @@ export default function BestTimeShowcase() {
                         alt={season0.topPhoto.alt}
                         className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-2 sm:p-3 text-white">
-                        <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#7EB5D6]">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-1 sm:p-3 text-white">
+                        <span className="text-[8px] sm:text-[11px] font-bold uppercase tracking-wider text-[#7EB5D6]">
                           {season0.topPhoto.label}
                         </span>
                       </div>
@@ -394,12 +439,11 @@ export default function BestTimeShowcase() {
 
                     {/* Bottom photo */}
                     <div
-                      className="absolute bottom-0 left-0 w-[45%] h-[47%] overflow-hidden rounded-2xl ring-2 shadow-2xl transition-all duration-300 will-change-transform"
+                      ref={bottomPhotoRef}
+                      className="absolute bottom-0 left-0 w-[46%] h-[47%] overflow-hidden rounded-xl sm:rounded-2xl ring-1.5 sm:ring-2 shadow-xl sm:shadow-2xl transition-all duration-300 will-change-transform"
                       style={{
                         borderColor: `${season0.accentColor}50`,
-                        boxShadow: `0 15px 35px rgba(0,0,0,0.6), 0 0 25px ${season0.glowColor}`,
-                        transform: `translate3d(0, ${bottomPhotoTranslateY}vh, 0)`,
-                        opacity: s0Opacity,
+                        boxShadow: `0 20px 40px rgba(10,30,50,0.18), 0 4px 12px rgba(0,0,0,0.08)`,
                       }}
                     >
                       <Img
@@ -407,8 +451,8 @@ export default function BestTimeShowcase() {
                         alt={season0.bottomPhoto.alt}
                         className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-2 sm:p-3 text-white">
-                        <span className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-[#38BDF8]">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-1 sm:p-3 text-white">
+                        <span className="text-[8px] sm:text-[11px] font-bold uppercase tracking-wider text-[#38BDF8]">
                           {season0.bottomPhoto.label}
                         </span>
                       </div>
@@ -416,12 +460,11 @@ export default function BestTimeShowcase() {
 
                     {/* Right photo */}
                     <div
-                      className="absolute top-0 right-0 w-[52%] h-full overflow-hidden rounded-3xl ring-2 shadow-2xl transition-all duration-300 will-change-transform"
+                      ref={rightPhotoRef}
+                      className="absolute top-0 right-0 w-[50%] h-full overflow-hidden rounded-2xl sm:rounded-3xl ring-1.5 sm:ring-2 shadow-xl sm:shadow-2xl transition-all duration-300 will-change-transform"
                       style={{
                         borderColor: `${season0.accentColor}50`,
                         boxShadow: `0 20px 45px rgba(0,0,0,0.7), 0 0 35px ${season0.glowColor}`,
-                        transform: `translate3d(${rightPhotoTranslateX}vw, 0, 0)`,
-                        opacity: s0Opacity,
                       }}
                     >
                       <Img
@@ -429,8 +472,8 @@ export default function BestTimeShowcase() {
                         alt={season0.rightPhoto.alt}
                         className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-3 sm:p-4 text-white">
-                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#7EB5D6]">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-2 sm:p-4 text-white">
+                        <span className="text-[9px] sm:text-xs font-bold uppercase tracking-wider text-[#7EB5D6]">
                           {season0.rightPhoto.label}
                         </span>
                       </div>
@@ -448,31 +491,24 @@ export default function BestTimeShowcase() {
                 2. Text appears on the RIGHT side.
           ========================================================================= */}
           {SEASONS.slice(1).map((season, sliceIdx) => {
-            const actualIdx = sliceIdx + 1
             const SIcon = season.Icon
-            const diff = actualIdx - scrollProgress * 2
-            const isCurrent = Math.abs(diff) < 1.05
-            // Slide in from right (positive vw) to left (0 and then exits to negative vw)
-            const xSlideVw = diff * 100
-            const opacity = clamp(1 - Math.abs(diff) * 1.3)
 
             return (
               <div
                 key={season.id}
-                className="absolute inset-0 w-full h-full flex items-center px-6 sm:px-12 md:px-16 lg:px-24 will-change-transform"
+                ref={(el) => (otherSeasonsRef.current[sliceIdx] = el)}
+                className="absolute inset-0 w-full h-full flex items-center px-4 sm:px-12 md:px-16 lg:px-24 will-change-transform overflow-y-auto lg:overflow-visible"
                 style={{
-                  transform: `translate3d(${xSlideVw}vw, 0, 0)`,
-                  opacity: isCurrent ? opacity : 0,
-                  pointerEvents: isCurrent ? 'auto' : 'none',
-                  transition: 'opacity 0.15s ease-out',
+                  transform: `translate3d(${(sliceIdx + 1) * 100}vw, 0, 0)`,
+                  opacity: 0,
+                  pointerEvents: 'none',
                 }}
-                aria-hidden={!isCurrent}
               >
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center w-full">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-8 lg:gap-12 items-center w-full my-auto py-2">
                   {/* ====== LEFT SIDE: IMAGE ====== */}
-                  <div className="lg:col-span-5 relative h-[260px] sm:h-[340px] md:h-[400px] lg:h-[440px] w-full">
+                  <div className="lg:col-span-5 relative h-[140px] xs:h-[180px] sm:h-[340px] md:h-[400px] lg:h-[440px] w-full">
                     <div
-                      className="h-full w-full overflow-hidden rounded-3xl ring-2 shadow-2xl relative"
+                      className="h-full w-full overflow-hidden rounded-2xl sm:rounded-3xl ring-1.5 sm:ring-2 shadow-xl sm:shadow-2xl relative"
                       style={{
                         borderColor: `${season.accentColor}50`,
                         boxShadow: `0 20px 45px rgba(0,0,0,0.65), 0 0 35px ${season.glowColor}`,
@@ -483,9 +519,9 @@ export default function BestTimeShowcase() {
                         alt={season.leftPhoto.alt}
                         className="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-3 sm:p-4 text-white">
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent p-2 sm:p-4 text-white">
                         <span
-                          className="text-[10px] sm:text-xs font-bold uppercase tracking-wider"
+                          className="text-[9px] sm:text-xs font-bold uppercase tracking-wider"
                           style={{ color: season.accentColor }}
                         >
                           {season.leftPhoto.label}
@@ -497,59 +533,59 @@ export default function BestTimeShowcase() {
                   {/* ====== RIGHT SIDE: TEXT ====== */}
                   <div className="lg:col-span-7 flex flex-col justify-center">
                     {/* Badges */}
-                    <div className="flex flex-wrap items-center gap-2.5">
+                    <div className="flex flex-wrap items-center gap-1.5 sm:gap-2.5">
                       <span
-                        className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider text-[#0E2233] shadow"
+                        className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#0E2233] shadow"
                         style={{ backgroundColor: season.accentColor }}
                       >
-                        <SIcon size={13} />
+                        <SIcon size={12} />
                         Season {season.number} · {season.badge}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 ring-1 ring-white/15 backdrop-blur-sm">
-                        <Thermometer size={13} className="text-[#7EB5D6]" />
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-semibold text-[#082138] ring-1 ring-slate-200 shadow-xs">
+                        <Thermometer size={12} className="text-[#7EB5D6]" />
                         {season.temp}
                       </span>
-                      <span className="inline-flex items-center gap-1.5 rounded-full bg-white/5 px-3 py-1 text-xs font-medium text-[#8FAEC5] ring-1 ring-white/10">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-semibold text-[#4A6B8A] ring-1 ring-slate-200">
                         {season.weather}
                       </span>
                     </div>
 
                     {/* Month Title */}
-                    <h3 className="mt-2.5 text-3xl sm:text-5xl md:text-5xl font-black tracking-tight text-white drop-shadow-md">
+                    <h3 className="mt-1.5 sm:mt-2.5 text-2xl sm:text-5xl font-black tracking-tight text-[#082138] drop-shadow-sm leading-tight">
                       {season.months}
                     </h3>
 
                     <p
-                      className="mt-1 text-sm sm:text-base font-bold"
+                      className="mt-0.5 sm:mt-1 text-xs sm:text-base font-bold"
                       style={{ color: season.accentColor }}
                     >
                       {season.tagline}
                     </p>
 
-                    <p className="mt-2 text-xs sm:text-sm text-[#8FAEC5] leading-relaxed">
+                    <p className="mt-1.5 sm:mt-2 text-[11px] sm:text-sm text-[#1E4567] font-medium leading-relaxed line-clamp-2 sm:line-clamp-none">
                       {season.description}
                     </p>
 
                     {/* 4 Feature Highlights Grid */}
-                    <div className="mt-3.5 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3 text-left">
+                    <div className="mt-2.5 sm:mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 text-left">
                       {season.featureCards.map((feat) => {
                         const FIcon = feat.icon
                         return (
                           <div
                             key={feat.title}
-                            className="flex items-start gap-2.5 rounded-xl bg-white/[0.04] p-2.5 sm:p-3 ring-1 ring-white/10 hover:bg-white/[0.08] transition-all backdrop-blur-sm"
+                            className="flex items-start gap-2 rounded-lg sm:rounded-xl bg-slate-50 p-2 sm:p-3 ring-1 ring-slate-200/90 hover:bg-white hover:ring-[#0284C7] transition-all shadow-xs"
                           >
                             <span
-                              className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-white"
+                              className="mt-0.5 flex h-6 w-6 sm:h-7 sm:w-7 shrink-0 items-center justify-center rounded-md sm:rounded-lg text-white"
                               style={{ backgroundColor: season.accentColor }}
                             >
-                              <FIcon size={14} strokeWidth={2.5} />
+                              <FIcon size={13} strokeWidth={2.5} />
                             </span>
                             <div>
-                              <h4 className="text-xs sm:text-sm font-bold text-white leading-snug">
+                              <h4 className="text-[11px] sm:text-sm font-bold text-[#082138] leading-snug">
                                 {feat.title}
                               </h4>
-                              <p className="mt-0.5 text-[11px] text-[#8FAEC5] leading-relaxed">
+                              <p className="mt-0.5 text-[10px] sm:text-[11px] text-[#335574] font-medium leading-tight">
                                 {feat.desc}
                               </p>
                             </div>
@@ -559,16 +595,16 @@ export default function BestTimeShowcase() {
                     </div>
 
                     {/* Direct Dates Button */}
-                    <div className="mt-4 sm:mt-5 flex items-center">
+                    <div className="mt-3 sm:mt-5 flex items-center">
                       <Link
                         to="/departures"
-                        className="group inline-flex items-center gap-2.5 rounded-full px-6 py-2.5 sm:px-7 sm:py-3 text-xs sm:text-sm font-extrabold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105 hover:brightness-110"
+                        className="group inline-flex items-center gap-2 rounded-full px-5 py-2 sm:px-7 sm:py-3 text-[11px] sm:text-sm font-extrabold uppercase tracking-widest text-white shadow-lg transition-transform hover:scale-105 hover:brightness-110"
                         style={{ backgroundColor: season.accentColor }}
                       >
-                        <Calendar size={15} />
+                        <Calendar size={13} />
                         <span>Explore {season.months} Departures</span>
                         <ArrowUpRight
-                          size={15}
+                          size={13}
                           className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
                         />
                       </Link>
