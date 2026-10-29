@@ -80,12 +80,12 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
     <section ref={wrapRef} style={{ height: scrollLength }} className="relative bg-white" aria-label="Kedarkantha trek introduction">
       <div
         ref={stageRef}
-        className="hero-stage sticky overflow-hidden bg-[#0E2233] text-white"
+        className="hero-stage sticky overflow-hidden bg-[#78B4D4] text-white"
         style={{ '--pw': 1, '--pl': 0, '--lo': 0, '--pm': 0, '--ps': 0, '--po': 0, '--pb': 0, '--pu': 0, '--pz': 0 }}
       >
         {/* Dawn sky */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #0E2233 0%, #1F4663 30%, #4F87A8 58%, #B7D6E4 82%, #F3E3C8 100%)' }} aria-hidden="true" />
-        <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'radial-gradient(80% 70% at 50% 100%, rgba(255,214,150,0.55), transparent 70%)' }} aria-hidden="true" />
+        <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #FFFFFF 0%, #F0F9FF 14%, #D4ECF9 34%, #97D0EE 58%, #5CA8D3 80%, #3682AD 100%)' }} aria-hidden="true" />
+        <div className="absolute inset-x-0 bottom-0 h-3/5" style={{ background: 'radial-gradient(90% 80% at 50% 88%, rgba(255, 255, 255, 0.7) 0%, rgba(186, 230, 253, 0.45) 45%, transparent 75%)' }} aria-hidden="true" />
 
         {/* Giant KEDARKANTHA, standing behind the ridge */}
         <div
@@ -102,7 +102,7 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
               opacity: 'clamp(0, var(--pl) * 6, 1)',
             }}
           >
-            <span className="block" style={{ color: '#FFFFFF', textShadow: '0 0.04em 0.5em rgba(8,24,40,0.35)' }}>{WORD}</span>
+            <span className="block" style={{ color: '#FFFFFF', textShadow: '0 4px 28px rgba(27, 73, 107, 0.35), 0 1px 3px rgba(14, 34, 51, 0.2)' }}>{WORD}</span>
           </div>
         </div>
 
@@ -113,15 +113,16 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
         <div className="absolute inset-0 bg-ink-bg" style={{ opacity: 'var(--ps)' }} aria-hidden="true" />
 
         {/* Scroll cue that fades out when KEDARKANTHA rises */}
-        <p className="hero-wordmark absolute inset-x-0 top-[12%] text-center text-[12px] font-semibold uppercase tracking-[0.4em] text-white/80" style={{ opacity: 'var(--pw)' }} aria-hidden="true">
+        <p className="hero-wordmark absolute inset-x-0 top-[12%] text-center text-[12px] font-bold uppercase tracking-[0.4em] text-[#133E5E]/90 drop-shadow-sm" style={{ opacity: 'var(--pw)' }} aria-hidden="true">
           Scroll
         </p>
 
         {/* 5. Trek Overview, inside the hero with right-to-left entrance, border draw, and edge zoom */}
-        <div ref={ovRef} className="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <div ref={ovRef} className="absolute inset-0 flex items-center justify-center pointer-events-none pb-16 md:pb-0">
           {/* SVG Border that draws around the card AFTER content appears, then zooms outward to screen edges */}
+          {/* Desktop SVG Border */}
           <svg
-            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible"
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible hidden sm:block"
             xmlns="http://www.w3.org/2000/svg"
             aria-hidden="true"
           >
@@ -148,29 +149,58 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
             />
           </svg>
 
+          {/* Mobile SVG Border */}
+          <svg
+            className="pointer-events-none absolute inset-0 h-full w-full overflow-visible sm:hidden"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <rect
+              x="calc(10px * (1 - var(--pz)))"
+              y="calc((max(8px, (100% - 31rem) / 2 * (1 - var(--pu)) + 0.8rem * var(--pu))) * (1 - var(--pz)))"
+              width="calc(calc(100% - 20px) * (1 - var(--pz)) + 100% * var(--pz))"
+              height="calc((min(calc(100% - 5.5rem), 32rem) * (1 - var(--pu)) + min(calc(100% - 5.5rem), 33rem) * var(--pu)) * (1 - var(--pz)) + 100% * var(--pz))"
+              rx="calc(18px * (1 - var(--pz)))"
+              ry="calc(18px * (1 - var(--pz)))"
+              fill="none"
+              stroke="rgba(255, 255, 255, calc(0.9 * (1 - var(--pz)) + var(--pz)))"
+              strokeWidth="calc(2px + var(--pz) * 2px)"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="drop-shadow-[0_0_8px_rgba(255,255,255,0.45)]"
+              pathLength="100"
+              style={{
+                strokeDasharray: '100',
+                strokeDashoffset: 'calc(100 - clamp(0, var(--pb), 1) * 100)',
+                opacity: 'clamp(0, var(--pb) * 3, 1)',
+                transition: 'all 0.12s ease-out',
+              }}
+            />
+          </svg>
+
           {/* Middle text & cards container: stays stationary while ONLY the border zooms outward */}
           <div
-            className="container-page relative z-10 mx-auto max-w-6xl p-4 sm:p-7 md:p-8 flex flex-col justify-center"
+            className="container-page relative z-10 mx-auto max-w-6xl px-3 py-2 sm:p-7 md:p-8 flex flex-col justify-center"
             style={{
               opacity: 'calc(clamp(0, var(--po) * 1.5, 1) * (1 - var(--pz) * 0.9))',
-              transform: 'translateX(calc((1 - var(--po)) * 75vw)) translateY(calc(var(--pu) * -4.5rem))',
+              transform: 'translateX(calc((1 - var(--po)) * 75vw)) translateY(calc(var(--pu) * -1.8rem))',
               transition: 'transform 0.1s ease-out',
             }}
           >
             {/* Heading (Moves smoothly upwards as --pu increases) */}
             <div className="text-center transition-all duration-300">
-              <h2 className="text-3xl font-bold sm:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">Trek Overview</h2>
-              <p className="mt-1 text-sm text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">Essential details at a glance</p>
+              <h2 className="text-2xl font-bold sm:text-5xl drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">Trek Overview</h2>
+              <p className="mt-0.5 text-xs sm:text-sm text-white/85 drop-shadow-[0_1px_6px_rgba(0,0,0,0.6)]">Essential details at a glance</p>
             </div>
 
             {/* 6 Stat cards (Compact on mobile & desktop, seamlessly transitions upward) */}
-            <ul className="mt-4 grid grid-cols-3 gap-2 sm:mt-5 sm:gap-3 lg:grid-cols-6">
+            <ul className="mt-2 grid grid-cols-3 gap-1.5 sm:mt-5 sm:gap-3 lg:grid-cols-6">
               {stats.map((s) => (
                 <li key={s.label}>
-                  <div className="flex h-full flex-col items-center gap-1 rounded-xl bg-black/35 p-2.5 sm:p-3.5 text-center ring-1 ring-white/20 backdrop-blur-md shadow-lg transition-transform duration-300 hover:scale-[1.02]">
-                    <span className="mb-0.5 flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 text-sky-300 ring-1 ring-white/30"><Icon name={s.icon} size={16} /></span>
-                    <p className="text-xs font-bold sm:text-sm md:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
-                    <p className="text-[9px] text-white/75 sm:text-xs [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
+                  <div className="flex h-full flex-col items-center justify-center gap-0.5 rounded-lg sm:rounded-xl bg-black/40 p-1.5 sm:p-3.5 text-center ring-1 ring-white/20 backdrop-blur-md shadow-lg transition-transform duration-300 hover:scale-[1.02]">
+                    <span className="mb-0.5 flex h-6 w-6 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-white/10 text-sky-300 ring-1 ring-white/30"><Icon name={s.icon} size={14} /></span>
+                    <p className="text-[11px] font-bold leading-tight sm:text-sm md:text-base [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.value}</p>
+                    <p className="text-[8.5px] sm:text-xs leading-tight text-white/75 [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">{s.label}</p>
                   </div>
                 </li>
               ))}
@@ -178,37 +208,37 @@ export default function ScrollHero({ trek, facts = [], stats = [], photos = [], 
 
             {/* Detailed text & expedition description: smoothly appears as user scrolls further */}
             <div
-              className="mt-6 sm:mt-8 px-2 py-3 sm:px-4 sm:py-4 transition-all duration-300"
+              className="mt-2.5 sm:mt-8 px-1 py-1 sm:px-4 sm:py-4 transition-all duration-300"
               style={{
                 opacity: 'clamp(0, (var(--pu) - 0.25) * 1.5, 1)',
-                transform: 'translateY(calc((1 - var(--pu)) * 36px))',
+                transform: 'translateY(calc((1 - var(--pu)) * 20px))',
                 pointerEvents: 'var(--pu) > 0.6 ? "auto" : "none"',
               }}
             >
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8 text-left items-center">
-                <div className="md:col-span-2 space-y-3">
-                  <div className="flex items-center gap-2.5">
-                    <span className="h-2.5 w-2.5 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8]" />
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold uppercase tracking-wider text-sky-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 sm:gap-8 text-left items-center">
+                <div className="md:col-span-2 space-y-1 sm:space-y-3">
+                  <div className="flex items-center gap-2">
+                    <span className="h-2 w-2 rounded-full bg-[#38BDF8] shadow-[0_0_8px_#38BDF8] shrink-0" />
+                    <h3 className="text-xs sm:text-xl md:text-2xl font-bold uppercase tracking-wide sm:tracking-wider text-sky-300 drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)] leading-tight">
                       The Classic Himalayan Winter Odyssey
                     </h3>
                   </div>
-                  <p className="text-base sm:text-lg md:text-xl leading-relaxed text-slate-100 font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
+                  <p className="text-[11px] sm:text-lg md:text-xl leading-relaxed text-slate-100 font-normal drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
                     Perched in the Govind Wildlife Sanctuary of Uttarkashi at 12,500 ft, Kedarkantha is India's most celebrated summit trek. Journey from quiet pine-scented trails into majestic alpine clearings, camp beside the mythical frozen waters of Juda Ka Talab, and witness an awe-inspiring 360-degree sunrise over Swargarohini, Black Peak, and Bandarpoonch.
                   </p>
                 </div>
-                <div className="flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/25 pt-4 md:pt-0 md:pl-7 space-y-3 text-sm sm:text-base md:text-lg text-slate-200 font-medium">
-                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
-                    <span>Best Season: Dec to April</span>
+                <div className="flex flex-col justify-center border-t md:border-t-0 md:border-l border-white/25 pt-2 sm:pt-4 md:pt-0 md:pl-7 space-y-1 sm:space-y-3 text-[11px] sm:text-base md:text-lg text-slate-200 font-medium">
+                  <div className="flex items-center gap-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-xs sm:text-lg text-[#38BDF8] shrink-0">✦</span>
+                    <span className="leading-tight">Best Season: Dec to April</span>
                   </div>
-                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
-                    <span>Forest: Oak, Pine & Deodar</span>
+                  <div className="flex items-center gap-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-xs sm:text-lg text-[#38BDF8] shrink-0">✦</span>
+                    <span className="leading-tight">Forest: Oak, Pine & Deodar</span>
                   </div>
-                  <div className="flex items-center gap-2.5 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
-                    <span className="text-base sm:text-lg text-[#38BDF8]">✦</span>
-                    <span>Trail: Beginner to Pro Friendly</span>
+                  <div className="flex items-center gap-2 drop-shadow-[0_2px_6px_rgba(0,0,0,0.8)]">
+                    <span className="text-xs sm:text-lg text-[#38BDF8] shrink-0">✦</span>
+                    <span className="leading-tight">Trail: Beginner to Pro Friendly</span>
                   </div>
                 </div>
               </div>

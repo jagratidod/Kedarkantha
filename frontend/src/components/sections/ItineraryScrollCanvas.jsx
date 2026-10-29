@@ -200,26 +200,11 @@ export default function ItineraryScrollCanvas() {
       e.track.style.height = narrow ? '56%' : '70%'
       e.progress.style.transform = `scaleX(${travelP})`
       e.progressWrap.style.opacity = String(tIn)
-      // Gradual background transition to white as user scrolls through the section
-      const bgWhiteP = ease(seg(p, 0.45, 0.95));
-      const rBg = Math.round(mix(14, 255, bgWhiteP));
-      const gBg = Math.round(mix(34, 255, bgWhiteP));
-      const bBg = Math.round(mix(51, 255, bgWhiteP));
-      const bgCol = `rgb(${rBg}, ${gBg}, ${bBg})`;
-      if (wrap.current) wrap.current.style.backgroundColor = bgCol;
-      if (e.stickyBg) e.stickyBg.style.backgroundColor = bgCol;
-      if (e.introTitle) {
-        const rTxt = Math.round(mix(255, 14, bgWhiteP));
-        const gTxt = Math.round(mix(255, 34, bgWhiteP));
-        const bTxt = Math.round(mix(255, 51, bgWhiteP));
-        e.introTitle.style.color = `rgb(${rTxt}, ${gTxt}, ${bTxt})`;
-      }
-      if (e.introDesc) {
-        const rDesc = Math.round(mix(143, 75, bgWhiteP));
-        const gDesc = Math.round(mix(174, 95, bgWhiteP));
-        const bDesc = Math.round(mix(197, 115, bgWhiteP));
-        e.introDesc.style.color = `rgb(${rDesc}, ${gDesc}, ${bDesc})`;
-      }
+      // Section permanently has a clean white background
+      if (wrap.current) wrap.current.style.backgroundColor = '#FFFFFF';
+      if (e.stickyBg) e.stickyBg.style.backgroundColor = '#FFFFFF';
+      if (e.introTitle) e.introTitle.style.color = '#0E2233';
+      if (e.introDesc) e.introDesc.style.color = '#4A5D6E';
       void vh
     }
 
@@ -245,20 +230,20 @@ export default function ItineraryScrollCanvas() {
   const reg = (k) => (n) => { els.current[k] = n }
 
   return (
-    <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-[#0E2233]" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
-      <div ref={reg("stickyBg")} className="sticky top-0 h-svh overflow-hidden bg-[#0E2233]">
+    <section ref={wrap} id="trust" aria-label="Treki info, trust and support" className="relative bg-white" style={{ height: reduced ? 'auto' : narrow ? '700vh' : '820vh' }}>
+      <div ref={reg("stickyBg")} className="sticky top-0 h-svh overflow-hidden bg-white">
         {/* 1. Headline */}
         <div className="absolute inset-0 flex flex-col items-center justify-center px-5 text-center">
-          <p ref={reg('kicker')} className="mb-4 text-[11px] font-semibold uppercase tracking-[0.4em] text-[#7EB5D6] md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
-          <h2 ref={reg('head')} className="font-bold leading-[1.02] tracking-tight text-white" style={{ fontSize: narrow ? '15vw' : '8.4vw' }}>
+          <p ref={reg('kicker')} className="mb-4 text-[11px] font-bold uppercase tracking-[0.4em] text-[#3B82A6] md:mb-6 md:text-sm">Treki Info, Trust &amp; Support</p>
+          <h2 ref={reg('head')} className="font-bold leading-[1.02] tracking-tight text-[#0E2233]" style={{ fontSize: narrow ? '15vw' : '8.4vw' }}>
             {WORDS.map(({ w, accent }, i) => (
-              <span key={w} ref={(n) => { (els.current.words ||= [])[i] = n }} className={`mr-[0.22em] inline-block ${accent ? 'text-[#4F87A8]' : ''}`} style={{ opacity: 0.14 }}>{w}</span>
+              <span key={w} ref={(n) => { (els.current.words ||= [])[i] = n }} className={`mr-[0.22em] inline-block ${accent ? 'text-[#3B82A6]' : 'text-[#0E2233]'}`} style={{ opacity: 0.14 }}>{w}</span>
             ))}
           </h2>
         </div>
 
         {/* 2. Photo (rises, then becomes the left panel) */}
-        <div ref={reg('photo')} className="absolute overflow-hidden bg-[#132A3E]" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
+        <div ref={reg('photo')} className="absolute overflow-hidden bg-slate-100 shadow-2xl rounded-2xl" style={{ left: '30%', top: '100%', width: '40%', height: '60%', opacity: 0 }}>
           <div ref={reg('photoImg')} className="h-full w-full will-change-transform"><Img image="/gallery/kedarkantha-flags.jpg" alt="Why Treki Travels - Kedarkantha" focus="55% 40%" sizes="80vw" /></div>
           <div className="absolute inset-0 bg-black/25" />
           <p ref={reg('big')} className="absolute inset-0 flex items-center justify-center text-center font-black uppercase leading-[0.9] tracking-tighter text-white" style={{ fontSize: narrow ? '17vw' : '10vw', opacity: 0 }}>
@@ -269,7 +254,7 @@ export default function ItineraryScrollCanvas() {
         {/* 3. Second headline + feature cards */}
         <div ref={reg('track')} className="absolute left-0 flex items-stretch gap-4 md:gap-6" style={{ opacity: 0 }}>
           <div className="flex shrink-0 flex-col justify-center" style={{ width: narrow ? '78vw' : '30vw' }}>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.35em] text-[#7EB5D6]">Why Treki Travels</p>
+            <p className="text-[11px] font-bold uppercase tracking-[0.35em] text-[#3B82A6]">Why Treki Travels</p>
             <h3 ref={reg("introTitle")} className="mt-3 font-bold leading-[1.08] tracking-tight text-white" style={{ fontSize: narrow ? '9vw' : '3.2vw' }}>
               Treks you can trust,<br />journeys you <span className="text-[#4F87A8]">won&rsquo;t forget.</span>
             </h3>
@@ -313,7 +298,7 @@ export default function ItineraryScrollCanvas() {
           <div className="w-2 shrink-0 md:w-10" aria-hidden="true" />
         </div>
 
-        <div ref={reg('progressWrap')} className="absolute bottom-6 left-6 right-6 h-[2px] overflow-hidden rounded-full bg-white/15 md:left-[5vw] md:right-[5vw]" style={{ opacity: 0 }} aria-hidden="true">
+        <div ref={reg('progressWrap')} className="absolute bottom-6 left-6 right-6 h-[2px] overflow-hidden rounded-full bg-black/10 md:left-[5vw] md:right-[5vw]" style={{ opacity: 0 }} aria-hidden="true">
           <div ref={reg('progress')} className="h-full origin-left bg-[#4F87A8]" style={{ transform: 'scaleX(0)' }} />
         </div>
       </div>

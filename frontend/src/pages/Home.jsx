@@ -46,13 +46,32 @@ function HomeSections() {
         <BestTimeShowcase />
       </div>
 
-      {/* FAQS SECTION - Just above Footer */}
-      <div id="faqs" className="relative z-10 scroll-mt-16">
-        <Faqs embedded />
-      </div>
+      {/* CONTINUOUS SHARED SKY CONTAINER: Both FAQs and Kedarkantha Grand Finale share ONE unbroken sky */}
+      <div className="relative overflow-hidden bg-[#78B4D4]">
+        {/* Single Unbroken Sky Gradient spanning both sections seamlessly */}
+        <div
+          className="pointer-events-none absolute inset-0 -z-30"
+          style={{
+            background: 'linear-gradient(to bottom, #FFFFFF 0%, #F0F9FF 10%, #D4ECF9 24%, #97D0EE 45%, #5CA8D3 70%, #3682AD 100%)',
+          }}
+          aria-hidden="true"
+        />
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-3/5 -z-25"
+          style={{
+            background: 'radial-gradient(90% 80% at 50% 90%, rgba(255, 255, 255, 0.7) 0%, rgba(186, 230, 253, 0.45) 45%, transparent 75%)',
+          }}
+          aria-hidden="true"
+        />
 
-      {/* CLOSING SCENE: mountains at the bottom, giant KEDARKANTHA rising from behind them */}
-      <BehindMountains />
+        {/* FAQS SECTION */}
+        <div id="faqs" className="relative z-10 scroll-mt-16">
+          <Faqs embedded />
+        </div>
+
+        {/* CLOSING SCENE: mountains at the bottom, giant KEDARKANTHA rising from behind them */}
+        <BehindMountains />
+      </div>
     </>
   )
 }
